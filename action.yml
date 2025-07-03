@@ -1,0 +1,24 @@
+name: "小🐑的博客 (Young's Blog)"
+description: "从 GitHub Issues 中拉取数据来生成 blog-data.json 文件，完美适用于驱动静态博客。"
+author: "Little Sheep's Blog"
+
+branding:
+  icon: "edit-2"
+  color: "blue"
+
+inputs:
+  token:
+    description: "用于 API 请求认证的 GitHub 令牌。对于私有仓库或避免速率限制至关重要。"
+    required: true
+  repository:
+    description: "要从中拉取数据的仓库，格式为 'owner/repo'。默认为当前仓库。"
+    required: false
+    default: ${{ github.repository }}
+
+outputs:
+  file_path:
+    description: "生成的 blog-data.json 文件的路径。"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
