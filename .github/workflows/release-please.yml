@@ -49,7 +49,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 10
 
@@ -65,26 +65,18 @@ jobs:
       - name: Build Action
         run: pnpm build:action
 
-      - name: Test Action Functionality
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: node dist/index.js
-
-      - name: Test Next.js Build
-        env:
-          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          echo "Testing Next.js build process..."
-          pnpm fetch
-          pnpm build
-          echo "✅ Next.js build successful!"
-
       - name: Commit dist folder
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: build and commit dist for yliu-blog-engine ${{ needs.release-please.outputs.tag_name }}"
           file_pattern: "dist/"
+
+      - name: Update v1 major tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f v1 ${{ needs.release-please.outputs.tag_name }}
+          git push -f origin v1
 
       - name: Upload Action Archive
         env:

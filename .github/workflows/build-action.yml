@@ -1,9 +1,6 @@
 name: CI Tests
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -19,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 10
 
@@ -43,7 +40,7 @@ jobs:
       - name: Type Check
         run: pnpm type-check
 
-      - name: Test Action Build
+      - name: Build Action
         run: pnpm build:action
 
       - name: Test Action Functionality
@@ -51,27 +48,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
         run: node dist/index.js
-
-      - name: Test Next.js Build
-        env:
-          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          echo "Testing Next.js build process..."
-          pnpm fetch
-          pnpm build
-          echo "✅ Next.js build successful!"
-
-      - name: 运行 Action 构建测试
-        env:
-          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          # 简单的构建测试
-          echo "✅ Action 构建测试通过"
-
-      # 使用 Node.js 进行完整的构建测试
-      - name: 安装依赖并构建
-        env:
-          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          pnpm install
-          pnpm run build

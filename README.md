@@ -91,8 +91,8 @@ jobs:
       id-token: write
     steps:
       - name: 部署博客
-        uses: your-org/your-blog-action@v1 # 替换为实际的 Action 地址
-                 with:
+        uses: yliu/blog-engine@v1
+        with:
            # 基础配置
            github-token: ${{ secrets.GITHUB_TOKEN }}  # 推荐使用，避免 API 限流
            repository: ${{ github.repository }}
@@ -129,8 +129,8 @@ jobs:
 #### 2. 克隆项目
 
 ```bash
-git clone https://github.com/your-org/blog-template.git
-cd blog-template
+git clone https://github.com/yliu/blog-engine.git
+cd blog-engine
 pnpm install
 ```
 
@@ -479,8 +479,8 @@ jobs:
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-org/blog-action.git
-cd blog-action
+git clone https://github.com/yliu/blog-engine.git
+cd blog-engine
 
 # 安装依赖
 pnpm install
