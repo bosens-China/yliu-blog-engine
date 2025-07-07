@@ -1,6 +1,7 @@
 import blogData from "@/data/blog-data.json";
 import type { BlogData, Post, Label, Column } from "@/types";
 import Fuse from "fuse.js";
+import { HeaderConfig, MenuItem } from "@/types";
 
 // 统一设置每页记录数
 export const ITEMS_PER_PAGE = 15;
@@ -220,4 +221,58 @@ export function getBlogStats() {
     labelsCount: data.labels.length,
     averageReadingTime,
   };
+}
+
+// 解析 Header 菜单配置
+export function getHeaderConfig(): HeaderConfig {
+  const configStr = process.env.NEXT_PUBLIC_HEADER_MENU_CONFIG;
+
+  // 默认菜单配置
+  const defaultConfig: HeaderConfig = {
+    items: [
+      { type: "builtin", text: "最新文章", builtin: "latest" },
+      { type: "builtin", text: "分类", builtin: "categories" },
+      { type: "builtin", text: "专栏", builtin: "columns" },
+      { type: "builtin", text: "关于我", builtin: "about" },
+    ],
+  };
+
+  if (!configStr) {
+    return defaultConfig;
+  }
+
+  try {
+    const config = JSON.parse(configStr) as HeaderConfig;
+
+    // 验证配置格式
+    if (!config.items || !Array.isArray(config.items)) {
+      console.warn("Invalid header config format, using default");
+      return defaultConfig;
+    }
+
+    // 验证每个菜单项
+    const validItems = config.items.filter((item: MenuItem) => {
+      if (!item.type || !item.text) {
+        console.warn("Invalid menu item:", item);
+        return false;
+      }
+
+      if (item.type === "builtin" && !item.builtin) {
+        console.warn("Builtin menu item missing builtin type:", item);
+        return false;
+      }
+
+      if (item.type === "label" && !item.label) {
+        console.warn("Label menu item missing label:", item);
+        return false;
+      }
+
+      return true;
+    });
+
+    return { items: validItems };
+  } catch (error) {
+    console.warn("Failed to parse header config:", error);
+    return defaultConfig;
+  }
 }

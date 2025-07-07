@@ -74,3 +74,20 @@ export interface PaginationProps {
   baseUrl: string;
   searchParams?: Record<string, string>;
 }
+
+// Header 菜单项类型
+export interface MenuItem {
+  type: "builtin" | "label";
+  text: string;
+  // 内置菜单类型：latest, categories, columns, about
+  builtin?: "latest" | "categories" | "columns" | "about";
+  // 自定义标签配置
+  label?: string;
+  // 是否显示（可选，默认true）
+  show?: boolean;
+}
+
+// Header 菜单配置类型
+export interface HeaderConfig {
+  items: MenuItem[];
+}

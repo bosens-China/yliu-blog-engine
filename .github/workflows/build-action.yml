@@ -1,29 +1,22 @@
-name: Build and Publish Action
+name: CI Tests
 
 on:
   push:
     branches:
       - main
-    paths:
-      - "scripts/fetch-data.ts"
-      - "action.yml"
-      - ".github/workflows/build-action.yml"
-      - "package.json"
-  release:
-    types: [published]
+  pull_request:
+    branches:
+      - main
 
 permissions:
-  contents: write
-  actions: read
+  contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -38,6 +31,12 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+
+      - name: Lint Code
+        run: pnpm lint
+
+      - name: Type Check
+        run: pnpm type-check
 
       - name: Test Action Build
         run: pnpm build:action
@@ -56,72 +55,3 @@ jobs:
           pnpm fetch
           pnpm build
           echo "✅ Next.js build successful!"
-
-      - name: Commit dist folder
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: build and commit dist for action"
-          file_pattern: "dist/"
-
-  create-release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # 获取完整历史用于标签检查
-
-      - name: Get version from package.json
-        id: get_version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=v$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: v$VERSION"
-
-      - name: Check if tag exists
-        id: check_tag
-        run: |
-          if git rev-parse "refs/tags/${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Tag ${{ steps.get_version.outputs.version }} already exists"
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Tag ${{ steps.get_version.outputs.version }} does not exist, will create"
-          fi
-
-      - name: Create Release
-        if: steps.check_tag.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          name: "Release ${{ steps.get_version.outputs.version }}"
-          body: |
-            🚀 新版本发布！
-
-            ## 更新内容
-            - 更新博客数据获取逻辑
-            - 优化性能和稳定性
-            - 支持智能图标配置
-            - 支持静态站点导出
-
-            ## 使用方法
-            ```yaml
-            - name: Fetch Blog Data
-              uses: ${{ github.repository }}@${{ steps.get_version.outputs.version }}
-              with:
-                token: ${{ secrets.GITHUB_TOKEN }}
-                repository: ${{ github.repository }}
-            ```
-
-            ## 作为博客模板使用
-            1. Fork 或使用此模板创建新仓库
-            2. 配置环境变量（详见 README.md）
-            3. 运行 `pnpm fetch && pnpm build` 构建静态文件
-            4. 部署 `out/` 目录到任何静态托管服务
-
-            更多详细信息请查看 [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)
-          draft: false
-          prerelease: false
-          generate_release_notes: true

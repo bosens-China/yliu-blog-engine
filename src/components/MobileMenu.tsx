@@ -4,40 +4,37 @@ import { X, Sun, Moon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getBlogData } from "@/lib/data";
+
+interface NavLink {
+  href: string;
+  text: string;
+  show: boolean;
+  type: string;
+}
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  navLinks: NavLink[];
 }
 
-export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export default function MobileMenu({
+  isOpen,
+  onClose,
+  navLinks,
+}: MobileMenuProps) {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
 
   // 检查链接是否活跃
-  const isLinkActive = (href: string) => {
+  const isLinkActive = (href: string, type: string) => {
     if (href === "/page/1" && pathname === "/") return true;
     if (href === "/page/1" && pathname.startsWith("/page")) return true;
+    if (type === "label" && href.startsWith("/category/")) {
+      return pathname === href;
+    }
     return pathname.startsWith(href);
   };
-
-  const blogData = getBlogData();
-
-  const navLinks = [
-    { href: "/page/1", text: "最新文章", show: true },
-    {
-      href: "/categories",
-      text: "分类",
-      show: blogData && blogData.labels.length > 0,
-    },
-    {
-      href: "/columns",
-      text: "专栏",
-      show: blogData && blogData.columns.length > 0,
-    },
-    { href: "/about", text: "关于我", show: blogData && !!blogData.about },
-  ];
 
   // 切换主题函数
   const toggleTheme = () => {
@@ -92,22 +89,20 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </button>
             </div>
             <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
-              {navLinks
-                .filter((link) => link.show)
-                .map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`flex items-center px-4 py-3 rounded-md text-base transition-colors ${
-                      isLinkActive(link.href)
-                        ? "text-primary font-medium"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                    onClick={onClose}
-                  >
-                    {link.text}
-                  </Link>
-                ))}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center px-4 py-3 rounded-md text-base transition-colors ${
+                    isLinkActive(link.href, link.type)
+                      ? "text-primary font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={onClose}
+                >
+                  {link.text}
+                </Link>
+              ))}
 
               <div className="pt-4 mt-4 border-t border-border">
                 <div className="px-3 py-2 text-xs text-muted-foreground">

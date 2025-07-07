@@ -1,0 +1,95 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      upload_url: ${{ steps.release.outputs.upload_url }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+          package-name: blog-github-issues
+          changelog-types: |
+            [
+              {"type":"feat","section":"✨ 新功能","hidden":false},
+              {"type":"fix","section":"🐛 错误修复","hidden":false},
+              {"type":"docs","section":"📚 文档更新","hidden":false},
+              {"type":"style","section":"💄 样式调整","hidden":false},
+              {"type":"refactor","section":"♻️ 代码重构","hidden":false},
+              {"type":"perf","section":"⚡ 性能优化","hidden":false},
+              {"type":"test","section":"✅ 测试相关","hidden":false},
+              {"type":"build","section":"📦 构建系统","hidden":false},
+              {"type":"ci","section":"🔧 CI/CD","hidden":false},
+              {"type":"chore","section":"🔨 其他更新","hidden":false}
+            ]
+
+  build-and-publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build Action
+        run: pnpm build:action
+
+      - name: Test Action Functionality
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node dist/index.js
+
+      - name: Test Next.js Build
+        env:
+          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          echo "Testing Next.js build process..."
+          pnpm fetch
+          pnpm build
+          echo "✅ Next.js build successful!"
+
+      - name: Commit dist folder
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: build and commit dist for action ${{ needs.release-please.outputs.tag_name }}"
+          file_pattern: "dist/"
+
+      - name: Upload Action Archive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 创建 action 归档文件
+          tar -czf action.tar.gz action.yml dist/ scripts/ package.json README.md
+          gh release upload ${{ needs.release-please.outputs.tag_name }} action.tar.gz

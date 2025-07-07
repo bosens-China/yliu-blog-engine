@@ -7,7 +7,8 @@ import { Menu, X, Sun, Moon, Search } from "lucide-react";
 import SearchModal from "./SearchModal";
 import MobileMenu from "./MobileMenu";
 import { usePathname } from "next/navigation";
-import { getBlogData } from "@/lib/data";
+import { getBlogData, getHeaderConfig } from "@/lib/data";
+import { MenuItem } from "@/types";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,26 +41,70 @@ export default function Header() {
   const blogTitle = process.env.NEXT_PUBLIC_BLOG_TITLE || defaultTitle;
 
   const blogData = getBlogData();
+  const headerConfig = getHeaderConfig();
 
-  const navLinks = [
-    { href: "/page/1", text: "最新文章", show: true },
-    {
-      href: "/categories",
-      text: "分类",
-      show: blogData && blogData.labels.length > 0,
-    },
-    {
-      href: "/columns",
-      text: "专栏",
-      show: blogData && blogData.columns.length > 0,
-    },
-    { href: "/about", text: "关于我", show: blogData && !!blogData.about },
-  ];
+  // 生成菜单项的URL和显示状态
+  const getMenuItemProps = (item: MenuItem) => {
+    switch (item.type) {
+      case "builtin":
+        switch (item.builtin) {
+          case "latest":
+            return {
+              href: "/page/1",
+              show: true,
+            };
+          case "categories":
+            return {
+              href: "/categories",
+              show: blogData && blogData.labels.length > 0,
+            };
+          case "columns":
+            return {
+              href: "/columns",
+              show: blogData && blogData.columns.length > 0,
+            };
+          case "about":
+            return {
+              href: "/about",
+              show: blogData && !!blogData.about,
+            };
+          default:
+            return { href: "/", show: false };
+        }
+      case "label":
+        return {
+          href: `/category/${encodeURIComponent(item.label!)}`,
+          show:
+            blogData &&
+            blogData.labels.some(
+              (label) => label.name.toLowerCase() === item.label!.toLowerCase()
+            ),
+        };
+      default:
+        return { href: "/", show: false };
+    }
+  };
+
+  // 生成导航链接
+  const navLinks = headerConfig.items
+    .map((item) => {
+      const props = getMenuItemProps(item);
+      return {
+        href: props.href,
+        text: item.text,
+        show: item.show !== false && props.show,
+        type: item.type,
+      };
+    })
+    .filter((link) => link.show);
 
   // 检查链接是否活跃
-  const isLinkActive = (href: string) => {
+  const isLinkActive = (href: string, type: string) => {
     if (href === "/page/1" && pathname === "/") return true;
     if (href === "/page/1" && pathname.startsWith("/page")) return true;
+    if (type === "label" && href.startsWith("/category/")) {
+      return pathname === href;
+    }
     return pathname.startsWith(href);
   };
 
@@ -86,21 +131,19 @@ export default function Header() {
 
             <div className="flex items-center space-x-1 sm:space-x-2">
               <nav className="hidden md:flex items-center mr-2">
-                {navLinks
-                  .filter((link) => link.show)
-                  .map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`text-sm px-4 py-2 rounded-md transition-colors ${
-                        isLinkActive(link.href)
-                          ? "text-primary font-medium"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {link.text}
-                    </Link>
-                  ))}
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm px-4 py-2 rounded-md transition-colors ${
+                      isLinkActive(link.href, link.type)
+                        ? "text-primary font-medium"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {link.text}
+                  </Link>
+                ))}
               </nav>
 
               <button
@@ -137,7 +180,11 @@ export default function Header() {
       </header>
 
       {/* 使用新的移动端菜单组件 */}
-      <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MobileMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        navLinks={navLinks}
+      />
 
       <SearchModal
         isOpen={isSearchOpen}
