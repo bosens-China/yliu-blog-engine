@@ -35,6 +35,11 @@ jobs:
       - name: Lint Code
         run: pnpm lint
 
+      - name: Fetch data for type checking
+        env:
+          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
+        run: pnpm fetch
+
       - name: Type Check
         run: pnpm type-check
 
