@@ -23,7 +23,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
-          package-name: blog-github-issues
+          package-name: yliu-blog-engine
           changelog-types: |
             [
               {"type":"feat","section":"✨ 新功能","hidden":false},
@@ -68,7 +68,7 @@ jobs:
       - name: Test Action Functionality
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
         run: node dist/index.js
 
       - name: Test Next.js Build
@@ -83,7 +83,7 @@ jobs:
       - name: Commit dist folder
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: build and commit dist for action ${{ needs.release-please.outputs.tag_name }}"
+          commit_message: "chore: build and commit dist for yliu-blog-engine ${{ needs.release-please.outputs.tag_name }}"
           file_pattern: "dist/"
 
       - name: Upload Action Archive
@@ -93,3 +93,12 @@ jobs:
           # 创建 action 归档文件
           tar -czf action.tar.gz action.yml dist/ scripts/ package.json README.md
           gh release upload ${{ needs.release-please.outputs.tag_name }} action.tar.gz
+
+      - name: Build and Deploy
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          pnpm install
+          pnpm run fetch
+          pnpm run build

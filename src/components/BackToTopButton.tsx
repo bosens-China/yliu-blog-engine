@@ -38,7 +38,7 @@ export default function BackToTopButton() {
       }`}
       aria-label="回到顶部"
     >
-      <ArrowUp size={20} />
+      <ArrowUp size={20} className="text-white dark:text-white" />
       <span className="sr-only">回到顶部</span>
     </button>
   );

@@ -12,7 +12,7 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   return (
-    <article className="bg-white dark:bg-card rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow border border-border/20">
+    <article className="page-content-bg rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow border border-border/20">
       {/* 单张缩略图显示在顶部 */}
       {post.thumbnail && post.thumbnail.length === 1 && (
         <div className="mb-4 rounded-lg overflow-hidden">

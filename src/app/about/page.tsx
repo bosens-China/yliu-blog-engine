@@ -6,7 +6,7 @@ export default function AboutPage() {
 
   return (
     <div className="container mx-auto pt-6">
-      <div className="max-w-5xl mx-auto bg-white dark:bg-card rounded-lg shadow-sm p-6 md:p-8 border border-border/20">
+      <div className="max-w-5xl mx-auto page-content-bg rounded-lg shadow-sm p-6 md:p-8 border border-border/20">
         <article className="prose dark:prose-invert max-w-none">
           {about ? (
             <MarkdownContent content={about} />

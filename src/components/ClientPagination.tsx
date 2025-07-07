@@ -42,7 +42,7 @@ export default function ClientPagination({
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-card rounded-lg shadow-sm p-8 text-center py-12 border border-border/20">
+        <div className="page-content-bg rounded-lg shadow-sm p-8 text-center py-12 border border-border/20">
           <p className="text-muted-foreground">该页面暂无文章</p>
         </div>
       )}

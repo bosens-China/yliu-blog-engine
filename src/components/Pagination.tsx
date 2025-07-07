@@ -64,7 +64,7 @@ export default function Pagination({
       {currentPage > 1 ? (
         <Link
           href={createHref(currentPage - 1)}
-          className="flex items-center justify-center w-9 h-9 rounded-md border border-border bg-white dark:bg-card hover:bg-muted/50 transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg hover:bg-muted/50 transition-colors"
           aria-label="上一页"
         >
           <ChevronLeft size={16} />
@@ -72,7 +72,7 @@ export default function Pagination({
       ) : (
         <button
           disabled
-          className="flex items-center justify-center w-9 h-9 rounded-md border border-border bg-white dark:bg-card text-muted-foreground cursor-not-allowed opacity-50"
+          className="flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg text-muted-foreground cursor-not-allowed opacity-50"
           aria-label="上一页"
         >
           <ChevronLeft size={16} />
@@ -87,7 +87,7 @@ export default function Pagination({
           return isCurrentPage ? (
             <span
               key={pageNum}
-              className="flex items-center justify-center w-9 h-9 rounded-md bg-primary text-primary-foreground font-medium text-sm"
+              className="flex items-center justify-center w-9 h-9 rounded-md bg-primary text-white dark:text-white font-medium text-sm"
               aria-current="page"
             >
               {pageNum}
@@ -96,7 +96,7 @@ export default function Pagination({
             <Link
               key={pageNum}
               href={createHref(pageNum)}
-              className="flex items-center justify-center w-9 h-9 rounded-md border border-border bg-white dark:bg-card hover:bg-muted/50 transition-colors text-sm"
+              className="flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg hover:bg-muted/50 transition-colors text-sm"
             >
               {pageNum}
             </Link>
@@ -108,7 +108,7 @@ export default function Pagination({
       {currentPage < totalPages ? (
         <Link
           href={createHref(currentPage + 1)}
-          className="flex items-center justify-center w-9 h-9 rounded-md border border-border bg-white dark:bg-card hover:bg-muted/50 transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg hover:bg-muted/50 transition-colors"
           aria-label="下一页"
         >
           <ChevronRight size={16} />
@@ -116,7 +116,7 @@ export default function Pagination({
       ) : (
         <button
           disabled
-          className="flex items-center justify-center w-9 h-9 rounded-md border border-border bg-white dark:bg-card text-muted-foreground cursor-not-allowed opacity-50"
+          className="flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg text-muted-foreground cursor-not-allowed opacity-50"
           aria-label="下一页"
         >
           <ChevronRight size={16} />

@@ -51,10 +51,10 @@ class BlogDataFetcher {
 
   constructor() {
     const token = process.env.GITHUB_TOKEN;
-    const repository = process.env.GITHUB_REPOSITORY;
+    const repository = process.env.NEXT_PUBLIC_GITHUB_REPOSITORY;
 
     if (!repository) {
-      throw new Error("GITHUB_REPOSITORY 环境变量未设置");
+      throw new Error("NEXT_PUBLIC_GITHUB_REPOSITORY 环境变量未设置");
     }
 
     this.octokit = new Octokit({ auth: token });

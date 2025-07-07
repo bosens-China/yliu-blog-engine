@@ -8,7 +8,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="container mx-auto pt-6">
-      <div className="max-w-5xl mx-auto bg-white dark:bg-card rounded-lg shadow-sm p-6 border border-border/20">
+      <div className="max-w-5xl mx-auto page-content-bg rounded-lg p-6 border border-border/20 dark:border-transparent">
         <header className="mb-8">
           <h1 className="text-3xl font-bold mb-2">所有分类</h1>
           <p className="text-muted-foreground">
@@ -19,7 +19,7 @@ export default function CategoriesPage() {
         <div className="flex flex-wrap gap-3">
           <Link
             href="/page/1"
-            className="flex items-center gap-2 bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-full px-4 py-2 hover:border-primary hover:shadow-sm hover:bg-primary/10 transition-all group"
+            className="flex items-center gap-2 bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-full px-4 py-2 hover:border-primary hover:bg-primary/10 transition-all group"
           >
             <span className="font-medium text-primary transition-colors">
               📖 全部文章
@@ -33,7 +33,7 @@ export default function CategoriesPage() {
             <Link
               key={label.name}
               href={`/category/${encodeURIComponent(label.name)}`}
-              className="flex items-center gap-2 bg-white dark:bg-card border border-border rounded-full px-4 py-2 hover:border-primary hover:shadow-sm transition-all group"
+              className="flex items-center gap-2 page-content-bg border border-border dark:border-border/30 rounded-full px-4 py-2 hover:border-primary transition-all group"
             >
               <span className="font-medium text-foreground group-hover:text-primary transition-colors">
                 #{label.name}

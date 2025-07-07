@@ -138,7 +138,7 @@ export default function Header() {
                     className={`text-sm px-4 py-2 rounded-md transition-colors ${
                       isLinkActive(link.href, link.type)
                         ? "text-primary font-medium"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-foreground/70 dark:text-foreground/80 hover:text-foreground"
                     }`}
                   >
                     {link.text}
@@ -148,8 +148,9 @@ export default function Header() {
 
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
+                className="p-2 text-foreground/70 dark:text-foreground/80 hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
                 aria-label="搜索"
+                title="搜索文章"
               >
                 <Search size={20} />
               </button>
@@ -157,10 +158,11 @@ export default function Header() {
               {/* 主题切换按钮 */}
               <button
                 onClick={toggleTheme}
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
+                className="p-2 text-foreground/70 dark:text-foreground/80 hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
                 aria-label={
                   theme === "dark" ? "切换到明亮模式" : "切换到暗黑模式"
                 }
+                title={theme === "dark" ? "切换到明亮模式" : "切换到暗黑模式"}
               >
                 {mounted &&
                   (theme === "dark" ? <Sun size={20} /> : <Moon size={20} />)}
@@ -168,7 +170,7 @@ export default function Header() {
 
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/50"
+                className="md:hidden p-2 text-foreground/70 dark:text-foreground/80 hover:text-foreground rounded-full hover:bg-muted/50"
                 aria-label={isMenuOpen ? "关闭菜单" : "打开菜单"}
                 aria-expanded={isMenuOpen}
               >

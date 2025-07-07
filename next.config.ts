@@ -1,5 +1,5 @@
 import { codeInspectorPlugin } from "code-inspector-plugin";
-import { NextConfig } from "next";
+import type { NextConfig } from "next";
 
 // 智能解析 basePath
 function getBasePath(): string {
@@ -9,8 +9,8 @@ function getBasePath(): string {
   }
 
   // 2. 在 GitHub Action 环境中自动解析
-  if (process.env.GITHUB_ACTIONS && process.env.GITHUB_REPOSITORY) {
-    const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
+  if (process.env.GITHUB_ACTIONS && process.env.NEXT_PUBLIC_GITHUB_REPOSITORY) {
+    const [owner, repo] = process.env.NEXT_PUBLIC_GITHUB_REPOSITORY.split("/");
     // 如果仓库名是 owner.github.io，则不需要 basePath
     if (repo === `${owner}.github.io`) {
       return "";
@@ -55,6 +55,12 @@ const nextConfig: NextConfig = {
     config.plugins.push(codeInspectorPlugin({ bundler: "webpack" }));
     return config;
   },
+
+  experimental: {
+    optimizePackageImports: ["@/components"],
+  },
+
+  assetPrefix: process.env.ASSET_PREFIX || undefined,
 };
 
 export default nextConfig;

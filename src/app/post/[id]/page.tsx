@@ -30,7 +30,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <div className="container mx-auto pt-6">
-      <article className="max-w-5xl mx-auto bg-white dark:bg-card rounded-lg shadow-sm p-6 md:p-8 border border-border/20">
+      <article className="max-w-5xl mx-auto page-content-bg rounded-lg shadow-sm p-6 md:p-8 border border-border/20">
         {/* 文章头部 */}
         <header className="mb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">

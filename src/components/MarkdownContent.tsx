@@ -98,7 +98,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
       // 代码块
       return (
         <div className="code-block-container relative rounded-lg overflow-hidden my-6 md:my-8">
-          <div className="code-block-header flex items-center justify-between h-9 px-4 bg-[#0e1117] dark:bg-[#0e1117] text-muted-foreground">
+          <div className="code-block-header flex items-center justify-between h-9 px-4 bg-[#1a1b20] dark:bg-[#1a1b20] text-muted-foreground">
             <div className="flex space-x-2">
               <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]"></div>
               <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
@@ -106,7 +106,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
             </div>
             <div className="flex items-center gap-2">
               {language && (
-                <div className="text-xs px-2 py-0.5 rounded bg-[#252525] dark:bg-[#252525] uppercase">
+                <div className="text-xs px-2 py-0.5 rounded bg-[#2a2b30] dark:bg-[#2a2b30] uppercase">
                   {language}
                 </div>
               )}
@@ -130,7 +130,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
               </button>
             </div>
           </div>
-          <pre className="mt-0 rounded-t-none pt-0 bg-[#0e1117] dark:bg-[#0e1117] pb-0 px-4 md:px-5 overflow-auto max-h-[500px] text-sm md:text-base">
+          <pre className="mt-0 rounded-t-none pt-0 bg-[#1a1b20] dark:bg-[#1a1b20] pb-0 px-4 md:px-5 overflow-auto max-h-[500px] text-sm md:text-base">
             <code className={className} {...props}>
               {children}
             </code>
@@ -211,10 +211,6 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
           padding: 0.2em 0.4em;
           border-radius: 3px;
           font-size: 0.875em;
-        }
-
-        .dark .prose code {
-          background-color: rgba(255, 255, 255, 0.1);
         }
 
         .prose img {

@@ -76,7 +76,7 @@ export default function MobileMenu({
               duration: 0.15,
               ease: "easeOut",
             }}
-            className="absolute right-0 top-0 h-full w-4/5 max-w-xs bg-card border-l border-border shadow-xl flex flex-col"
+            className="absolute right-0 top-0 h-full w-4/5 max-w-xs bg-white dark:bg-gray-900/95 border-l border-border shadow-xl flex flex-col backdrop-blur-sm"
           >
             <div className="flex justify-between items-center p-4 border-b border-border">
               <h2 className="font-semibold">菜单</h2>
@@ -88,6 +88,7 @@ export default function MobileMenu({
                 <X size={18} />
               </button>
             </div>
+
             <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
               {navLinks.map((link) => (
                 <Link

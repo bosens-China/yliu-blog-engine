@@ -1,24 +1,94 @@
-name: "小🐑的博客 (Young's Blog)"
-description: "从 GitHub Issues 中拉取数据来生成 blog-data.json 文件，完美适用于驱动静态博客。"
-author: "Little Sheep's Blog"
+name: "YLiu Blog Engine"
+description: "基于 GitHub Issues 的现代博客解决方案，让你只需写 Issues 就能拥有漂亮的个人博客"
+author: "Young Liu <yliu>"
 
 branding:
-  icon: "edit-2"
+  icon: "book"
   color: "blue"
 
 inputs:
-  token:
-    description: "用于 API 请求认证的 GitHub 令牌。对于私有仓库或避免速率限制至关重要。"
-    required: true
-  repository:
-    description: "要从中拉取数据的仓库，格式为 'owner/repo'。默认为当前仓库。"
+  github-token:
+    description: "GitHub Token，用于读取 Issues（推荐使用以避免 API 限流）"
     required: false
-    default: ${{ github.repository }}
+    default: ""
+  repository:
+    description: "仓库地址，格式：owner/repo"
+    required: true
+  blog-title:
+    description: "博客标题"
+    required: false
+    default: ""
+  footer-text:
+    description: "页脚文本"
+    required: false
+    default: ""
+  base-path:
+    description: "站点基础路径"
+    required: false
+    default: ""
+  header-config:
+    description: "Header 菜单配置（JSON 字符串）"
+    required: false
+    default: ""
 
 outputs:
-  file_path:
-    description: "生成的 blog-data.json 文件的路径。"
+  site-url:
+    description: "部署后的网站 URL"
+  build-time:
+    description: "构建耗时"
 
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: "pnpm"
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Checkout blog engine
+      uses: actions/checkout@v4
+      with:
+        repository: "yliu/blog-engine"
+        path: "blog-engine"
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        cd blog-engine
+        pnpm install
+
+    - name: Set environment variables
+      shell: bash
+      run: |
+        cd blog-engine
+        echo "GITHUB_TOKEN=${{ inputs.github-token }}" >> .env.local
+        echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.repository }}" >> .env.local
+        echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.blog-title }}" >> .env.local
+        echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.footer-text }}" >> .env.local
+        echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.base-path }}" >> .env.local
+        echo "NEXT_PUBLIC_HEADER_CONFIG=${{ inputs.header-config }}" >> .env.local
+
+    - name: Fetch data and build
+      shell: bash
+      run: |
+        cd blog-engine
+        pnpm fetch
+        pnpm build
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: "blog-engine/out"
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
