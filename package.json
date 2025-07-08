@@ -9,8 +9,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "fetch": "tsx scripts/fetch-data.ts",
-    "fetch:watch": "tsx watch scripts/fetch-data.ts",
-    "build:action": "ncc build scripts/fetch-data.ts -o dist -m"
+    "fetch:watch": "tsx watch scripts/fetch-data.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.0.1",

@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import readingTime from "reading-time";
-import type { BlogData, Post, Label, Column } from "../src/types";
+import type { BlogData, Post, Label, Column } from "@/types";
 
 // 加载环境变量
 dotenv.config();

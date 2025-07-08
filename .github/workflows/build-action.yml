@@ -40,11 +40,8 @@ jobs:
       - name: Type Check
         run: pnpm type-check
 
-      - name: Build Action
-        run: pnpm build:action
-
       - name: Test Action Functionality
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: node dist/index.js
+        run: pnpm fetch
