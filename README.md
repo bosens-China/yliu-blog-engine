@@ -152,7 +152,7 @@ NEXT_PUBLIC_FOOTER_TEXT=© 2024 by 我的名字
 
 ```bash
 # 拉取文章数据
-pnpm fetch
+pnpm dev:data
 
 # 启动开发服务器
 pnpm dev
@@ -175,27 +175,39 @@ pnpm build
 
 我们的 GitHub Action 支持以下输入参数：
 
-| 参数名称        | 说明                                  | 必需 | 默认值              |
-| --------------- | ------------------------------------- | ---- | ------------------- |
-| `github-token`  | GitHub Token，用于读取 Issues（推荐） | 否   | 使用匿名访问        |
-| `repository`    | 仓库地址，格式：`owner/repo`          | 是   | -                   |
-| `blog-title`    | 博客标题                              | 否   | `{owner}的个人博客` |
-| `footer-text`   | 页脚文本                              | 否   | -                   |
-| `base-path`     | 站点基础路径                          | 否   | 自动检测            |
-| `header-config` | Header 菜单配置（JSON 字符串）        | 否   | 默认菜单            |
+| 参数名称                   | 说明                                  | 必需 | 默认值              |
+| -------------------------- | ------------------------------------- | ---- | ------------------- |
+| `github-token`             | GitHub Token，用于读取 Issues（推荐） | 否   | 使用匿名访问        |
+| `repository`               | 仓库地址，格式：`owner/repo`          | 是   | -                   |
+| `blog-title`               | 博客标题                              | 否   | `{owner}的个人博客` |
+| `footer-text`              | 页脚文本                              | 否   | -                   |
+| `base-path`                | 站点基础路径                          | 否   | 自动检测            |
+| `header-config`            | Header 菜单配置（JSON 字符串）        | 否   | 默认菜单            |
+| `column-min-prefix-length` | 自动识别专栏所需的最短公共前缀长度    | 否   | `6`                 |
+| `ai-site-api-key`          | 用于站点分析的 AI 服务 API Key        | 否   | -                   |
+| `ai-site-workflow-url`     | 用于站点分析的 AI 服务工作流 URL      | 否   | -                   |
+| `ai-posts-api-key`         | 用于文章增强的 AI 服务 API Key        | 否   | -                   |
+| `ai-posts-workflow-url`    | 用于文章增强的 AI 服务工作流 URL      | 否   | -                   |
+| `ai-user-id`               | 调用 AI 服务的用户标识符              | 否   | `blog-engine-user`  |
 
 ### 环境变量配置
 
 对于本地开发，支持以下环境变量：
 
-| 变量名                          | 说明                                   | 必填 | 示例                 |
-| ------------------------------- | -------------------------------------- | ---- | -------------------- |
-| `GITHUB_TOKEN`                  | GitHub 访问令牌（推荐，避免 API 限流） | 否   | `ghp_xxxx...`        |
-| `NEXT_PUBLIC_GITHUB_REPOSITORY` | GitHub 仓库地址                        | 是   | `yourname/your-repo` |
-| `NEXT_PUBLIC_BLOG_TITLE`        | 博客标题                               | 否   | `我的技术博客`       |
-| `NEXT_PUBLIC_FOOTER_TEXT`       | 页脚文本                               | 否   | `© 2024 by 小🐑`     |
-| `NEXT_PUBLIC_BASE_PATH`         | 站点基础路径                           | 否   | `/my-blog`           |
-| `NEXT_PUBLIC_HEADER_CONFIG`     | Header 菜单配置                        | 否   | 见高级配置示例       |
+| 变量名                          | 说明                                   | 必填 | 示例                             |
+| ------------------------------- | -------------------------------------- | ---- | -------------------------------- |
+| `GITHUB_TOKEN`                  | GitHub 访问令牌（推荐，避免 API 限流） | 否   | `ghp_xxxx...`                    |
+| `NEXT_PUBLIC_GITHUB_REPOSITORY` | GitHub 仓库地址                        | 是   | `yourname/your-repo`             |
+| `NEXT_PUBLIC_BLOG_TITLE`        | 博客标题                               | 否   | `我的技术博客`                   |
+| `NEXT_PUBLIC_FOOTER_TEXT`       | 页脚文本                               | 否   | `© 2024 by 小🐑`                 |
+| `NEXT_PUBLIC_BASE_PATH`         | 站点基础路径                           | 否   | `/my-blog`                       |
+| `NEXT_PUBLIC_HEADER_CONFIG`     | Header 菜单配置                        | 否   | 见高级配置示例                   |
+| `COLUMN_MIN_PREFIX_LENGTH`      | 自动识别专栏所需的最短公共前缀长度     | 否   | `6`                              |
+| `AI_SITE_API_KEY`               | 用于站点分析的 AI 服务 API Key         | 否   | -                                |
+| `AI_SITE_WORKFLOW_URL`          | 用于站点分析的 AI 服务工作流 URL       | 否   | `http://dify.example.com/v1/...` |
+| `AI_POSTS_API_KEY`              | 用于文章增强的 AI 服务 API Key         | 否   | -                                |
+| `AI_POSTS_WORKFLOW_URL`         | 用于文章增强的 AI 服务工作流 URL       | 否   | `http://dify.example.com/v1/...` |
+| `AI_USER_ID`                    | 调用 AI 服务的用户标识符               | 否   | `blog-engine-user`               |
 
 ## 🔧 最佳实践配置
 
@@ -226,6 +238,43 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           blog-title: "我的技术博客"
+```
+
+### AI 增强配置示例
+
+如果您拥有 Dify 服务，可以开启 AI 增强功能，通过一个统一的工作流自动生成站点和文章的 SEO 信息、提取专栏等。
+
+```yaml
+# .github/workflows/deploy-blog.yml
+name: Deploy Blog with AI
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: 部署博客
+        uses: yliu/blog-engine@v1
+        with:
+          # 基础配置
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          blog-title: "AI 驱动的技术博客"
+
+          # AI 增强配置 (以 Dify 为例)
+          ai-site-api-key: ${{ secrets.AI_SITE_API_KEY }}
+          ai-site-workflow-url: "https://api.dify.ai/v1/workflows/your_site_workflow_id/run"
+          ai-posts-api-key: ${{ secrets.AI_POSTS_API_KEY }} # 如果与站点 Key 相同，可复用
+          ai-posts-workflow-url: "https://api.dify.ai/v1/workflows/your_posts_workflow_id/run"
+          ai-user-id: ${{ github.actor }} # 使用 GitHub 用户名作为标识
 ```
 
 ### 高级配置示例
@@ -280,7 +329,7 @@ jobs:
 - **文章内容**: Issue 的正文就是文章内容，支持所有 Markdown 语法。
 - **文章分类**: 为 Issue 添加 Label，它们会自动成为文章的分类。
 - **发布文章**: 保持 Issue 为 `open` 状态。如果想隐藏文章，只需 `close` 该 Issue。
-- **更新文章**: 修改 Issue 内容后，重新运行 `pnpm fetch` 即可同步。
+- **更新文章**: 修改 Issue 内容后，重新运行 `pnpm dev:data` 即可同步。
 - **文章摘要**: 默认截取正文前 200 个字符。若想自定义摘要，可在文中插入 `<!-- more -->` 分隔符，标记之前的内容即为摘要。
 
 ### 专栏文章

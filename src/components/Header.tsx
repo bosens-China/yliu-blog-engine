@@ -35,12 +35,8 @@ export default function Header() {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  const repo = process.env.NEXT_PUBLIC_GITHUB_REPOSITORY;
-  const owner = repo ? repo.split("/")[0] : "作者";
-  const defaultTitle = `${owner}的个人博客`;
-  const blogTitle = process.env.NEXT_PUBLIC_BLOG_TITLE || defaultTitle;
-
   const blogData = getBlogData();
+  const blogTitle = blogData.metadata.title;
   const headerConfig = getHeaderConfig();
 
   // 生成菜单项的URL和显示状态
@@ -87,7 +83,7 @@ export default function Header() {
 
   // 生成导航链接
   const navLinks = headerConfig.items
-    .map((item) => {
+    .map((item: MenuItem) => {
       const props = getMenuItemProps(item);
       return {
         href: props.href,

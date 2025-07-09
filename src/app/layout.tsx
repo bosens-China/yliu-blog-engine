@@ -5,7 +5,11 @@ import { ThemeProvider } from "next-themes";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BackToTopButton from "@/components/BackToTopButton";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getBlogData } from "@/lib/data";
+import fs from "node:fs";
+import path from "node:path";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,85 +30,67 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F9F9F9" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F1729" },
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { labels, metadata: blogMetadata } = getBlogData();
-  const repoOwner = blogMetadata.repository.split("/")[0];
+  const { metadata: siteMetadata } = getBlogData();
+  const repoOwner = siteMetadata.repository.split("/")[0];
 
-  const title = process.env.NEXT_PUBLIC_BLOG_TITLE || `${repoOwner}的博客`;
-  const description =
-    process.env.NEXT_PUBLIC_BLOG_DESCRIPTION ||
-    `由 ${repoOwner} 创建的个人技术博客，专注于分享知识和经验。`;
+  const defaultTitle = `${siteMetadata.title} - ${siteMetadata.description}`;
+  const defaultDescription =
+    process.env.NEXT_PUBLIC_SEO_DESCRIPTION || siteMetadata.description;
+  const defaultKeywords = process.env.NEXT_PUBLIC_SEO_KEYWORDS
+    ? process.env.NEXT_PUBLIC_SEO_KEYWORDS.split(",").map((k) => k.trim())
+    : ["blog", "tech", "code", "ai"];
   const authorName = process.env.NEXT_PUBLIC_BLOG_AUTHOR || repoOwner;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
-  const keywords = [
-    ...new Set([
-      "技术博客",
-      "前端开发",
-      "后端开发",
-      ...labels.map((l) => l.name),
-    ]),
-  ];
-
-  // 智能图标配置
-  function getIconConfig() {
-    // 1. 优先使用环境变量中的图标
-    if (process.env.NEXT_PUBLIC_ICON_URL) {
-      return {
-        icon: process.env.NEXT_PUBLIC_ICON_URL,
-        apple: process.env.NEXT_PUBLIC_ICON_URL,
-      };
-    }
-
-    // 2. 尝试使用仓库根目录的 favicon.ico
-    const repoFavicon = `https://raw.githubusercontent.com/${blogMetadata.repository}/main/favicon.ico`;
-
-    // 3. 使用默认图标作为兜底
-    return {
-      icon: [
-        { url: repoFavicon, sizes: "any" },
-        { url: "/favicon.ico", sizes: "any" },
-        { url: "/icon.png", type: "image/png", sizes: "32x32" },
-      ],
-      apple: "/apple-icon.png",
-    };
-  }
+  const authorUrl = `https://github.com/${repoOwner}`;
 
   return {
-    metadataBase: new URL(siteUrl),
     title: {
-      template: `%s | ${title}`,
-      default: title,
+      default: defaultTitle,
+      template: `%s - ${siteMetadata.title}`,
     },
-    description,
-    keywords,
-    authors: [{ name: authorName, url: `https://github.com/${repoOwner}` }],
-    creator: authorName,
-    publisher: authorName,
-    icons: getIconConfig(),
+    description: defaultDescription,
+    keywords: defaultKeywords,
+    authors: [{ name: authorName, url: authorUrl }],
+    metadataBase: new URL(siteMetadata.url),
     openGraph: {
-      type: "website",
+      title: defaultTitle,
+      description: defaultDescription,
+      url: siteMetadata.url,
+      siteName: siteMetadata.title,
       locale: "zh_CN",
-      url: "/",
-      title,
-      description,
-      siteName: title,
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
-    },
-    robots: {
-      index: true,
-      follow: true,
+      title: defaultTitle,
+      description: defaultDescription,
+      creator: `@${repoOwner}`,
     },
   };
+}
+
+// 动态检测并设置 favicon
+function getFaviconLinks(): { rel: string; url: string; type?: string }[] {
+  const publicPath = path.join(process.cwd(), "public");
+  const defaultIcon = {
+    rel: "icon",
+    url: "/favicon.ico",
+    type: "image/x-icon",
+  };
+
+  if (fs.existsSync(path.join(publicPath, "favicon.svg"))) {
+    return [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }];
+  }
+  if (fs.existsSync(path.join(publicPath, "favicon.png"))) {
+    return [{ rel: "icon", url: "/favicon.png", type: "image/png" }];
+  }
+
+  return [defaultIcon];
 }
 
 export default function RootLayout({
@@ -112,8 +98,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const faviconLinks = getFaviconLinks();
   return (
     <html lang="zh-CN" suppressHydrationWarning className="scroll-smooth">
+      <head>
+        {faviconLinks.map((link) => (
+          <link
+            key={link.url}
+            rel={link.rel}
+            href={link.url}
+            type={link.type}
+          />
+        ))}
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen flex flex-col`}
       >
@@ -132,6 +129,8 @@ export default function RootLayout({
             <BackToTopButton />
           </div>
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

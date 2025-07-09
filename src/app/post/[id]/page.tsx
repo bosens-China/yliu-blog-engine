@@ -4,11 +4,61 @@ import MarkdownContent from "@/components/MarkdownContent";
 import { format } from "date-fns";
 import { Calendar, Clock } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 
-interface PostPageProps {
+type Props = {
   params: Promise<{
     id: string;
   }>;
+};
+
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata | null> {
+  const { id } = await params;
+  const post = getPostById(Number(id));
+
+  if (!post) {
+    // 如果文章不存在，则回退到全局 metadata
+    return null;
+  }
+
+  // 如果没有 AI 关键词，则回退到全局 metadata
+  if (!post.keywords || post.keywords.length === 0) {
+    return null;
+  }
+
+  const { metadata: blogMetadata } = getBlogData();
+  const repoOwner = blogMetadata.repository.split("/")[0];
+  const authorName = process.env.NEXT_PUBLIC_BLOG_AUTHOR || repoOwner;
+
+  const description = post.excerpt;
+  const keywords = [...(post.keywords || []), ...(post.labels || [])];
+  if (post.column) {
+    keywords.push(post.column);
+  }
+
+  return {
+    title: post.title,
+    description: description,
+    keywords: keywords,
+    authors: [{ name: authorName, url: `https://github.com/${repoOwner}` }],
+    openGraph: {
+      title: post.title,
+      description: description,
+      type: "article",
+      publishedTime: post.createdAt,
+      modifiedTime: post.updatedAt,
+      images: post.thumbnail.map((url) => ({ url })),
+      authors: [`https://github.com/${repoOwner}`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: description,
+      images: post.thumbnail.length > 0 ? [post.thumbnail[0]] : [],
+    },
+  };
 }
 
 // 预构建所有文章页面
@@ -19,8 +69,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function PostPage({ params }: PostPageProps) {
-  // 先await params对象
+export default async function PostPage({ params }: Props) {
   const { id } = await params;
   const post = getPostById(Number(id));
 

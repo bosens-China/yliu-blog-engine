@@ -6,9 +6,18 @@ import Pagination from "@/components/Pagination";
 import { Post } from "@/types";
 import PostCard from "@/components/PostCard";
 
+// 占位符，防止为空时构建失败
+const NO_COLUMNS_PLACEHOLDER = "no-columns-placeholder";
+
 // 预构建所有专栏页面
 export async function generateStaticParams() {
   const columns = getColumns();
+
+  // 如果没有专栏，返回一个占位符以防止构建失败
+  if (columns.length === 0) {
+    return [{ name: NO_COLUMNS_PLACEHOLDER }];
+  }
+
   return columns.map((column) => ({
     name: encodeURIComponent(column.name),
   }));
@@ -20,6 +29,12 @@ export default async function ColumnPage({
   params: Promise<{ name: string }>;
 }) {
   const { name } = await params;
+
+  // 如果是占位符，直接返回 404
+  if (name === NO_COLUMNS_PLACEHOLDER) {
+    notFound();
+  }
+
   const decodedName = decodeURIComponent(name);
   const column = getColumnByName(decodedName);
 

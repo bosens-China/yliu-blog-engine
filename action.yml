@@ -30,6 +30,30 @@ inputs:
     description: "Header 菜单配置（JSON 字符串）"
     required: false
     default: ""
+  column-min-prefix-length:
+    description: "自动识别专栏所需的最短公共前缀长度"
+    required: false
+    default: "6"
+  ai-site-api-key:
+    description: "用于站点分析的 AI 服务 API Key"
+    required: false
+    default: ""
+  ai-site-workflow-url:
+    description: "用于站点分析的 AI 服务工作流 URL"
+    required: false
+    default: ""
+  ai-posts-api-key:
+    description: "用于文章增强的 AI 服务 API Key"
+    required: false
+    default: ""
+  ai-posts-workflow-url:
+    description: "用于文章增强的 AI 服务工作流 URL"
+    required: false
+    default: ""
+  ai-user-id:
+    description: "调用 AI 服务的用户标识符"
+    required: false
+    default: "blog-engine-user"
 
 outputs:
   site-url:
@@ -51,6 +75,12 @@ runs:
       with:
         version: 10
 
+    - name: Cache Dify AI data
+      uses: actions/cache@v4
+      with:
+        path: blog-engine/src/data/dify-cache.json
+        key: dify-cache-${{ inputs.repository }}
+
     - name: Checkout blog engine
       uses: actions/checkout@v4
       with:
@@ -63,6 +93,38 @@ runs:
         cd blog-engine
         pnpm install
 
+    - name: Download user assets (about.md & favicon)
+      shell: bash
+      run: |
+        # About Page
+        ABOUT_URL="https://raw.githubusercontent.com/${{ inputs.repository }}/main/about.md"
+        ABOUT_PATH="blog-engine/about.md"
+        if curl -s --head --fail "$ABOUT_URL" > /dev/null; then
+          echo "Found about.md. Downloading..."
+          curl -s "$ABOUT_URL" -o "$ABOUT_PATH"
+        else
+          echo "No custom about.md found in user repository."
+        fi
+
+        # Favicon
+        FAVICON_SVG_URL="https://raw.githubusercontent.com/${{ inputs.repository }}/main/favicon.svg"
+        FAVICON_PNG_URL="https://raw.githubusercontent.com/${{ inputs.repository }}/main/favicon.png"
+        PUBLIC_PATH="blog-engine/public"
+
+        # 优先下载 SVG
+        if curl -s --head --fail "$FAVICON_SVG_URL" > /dev/null; then
+          echo "Found favicon.svg. Downloading..."
+          curl -s "$FAVICON_SVG_URL" -o "${PUBLIC_PATH}/favicon.svg"
+          rm -f "${PUBLIC_PATH}/favicon.ico" # 移除默认图标
+        # 否则尝试 PNG
+        elif curl -s --head --fail "$FAVICON_PNG_URL" > /dev/null; then
+          echo "Found favicon.png. Downloading..."
+          curl -s "$FAVICON_PNG_URL" -o "${PUBLIC_PATH}/favicon.png"
+          rm -f "${PUBLIC_PATH}/favicon.ico" # 移除默认图标
+        else
+          echo "No custom favicon found in user repository. Using default."
+        fi
+
     - name: Set environment variables
       shell: bash
       run: |
@@ -73,6 +135,12 @@ runs:
         echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.footer-text }}" >> .env.local
         echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.base-path }}" >> .env.local
         echo "NEXT_PUBLIC_HEADER_CONFIG=${{ inputs.header-config }}" >> .env.local
+        echo "COLUMN_MIN_PREFIX_LENGTH=${{ inputs.column-min-prefix-length }}" >> .env.local
+        echo "AI_SITE_API_KEY=${{ inputs.ai-site-api-key }}" >> .env.local
+        echo "AI_SITE_WORKFLOW_URL=${{ inputs.ai-site-workflow-url }}" >> .env.local
+        echo "AI_POSTS_API_KEY=${{ inputs.ai-posts-api-key }}" >> .env.local
+        echo "AI_POSTS_WORKFLOW_URL=${{ inputs.ai-posts-workflow-url }}" >> .env.local
+        echo "AI_USER_ID=${{ inputs.ai-user-id }}" >> .env.local
 
     - name: Fetch data and build
       shell: bash

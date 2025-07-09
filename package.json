@@ -8,19 +8,20 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "fetch": "tsx scripts/fetch-data.ts",
-    "fetch:watch": "tsx watch scripts/fetch-data.ts"
+    "build:data": "tsx scripts/build-data.ts",
+    "dev:data": "tsx scripts/dev-data.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.0.1",
     "@mdx-js/react": "^3.0.1",
     "@next/mdx": "^15.3.4",
     "@octokit/rest": "^20.0.2",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.3.1",
     "framer-motion": "^11.18.2",
     "fuse.js": "^7.0.0",
-    "gray-matter": "^4.0.3",
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.462.0",
     "next": "15.3.4",
@@ -45,10 +46,10 @@
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20",
-    "@types/prismjs": "^1.26.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vercel/ncc": "^0.38.1",
+    "ajv": "^8.16.0",
     "code-inspector-plugin": "^0.20.15",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
@@ -59,6 +60,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@tailwindcss/oxide",
+      "@vercel/speed-insights",
       "esbuild",
       "sharp",
       "unrs-resolver"

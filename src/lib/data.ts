@@ -10,7 +10,7 @@ export const ITEMS_PER_PAGE = 15;
  * 获取所有博客数据
  */
 export function getBlogData(): BlogData {
-  return blogData as BlogData;
+  return blogData;
 }
 
 /**
