@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/bosens-China/yliu-blog-engine/compare/v1.4.0...v1.4.1) (2025-07-09)
+
+
+### Bug Fixes
+
+* 更新 action.yml 和 README.md 配置 ([bdfa855](https://github.com/bosens-China/yliu-blog-engine/commit/bdfa8558351c3b184920e7fc5cece467ed43993a))
+
 ## [1.4.0](https://github.com/bosens-China/yliu-blog-engine/compare/v1.3.0...v1.4.0) (2025-07-09)
 
 
