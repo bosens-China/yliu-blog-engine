@@ -11,29 +11,11 @@ permissions:
   issues: write
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      upload_url: ${{ steps.release.outputs.upload_url }}
-    steps:
-      - name: Run release-please
-        id: release
-        uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: node
-
-  build-and-publish:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
+  verify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -49,8 +31,40 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      - name: Create Mock Data for Verification
+        run: |
+          mkdir -p src/data
+          echo '{"posts":[{"id":1,"title":"Test Post","content":"Hello World","excerpt":"Hello World","thumbnail":[],"author":{"login":"test","name":"test","avatar_url":""},"createdAt":"2024-01-01T00:00:00Z","updatedAt":"2024-01-01T00:00:00Z","labels":["test"],"column":null,"readingTime":1,"reactions":{"total":0,"thumbs_up":0,"heart":0,"hooray":0,"laugh":0,"confused":0,"rocket":0,"eyes":0},"comments":0,"originalUrl":""}],"labels":[{"name":"test","color":"ffffff","description":"","count":1}],"columns":[],"about":null,"metadata":{"totalPosts":1,"totalColumns":0,"totalLabels":1,"lastUpdate":"","repository":"","avatarUrl":"","title":"","url":"https://example.com","description":"","keywords":[]}}' > src/data/blog-data.json
+
+      - name: Verify Build
+        run: pnpm run build
+
+  release-please:
+    needs: verify
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+
+  update-major-tag:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 需要获取所有历史记录来查找 tag
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Update major version tag (e.g., v1, v2)
-        if: ${{ needs.release-please.outputs.release_created }}
         run: |
           # The release-please output is like "v1.2.3", we want to get the "v1"
           MAJOR_VERSION_TAG=$(echo ${{ needs.release-please.outputs.tag_name }} | cut -d'.' -f1)
@@ -61,18 +75,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch --tags
-
           # Create or move the major version tag (e.g., v1, v2)
           git tag -f $MAJOR_VERSION_TAG ${{ needs.release-please.outputs.tag_name }}
 
           # Push the tag to the remote
           git push -f origin $MAJOR_VERSION_TAG
-
-      - name: Build and Deploy
-        if: ${{ needs.release-please.outputs.release_created }}
-        env:
-          NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          pnpm run build:data
-          pnpm run build
