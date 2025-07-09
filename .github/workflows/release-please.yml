@@ -70,10 +70,9 @@ jobs:
           git push -f origin $MAJOR_VERSION_TAG
 
       - name: Build and Deploy
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ needs.release-please.outputs.release_created }}
         env:
           NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          pnpm install
           pnpm run build:data
           pnpm run build
