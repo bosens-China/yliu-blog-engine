@@ -93,14 +93,12 @@ jobs:
       - name: 部署博客
         uses: yliu/blog-engine@v1
         with:
-           # 基础配置
-           github-token: ${{ secrets.GITHUB_TOKEN }}  # 推荐使用，避免 API 限流
-           repository: ${{ github.repository }}
+          # 基础配置
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 推荐使用，避免 API 限流
 
-           # 可选配置
-          blog-title: "我的技术博客"
-          footer-text: "© 2024 by 小🐑"
-          # deploy-to: "github-pages"  # 或 "vercel"
+          # 可选配置
+          NEXT_PUBLIC_BLOG_TITLE: "我的技术博客"
+          NEXT_PUBLIC_FOOTER_TEXT: "© 2024 by 小🐑"
 ```
 
 #### 3. 开始写作
@@ -139,8 +137,9 @@ pnpm install
 创建 `.env.local` 文件：
 
 ```bash
-# 必需配置
+# 基础配置
 NEXT_PUBLIC_GITHUB_REPOSITORY=yourname/your-repo
+# 推荐配置 (为了避免 API 限流)
 GITHUB_TOKEN=your_github_token
 
 # 可选配置
@@ -169,51 +168,39 @@ pnpm build
 # 静态文件输出到 out/ 目录
 ```
 
-## ⚙️ 配置详解
+## ⚙️ 配置选项
 
-### GitHub Action 输入参数
+您可以通过两种方式配置博客：
 
-我们的 GitHub Action 支持以下输入参数：
+1.  **GitHub Action**: 在您的 `.github/workflows/deploy-blog.yml` 文件中，使用 `with` 关键字传入参数。这是推荐的自动化部署方式。
+2.  **本地开发**: 在项目根目录下创建一个 `.env.local` 文件，并写入环境变量。
 
-| 参数名称                   | 说明                                  | 必需 | 默认值              |
-| -------------------------- | ------------------------------------- | ---- | ------------------- |
-| `github-token`             | GitHub Token，用于读取 Issues（推荐） | 否   | 使用匿名访问        |
-| `repository`               | 仓库地址，格式：`owner/repo`          | 是   | -                   |
-| `blog-title`               | 博客标题                              | 否   | `{owner}的个人博客` |
-| `footer-text`              | 页脚文本                              | 否   | -                   |
-| `base-path`                | 站点基础路径                          | 否   | 自动检测            |
-| `header-config`            | Header 菜单配置（JSON 字符串）        | 否   | 默认菜单            |
-| `column-min-prefix-length` | 自动识别专栏所需的最短公共前缀长度    | 否   | `6`                 |
-| `ai-site-api-key`          | 用于站点分析的 AI 服务 API Key        | 否   | -                   |
-| `ai-site-workflow-url`     | 用于站点分析的 AI 服务工作流 URL      | 否   | -                   |
-| `ai-posts-api-key`         | 用于文章增强的 AI 服务 API Key        | 否   | -                   |
-| `ai-posts-workflow-url`    | 用于文章增强的 AI 服务工作流 URL      | 否   | -                   |
-| `ai-user-id`               | 调用 AI 服务的用户标识符              | 否   | `blog-engine-user`  |
+下表列出了所有可用的配置选项及其对应的环境变量名称。
 
-### 环境变量配置
-
-对于本地开发，支持以下环境变量：
-
-| 变量名                          | 说明                                   | 必填 | 示例                             |
-| ------------------------------- | -------------------------------------- | ---- | -------------------------------- |
-| `GITHUB_TOKEN`                  | GitHub 访问令牌（推荐，避免 API 限流） | 否   | `ghp_xxxx...`                    |
-| `NEXT_PUBLIC_GITHUB_REPOSITORY` | GitHub 仓库地址                        | 是   | `yourname/your-repo`             |
-| `NEXT_PUBLIC_BLOG_TITLE`        | 博客标题                               | 否   | `我的技术博客`                   |
-| `NEXT_PUBLIC_FOOTER_TEXT`       | 页脚文本                               | 否   | `© 2024 by 小🐑`                 |
-| `NEXT_PUBLIC_BASE_PATH`         | 站点基础路径                           | 否   | `/my-blog`                       |
-| `NEXT_PUBLIC_HEADER_CONFIG`     | Header 菜单配置                        | 否   | 见高级配置示例                   |
-| `COLUMN_MIN_PREFIX_LENGTH`      | 自动识别专栏所需的最短公共前缀长度     | 否   | `6`                              |
-| `AI_SITE_API_KEY`               | 用于站点分析的 AI 服务 API Key         | 否   | -                                |
-| `AI_SITE_WORKFLOW_URL`          | 用于站点分析的 AI 服务工作流 URL       | 否   | `http://dify.example.com/v1/...` |
-| `AI_POSTS_API_KEY`              | 用于文章增强的 AI 服务 API Key         | 否   | -                                |
-| `AI_POSTS_WORKFLOW_URL`         | 用于文章增强的 AI 服务工作流 URL       | 否   | `http://dify.example.com/v1/...` |
-| `AI_USER_ID`                    | 调用 AI 服务的用户标识符               | 否   | `blog-engine-user`               |
+| 环境变量                        | 说明                                       | Action 必填 | 默认值                                     |
+| ------------------------------- | ------------------------------------------ | ----------- | ------------------------------------------ |
+| `GITHUB_TOKEN`                  | GitHub 访问令牌（推荐，避免 API 限流）     | 否          | (匿名访问)                                 |
+| `NEXT_PUBLIC_GITHUB_REPOSITORY` | GitHub 仓库地址, 格式：`owner/repo`        | 否          | `${{ github.repository }}` (当前仓库)      |
+| `NEXT_PUBLIC_BLOG_TITLE`        | 博客标题                                   | 否          | `${{ github.repository_owner }}的个人博客` |
+| `NEXT_PUBLIC_FOOTER_TEXT`       | 页脚文本                                   | 否          | ""                                         |
+| `NEXT_PUBLIC_BASE_PATH`         | 站点基础路径                               | 否          | ""                                         |
+| `NEXT_PUBLIC_HEADER_CONFIG`     | Header 菜单配置 (JSON 字符串)              | 否          | (自动生成)                                 |
+| `COLUMN_MIN_PREFIX_LENGTH`      | 自动识别专栏所需的最短公共前缀长度         | 否          | `6`                                        |
+| `AI_SITE_API_KEY`               | 用于站点分析的 AI 服务 API Key             | 否          | ""                                         |
+| `AI_SITE_WORKFLOW_URL`          | 用于站点分析的 AI 服务工作流 URL           | 否          | ""                                         |
+| `AI_POSTS_API_KEY`              | 用于文章增强的 AI 服务 API Key             | 否          | ""                                         |
+| `AI_POSTS_WORKFLOW_URL`         | 用于文章增强的 AI 服务工作流 URL           | 否          | ""                                         |
+| `AI_USER_ID`                    | 调用 AI 服务的用户标识符                   | 否          | `${{ github.actor }}` (当前用户)           |
+| `NEXT_PUBLIC_SITE_URL`          | 站点 URL (例如 `https://blog.example.com`) | 否          | (自动推断)                                 |
+| `NEXT_PUBLIC_BLOG_AUTHOR`       | 作者名称                                   | 否          | (仓库所有者)                               |
+| `NEXT_PUBLIC_SEO_DESCRIPTION`   | 用于 SEO 的站点描述                        | 否          | (AI 生成或仓库描述)                        |
+| `NEXT_PUBLIC_SEO_KEYWORDS`      | 用于 SEO 的关键词 (逗号分隔)               | 否          | (AI 生成)                                  |
 
 ## 🔧 最佳实践配置
 
 ### 基础配置示例
 
-适合大多数用户的简单配置：
+本 Action 可实现真正的“零配置”，无需任何参数即可运行。但为避免 GitHub API 限流，强烈推荐您提供 `GITHUB_TOKEN`。
 
 ```yaml
 # .github/workflows/deploy-blog.yml
@@ -235,9 +222,8 @@ jobs:
       - name: 部署博客
         uses: yliu/blog-engine@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          blog-title: "我的技术博客"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_PUBLIC_BLOG_TITLE: "我的技术博客"
 ```
 
 ### AI 增强配置示例
@@ -265,16 +251,13 @@ jobs:
         uses: yliu/blog-engine@v1
         with:
           # 基础配置
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          blog-title: "AI 驱动的技术博客"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
           # AI 增强配置 (以 Dify 为例)
-          ai-site-api-key: ${{ secrets.AI_SITE_API_KEY }}
-          ai-site-workflow-url: "https://api.dify.ai/v1/workflows/your_site_workflow_id/run"
-          ai-posts-api-key: ${{ secrets.AI_POSTS_API_KEY }} # 如果与站点 Key 相同，可复用
-          ai-posts-workflow-url: "https://api.dify.ai/v1/workflows/your_posts_workflow_id/run"
-          ai-user-id: ${{ github.actor }} # 使用 GitHub 用户名作为标识
+          AI_SITE_API_KEY: ${{ secrets.AI_SITE_API_KEY }}
+          AI_SITE_WORKFLOW_URL: "https://api.dify.ai/v1/workflows/your_site_workflow_id/run"
+          AI_POSTS_API_KEY: ${{ secrets.AI_POSTS_API_KEY }} # 如果与站点 Key 相同，可复用
+          AI_POSTS_WORKFLOW_URL: "https://api.dify.ai/v1/workflows/your_posts_workflow_id/run"
 ```
 
 ### 高级配置示例
@@ -306,11 +289,10 @@ jobs:
       - name: 部署博客
         uses: yliu/blog-engine@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          blog-title: "我的技术博客"
-          footer-text: "© 2024 技术分享 | 保持学习"
-          header-config: |
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_PUBLIC_BLOG_TITLE: "我的技术博客"
+          NEXT_PUBLIC_FOOTER_TEXT: "© 2024 技术分享 | 保持学习"
+          NEXT_PUBLIC_HEADER_CONFIG: |
             {
               "items": [
                 { "type": "builtin", "text": "首页", "builtin": "latest" },
@@ -348,7 +330,7 @@ jobs:
 
 ### 自定义 Header 菜单
 
-通过 `header-config` 参数可以完全自定义导航菜单：
+通过 `NEXT_PUBLIC_HEADER_CONFIG` 环境变量可以完全自定义导航菜单：
 
 ```json
 {
@@ -464,11 +446,10 @@ jobs:
       - name: 部署技术博客
         uses: yliu/blog-engine@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          blog-title: "小 🐑 的技术博客"
-          footer-text: "© 2024 专注于前端技术分享"
-          header-config: |
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_PUBLIC_BLOG_TITLE: "小 🐑 的技术博客"
+          NEXT_PUBLIC_FOOTER_TEXT: "© 2024 专注于前端技术分享"
+          NEXT_PUBLIC_HEADER_CONFIG: |
             {
               "items": [
                 { "type": "builtin", "text": "最新文章", "builtin": "latest" },
@@ -500,10 +481,9 @@ jobs:
       - name: 部署团队文档
         uses: yliu/blog-engine@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          blog-title: "团队技术文档"
-          header-config: |
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_PUBLIC_BLOG_TITLE: "团队技术文档"
+          NEXT_PUBLIC_HEADER_CONFIG: |
             {
               "items": [
                 { "type": "label", "text": "架构设计", "label": "架构" },
@@ -536,12 +516,6 @@ pnpm install
 
 # 本地开发
 pnpm dev
-
-# 构建 Action
-pnpm build:action
-
-# 测试 Action
-pnpm test
 ```
 
 Action 使用 TypeScript 编写，支持：

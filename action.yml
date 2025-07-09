@@ -7,53 +7,70 @@ branding:
   color: "blue"
 
 inputs:
-  github-token:
+  GITHUB_TOKEN:
     description: "GitHub Token，用于读取 Issues（推荐使用以避免 API 限流）"
     required: false
     default: ""
-  repository:
-    description: "仓库地址，格式：owner/repo"
-    required: true
-  blog-title:
+  NEXT_PUBLIC_GITHUB_REPOSITORY:
+    description: "仓库地址，格式：owner/repo。默认为当前仓库。"
+    required: false
+    default: ${{ github.repository }}
+  NEXT_PUBLIC_BLOG_TITLE:
     description: "博客标题"
     required: false
-    default: ""
-  footer-text:
+    default: "${{ github.repository_owner }}的个人博客"
+  NEXT_PUBLIC_FOOTER_TEXT:
     description: "页脚文本"
     required: false
     default: ""
-  base-path:
+  NEXT_PUBLIC_BASE_PATH:
     description: "站点基础路径"
     required: false
     default: ""
-  header-config:
+  NEXT_PUBLIC_HEADER_CONFIG:
     description: "Header 菜单配置（JSON 字符串）"
     required: false
     default: ""
-  column-min-prefix-length:
+  COLUMN_MIN_PREFIX_LENGTH:
     description: "自动识别专栏所需的最短公共前缀长度"
     required: false
     default: "6"
-  ai-site-api-key:
+  AI_SITE_API_KEY:
     description: "用于站点分析的 AI 服务 API Key"
     required: false
     default: ""
-  ai-site-workflow-url:
+  AI_SITE_WORKFLOW_URL:
     description: "用于站点分析的 AI 服务工作流 URL"
     required: false
     default: ""
-  ai-posts-api-key:
+  AI_POSTS_API_KEY:
     description: "用于文章增强的 AI 服务 API Key"
     required: false
     default: ""
-  ai-posts-workflow-url:
+  AI_POSTS_WORKFLOW_URL:
     description: "用于文章增强的 AI 服务工作流 URL"
     required: false
     default: ""
-  ai-user-id:
+  AI_USER_ID:
     description: "调用 AI 服务的用户标识符"
     required: false
-    default: "blog-engine-user"
+    default: "${{ github.actor }}"
+  NEXT_PUBLIC_SITE_URL:
+    description: "站点 URL，用于生成 Metadata"
+    required: false
+    default: ""
+  NEXT_PUBLIC_BLOG_AUTHOR:
+    description: "作者名称，用于生成 Metadata"
+    required: false
+    default: ""
+  NEXT_PUBLIC_SEO_DESCRIPTION:
+    description: "用于 SEO 的站点描述"
+    required: false
+    default: ""
+  NEXT_PUBLIC_SEO_KEYWORDS:
+    description: "用于 SEO 的站点关键词，用逗号分隔"
+    required: false
+    default: ""
 
 outputs:
   site-url:
@@ -79,7 +96,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: blog-engine/src/data/dify-cache.json
-        key: dify-cache-${{ inputs.repository }}
+        key: dify-cache-${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
 
     - name: Checkout blog engine
       uses: actions/checkout@v4
@@ -97,7 +114,7 @@ runs:
       shell: bash
       run: |
         # About Page
-        ABOUT_URL="https://raw.githubusercontent.com/${{ inputs.repository }}/main/about.md"
+        ABOUT_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/about.md"
         ABOUT_PATH="blog-engine/about.md"
         if curl -s --head --fail "$ABOUT_URL" > /dev/null; then
           echo "Found about.md. Downloading..."
@@ -107,8 +124,8 @@ runs:
         fi
 
         # Favicon
-        FAVICON_SVG_URL="https://raw.githubusercontent.com/${{ inputs.repository }}/main/favicon.svg"
-        FAVICON_PNG_URL="https://raw.githubusercontent.com/${{ inputs.repository }}/main/favicon.png"
+        FAVICON_SVG_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/favicon.svg"
+        FAVICON_PNG_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/favicon.png"
         PUBLIC_PATH="blog-engine/public"
 
         # 优先下载 SVG
@@ -129,25 +146,30 @@ runs:
       shell: bash
       run: |
         cd blog-engine
-        echo "GITHUB_TOKEN=${{ inputs.github-token }}" >> .env.local
-        echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.repository }}" >> .env.local
-        echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.blog-title }}" >> .env.local
-        echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.footer-text }}" >> .env.local
-        echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.base-path }}" >> .env.local
-        echo "NEXT_PUBLIC_HEADER_CONFIG=${{ inputs.header-config }}" >> .env.local
-        echo "COLUMN_MIN_PREFIX_LENGTH=${{ inputs.column-min-prefix-length }}" >> .env.local
-        echo "AI_SITE_API_KEY=${{ inputs.ai-site-api-key }}" >> .env.local
-        echo "AI_SITE_WORKFLOW_URL=${{ inputs.ai-site-workflow-url }}" >> .env.local
-        echo "AI_POSTS_API_KEY=${{ inputs.ai-posts-api-key }}" >> .env.local
-        echo "AI_POSTS_WORKFLOW_URL=${{ inputs.ai-posts-workflow-url }}" >> .env.local
-        echo "AI_USER_ID=${{ inputs.ai-user-id }}" >> .env.local
+        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> .env.local
+        echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> .env.local
+        echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}" >> .env.local
+        echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}" >> .env.local
+        echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.NEXT_PUBLIC_BASE_PATH }}" >> .env.local
+        echo "NEXT_PUBLIC_HEADER_CONFIG=${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}" >> .env.local
+        echo "COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}" >> .env.local
+        echo "AI_SITE_API_KEY=${{ inputs.AI_SITE_API_KEY }}" >> .env.local
+        echo "AI_SITE_WORKFLOW_URL=${{ inputs.AI_SITE_WORKFLOW_URL }}" >> .env.local
+        echo "AI_POSTS_API_KEY=${{ inputs.AI_POSTS_API_KEY }}" >> .env.local
+        echo "AI_POSTS_WORKFLOW_URL=${{ inputs.AI_POSTS_WORKFLOW_URL }}" >> .env.local
+        echo "AI_USER_ID=${{ inputs.AI_USER_ID }}" >> .env.local
+        echo "NEXT_PUBLIC_SITE_URL=${{ inputs.NEXT_PUBLIC_SITE_URL }}" >> .env.local
+        echo "NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}" >> .env.local
+        echo "NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}" >> .env.local
+        echo "NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}" >> .env.local
 
     - name: Fetch data and build
       shell: bash
       run: |
         cd blog-engine
-        pnpm fetch
-        pnpm build
+        pnpm install
+        pnpm run build:data
+        pnpm run build
 
     - name: Setup Pages
       uses: actions/configure-pages@v5

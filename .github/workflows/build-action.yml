@@ -35,7 +35,7 @@ jobs:
       - name: Fetch data for type checking
         env:
           NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: pnpm fetch
+        run: pnpm build:data
 
       - name: Type Check
         run: pnpm type-check
@@ -44,4 +44,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEXT_PUBLIC_GITHUB_REPOSITORY: ${{ github.repository }}
-        run: pnpm fetch
+        run: pnpm build:data
