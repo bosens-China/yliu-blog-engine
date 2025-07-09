@@ -5,8 +5,6 @@ import { ThemeProvider } from "next-themes";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BackToTopButton from "@/components/BackToTopButton";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getBlogData } from "@/lib/data";
 import fs from "node:fs";
 import path from "node:path";
@@ -129,8 +127,6 @@ export default function RootLayout({
             <BackToTopButton />
           </div>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
