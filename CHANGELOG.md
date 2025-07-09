@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/bosens-China/yliu-blog-engine/compare/v1.4.1...v1.5.0) (2025-07-09)
+
+
+### Features
+
+* 增加 GitHub Actions 验证步骤以优化发布流程 ([bcd61a2](https://github.com/bosens-China/yliu-blog-engine/commit/bcd61a2ff25f67ae2f7804adc2b96bd7a490fe8b))
+
+
+### Bug Fixes
+
+* 更新 GitHub Actions 工作流以修复条件判断 ([fcc1cdd](https://github.com/bosens-China/yliu-blog-engine/commit/fcc1cdd194debe608b62d9fdbf2c22a0e53ca3de))
+
 ## [1.4.1](https://github.com/bosens-China/yliu-blog-engine/compare/v1.4.0...v1.4.1) (2025-07-09)
 
 
