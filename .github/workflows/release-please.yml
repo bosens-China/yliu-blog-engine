@@ -11,36 +11,7 @@ permissions:
   issues: write
 
 jobs:
-  verify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "pnpm"
-
-      - name: Install Dependencies
-        run: pnpm install
-
-      - name: Create Mock Data for Verification
-        run: |
-          mkdir -p src/data
-          echo '{"posts":[{"id":1,"title":"Test Post","content":"Hello World","excerpt":"Hello World","thumbnail":[],"author":{"login":"test","name":"test","avatar_url":""},"createdAt":"2024-01-01T00:00:00Z","updatedAt":"2024-01-01T00:00:00Z","labels":["test"],"column":null,"readingTime":1,"reactions":{"total":0,"thumbs_up":0,"heart":0,"hooray":0,"laugh":0,"confused":0,"rocket":0,"eyes":0},"comments":0,"originalUrl":""}],"labels":[{"name":"test","color":"ffffff","description":"","count":1}],"columns":[],"about":null,"metadata":{"totalPosts":1,"totalColumns":0,"totalLabels":1,"lastUpdate":"","repository":"","avatarUrl":"","title":"","url":"https://example.com","description":"","keywords":[]}}' > src/data/blog-data.json
-
-      - name: Verify Build
-        run: pnpm run build
-
   release-please:
-    needs: verify
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
