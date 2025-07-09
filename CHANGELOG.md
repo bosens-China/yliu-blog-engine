@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.0...v1.5.1) (2025-07-09)
+
+
+### Bug Fixes
+
+* 更新 action.yml 和 README.md 配置 ([7636d27](https://github.com/bosens-China/yliu-blog-engine/commit/7636d27795583bb92ce7bd48afd6d6b2781058ef))
+
 ## [1.5.0](https://github.com/bosens-China/yliu-blog-engine/compare/v1.4.1...v1.5.0) (2025-07-09)
 
 
