@@ -67,39 +67,7 @@
 
 #### 2. 配置 GitHub Action
 
-在你的仓库中创建 `.github/workflows/deploy-blog.yml` 文件：
-
-```yaml
-name: Deploy Blog
-
-on:
-  # 手动触发
-  workflow_dispatch:
-  # Issues 变化时自动触发
-  issues:
-    types: [opened, edited, closed, reopened, labeled, unlabeled]
-  # 定时更新（每天 6 点）
-  schedule:
-    - cron: "0 6 * * *"
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: 部署博客
-        uses: yliu/blog-engine@v1
-        with:
-          # 基础配置
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 推荐使用，避免 API 限流
-
-          # 可选配置
-          NEXT_PUBLIC_BLOG_TITLE: "我的技术博客"
-          NEXT_PUBLIC_FOOTER_TEXT: "© 2024 by 小🐑"
-```
+在你的仓库中创建 `.github/workflows/deploy-blog.yml` 文件。您可以直接从下面的示例中选择一个作为起点。
 
 #### 3. 开始写作
 
@@ -127,8 +95,8 @@ jobs:
 #### 2. 克隆项目
 
 ```bash
-git clone https://github.com/yliu/blog-engine.git
-cd blog-engine
+git clone https://github.com/bosens-China/yliu-blog-engine.git
+cd yliu-blog-engine
 pnpm install
 ```
 
@@ -196,14 +164,13 @@ pnpm build
 | `NEXT_PUBLIC_SEO_DESCRIPTION`   | 用于 SEO 的站点描述                        | 否          | (AI 生成或仓库描述)                        |
 | `NEXT_PUBLIC_SEO_KEYWORDS`      | 用于 SEO 的关键词 (逗号分隔)               | 否          | (AI 生成)                                  |
 
-## 🔧 最佳实践配置
+## 📚 使用示例
 
-### 基础配置示例
+### 示例一：基础配置
 
-本 Action 可实现真正的“零配置”，无需任何参数即可运行。但为避免 GitHub API 限流，强烈推荐您提供 `GITHUB_TOKEN`。
+这是一个最基础的配置，适用于快速搭建个人博客。
 
 ```yaml
-# .github/workflows/deploy-blog.yml
 name: Deploy Blog
 
 on:
@@ -220,18 +187,20 @@ jobs:
       id-token: write
     steps:
       - name: 部署博客
-        uses: yliu/blog-engine@v1
+        uses: bosens-China/yliu-blog-engine@v1
         with:
+          # 基础配置 (推荐配置，避免 API 限流)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 可选配置
           NEXT_PUBLIC_BLOG_TITLE: "我的技术博客"
+          NEXT_PUBLIC_FOOTER_TEXT: "© 2024 by 小🐑"
 ```
 
-### AI 增强配置示例
+### 示例二：AI 增强配置
 
-如果您拥有 Dify 服务，可以开启 AI 增强功能，通过一个统一的工作流自动生成站点和文章的 SEO 信息、提取专栏等。
+如果您拥有 Dify 等 AI 服务，可以开启 AI 增强功能，自动生成站点和文章的 SEO 信息、提取专栏等。
 
 ```yaml
-# .github/workflows/deploy-blog.yml
 name: Deploy Blog with AI
 
 on:
@@ -248,10 +217,11 @@ jobs:
       id-token: write
     steps:
       - name: 部署博客
-        uses: yliu/blog-engine@v1
+        uses: bosens-China/yliu-blog-engine@v1
         with:
           # 基础配置
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_PUBLIC_BLOG_TITLE: "我的 AI 博客"
 
           # AI 增强配置 (以 Dify 为例)
           AI_SITE_API_KEY: ${{ secrets.AI_SITE_API_KEY }}
@@ -260,13 +230,12 @@ jobs:
           AI_POSTS_WORKFLOW_URL: "https://api.dify.ai/v1/workflows/your_posts_workflow_id/run"
 ```
 
-### 高级配置示例
+### 示例三：高级配置 (自定义菜单与定时更新)
 
-包含自定义菜单、定时更新等高级功能：
+此示例展示了如何自定义顶部导航菜单，并设置定时任务（例如每天早上 6 点）自动拉取最新内容进行部署。
 
 ```yaml
-# .github/workflows/deploy-blog.yml
-name: Deploy Blog
+name: Deploy Advanced Blog
 
 on:
   workflow_dispatch:
@@ -287,7 +256,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: 部署博客
-        uses: yliu/blog-engine@v1
+        uses: bosens-China/yliu-blog-engine@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEXT_PUBLIC_BLOG_TITLE: "我的技术博客"
@@ -311,7 +280,7 @@ jobs:
 - **文章内容**: Issue 的正文就是文章内容，支持所有 Markdown 语法。
 - **文章分类**: 为 Issue 添加 Label，它们会自动成为文章的分类。
 - **发布文章**: 保持 Issue 为 `open` 状态。如果想隐藏文章，只需 `close` 该 Issue。
-- **更新文章**: 修改 Issue 内容后，重新运行 `pnpm dev:data` 即可同步。
+- **更新文章**: 修改 Issue 内容后，重新运行 Action 即可同步。
 - **文章摘要**: 默认截取正文前 200 个字符。若想自定义摘要，可在文中插入 `<!-- more -->` 分隔符，标记之前的内容即为摘要。
 
 ### 专栏文章
@@ -330,7 +299,14 @@ jobs:
 
 ### 自定义 Header 菜单
 
-通过 `NEXT_PUBLIC_HEADER_CONFIG` 环境变量可以完全自定义导航菜单：
+通过 `NEXT_PUBLIC_HEADER_CONFIG` 环境变量可以完全自定义导航菜单。
+
+**菜单项类型**：
+
+- `builtin`: 内置页面（`latest`、`categories`、`columns`、`about`）
+- `label`: 特定标签页面，点击跳转到 `/category/标签名`
+
+**示例**：
 
 ```json
 {
@@ -343,11 +319,6 @@ jobs:
   ]
 }
 ```
-
-**菜单项类型**：
-
-- `builtin`: 内置页面（`latest`、`categories`、`columns`、`about`）
-- `label`: 特定标签页面，点击跳转到 `/category/标签名`
 
 ### 条件部署
 
@@ -373,127 +344,6 @@ jobs:
     # ... 其他配置
 ```
 
-## 🔄 开发和贡献
-
-### Conventional Commits 规范
-
-本项目使用 [Conventional Commits](https://www.conventionalcommits.org/zh-hans/) 规范来管理版本和生成 CHANGELOG。
-
-**提交消息格式**：
-
-```
-<type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-**常用类型**：
-
-- `feat`: 新功能
-- `fix`: 错误修复
-- `docs`: 文档更新
-- `style`: 样式调整
-- `refactor`: 代码重构
-- `perf`: 性能优化
-- `test`: 测试相关
-- `build`: 构建系统
-- `ci`: CI/CD 相关
-- `chore`: 其他更新
-
-**示例**：
-
-```bash
-git commit -m "feat: 添加自定义 Header 菜单配置功能"
-git commit -m "fix: 修复移动端菜单显示问题"
-git commit -m "docs: 更新部署说明文档"
-```
-
-### 自动化发布流程
-
-项目使用 [Release Please](https://github.com/googleapis/release-please-action) 实现自动化版本管理：
-
-1. **提交代码**：使用 Conventional Commits 格式提交代码
-2. **自动创建 Release PR**：Release Please 会自动创建包含版本更新和 CHANGELOG 的 PR
-3. **合并 PR**：审查并合并 Release PR
-4. **自动发布**：合并后自动创建 GitHub Release 和构建产物
-
-这样您就不需要手动管理版本号和发布说明了！
-
-## 📚 使用示例
-
-### 个人技术博客
-
-```yaml
-name: 个人技术博客
-
-on:
-  workflow_dispatch:
-  issues:
-    types: [opened, edited, closed, reopened, labeled, unlabeled]
-  schedule:
-    - cron: "0 8 * * *" # 每天早上 8 点更新
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: 部署技术博客
-        uses: yliu/blog-engine@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEXT_PUBLIC_BLOG_TITLE: "小 🐑 的技术博客"
-          NEXT_PUBLIC_FOOTER_TEXT: "© 2024 专注于前端技术分享"
-          NEXT_PUBLIC_HEADER_CONFIG: |
-            {
-              "items": [
-                { "type": "builtin", "text": "最新文章", "builtin": "latest" },
-                { "type": "label", "text": "JavaScript", "label": "JavaScript" },
-                { "type": "label", "text": "React", "label": "React" },
-                { "type": "label", "text": "Vue", "label": "Vue" },
-                { "type": "builtin", "text": "所有分类", "builtin": "categories" },
-                { "type": "builtin", "text": "关于我", "builtin": "about" }
-              ]
-            }
-```
-
-### 团队技术文档
-
-```yaml
-name: 团队技术文档
-
-on:
-  workflow_dispatch:
-  issues:
-    types: [opened, edited, closed, reopened]
-    # 只处理标记为 'tech-doc' 的 Issues
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'tech-doc') || github.event_name == 'workflow_dispatch'
-    steps:
-      - name: 部署团队文档
-        uses: yliu/blog-engine@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEXT_PUBLIC_BLOG_TITLE: "团队技术文档"
-          NEXT_PUBLIC_HEADER_CONFIG: |
-            {
-              "items": [
-                { "type": "label", "text": "架构设计", "label": "架构" },
-                { "type": "label", "text": "开发规范", "label": "规范" },
-                { "type": "label", "text": "最佳实践", "label": "实践" },
-                { "type": "builtin", "text": "所有文档", "builtin": "categories" }
-              ]
-            }
-```
-
 ## 🤝 贡献
 
 欢迎通过提交 Issues 和 Pull Requests 来为这个项目做出贡献。
@@ -501,26 +351,3 @@ jobs:
 ## 📄 许可证
 
 本项目基于 [MIT License](LICENSE) 授权。
-
-## 🛠️ 自定义开发
-
-如果你想基于此项目进行二次开发：
-
-```bash
-# 克隆项目
-git clone https://github.com/yliu/blog-engine.git
-cd blog-engine
-
-# 安装依赖
-pnpm install
-
-# 本地开发
-pnpm dev
-```
-
-Action 使用 TypeScript 编写，支持：
-
-- 完整的类型检查
-- 自动化测试
-- 代码格式化
-- 持续集成

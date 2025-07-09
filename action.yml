@@ -101,7 +101,7 @@ runs:
     - name: Checkout blog engine
       uses: actions/checkout@v4
       with:
-        repository: "yliu/blog-engine"
+        repository: ${{ github.action_repository }}
         path: "blog-engine"
 
     - name: Install dependencies
