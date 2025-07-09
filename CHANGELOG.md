@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/bosens-China/yliu-blog-engine/compare/v1.3.0...v1.4.0) (2025-07-09)
+
+
+### Features
+
+* 重构布局组件和新增页面 ([cd89980](https://github.com/bosens-China/yliu-blog-engine/commit/cd89980123c826bed856a7140787cf6dabca565d))
+
 ## [1.3.0](https://github.com/bosens-China/yliu-blog-engine/compare/v1.2.0...v1.3.0) (2025-07-07)
 
 
