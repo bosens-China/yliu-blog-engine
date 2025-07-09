@@ -1,6 +1,5 @@
 import { getColumnByName, getPostsByColumn, getColumns } from "@/lib/data";
 import { notFound } from "next/navigation";
-import { Calendar, BookOpen, FileText } from "lucide-react";
 import { format } from "date-fns";
 import Pagination from "@/components/Pagination";
 import { Post } from "@/types";
@@ -53,18 +52,15 @@ export default async function ColumnPage({
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <div className="max-w-5xl mx-auto">
         <header className="page-content-bg rounded-lg p-6 border border-border/20 dark:border-transparent mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <BookOpen className="w-6 h-6 text-primary" />
+          <div className="flex items-center gap-3 mb-4">
             <h1 className="text-3xl font-bold">{decodedName}</h1>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
-              <FileText size={16} />
               {column.posts.length} 篇文章
             </span>
             {hasValidDate && (
               <span className="flex items-center gap-1">
-                <Calendar size={16} />
                 最后更新:{" "}
                 {format(new Date(column.lastUpdated), "yyyy年MM月dd日")}
               </span>

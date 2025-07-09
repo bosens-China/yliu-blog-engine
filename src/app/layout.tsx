@@ -2,9 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import BackToTopButton from "@/components/BackToTopButton";
 import { getBlogData } from "@/lib/data";
 import fs from "node:fs";
 import path from "node:path";
@@ -72,7 +69,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// 动态检测并设置 favicon
 function getFaviconLinks(): { rel: string; url: string; type?: string }[] {
   const publicPath = path.join(process.cwd(), "public");
   const defaultIcon = {
@@ -118,14 +114,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex flex-col min-h-screen pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-            <Header />
-            <main className="flex-1 container mx-auto px-4 py-4">
-              {children}
-            </main>
-            <Footer />
-            <BackToTopButton />
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>
