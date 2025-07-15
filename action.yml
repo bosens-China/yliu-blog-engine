@@ -1,87 +1,77 @@
-name: "YLiu Blog Engine"
-description: "基于 GitHub Issues 的现代博客解决方案，让你只需写 Issues 就能拥有漂亮的个人博客"
-author: "Young Liu <yliu>"
+name: 'YLiu Blog Engine'
+description: '基于 GitHub Issues 的现代博客解决方案'
+author: 'Young Liu'
 
 branding:
-  icon: "book"
-  color: "blue"
+  icon: 'book'
+  color: 'blue'
 
+# 1. 更新 Inputs 以匹配新的 AI 配置
 inputs:
   GITHUB_TOKEN:
-    description: "GitHub Token，用于读取 Issues（推荐使用以避免 API 限流）"
+    description: 'GitHub Token，用于读取 Issues（推荐使用以避免 API 限流）'
     required: false
-    default: ""
   NEXT_PUBLIC_GITHUB_REPOSITORY:
-    description: "仓库地址，格式：owner/repo。默认为当前仓库。"
+    description: '内容仓库地址，格式：owner/repo。默认为当前仓库。'
     required: false
     default: ${{ github.repository }}
   NEXT_PUBLIC_BLOG_TITLE:
-    description: "博客标题"
+    description: '博客标题'
     required: false
-    default: "${{ github.repository_owner }}的个人博客"
-  NEXT_PUBLIC_FOOTER_TEXT:
-    description: "页脚文本"
-    required: false
-    default: ""
-  NEXT_PUBLIC_BASE_PATH:
-    description: "站点基础路径"
-    required: false
-    default: ""
-  NEXT_PUBLIC_HEADER_CONFIG:
-    description: "Header 菜单配置（JSON 字符串）"
-    required: false
-    default: ""
-  COLUMN_MIN_PREFIX_LENGTH:
-    description: "自动识别专栏所需的最短公共前缀长度"
-    required: false
-    default: "6"
-  AI_SITE_API_KEY:
-    description: "用于站点分析的 AI 服务 API Key"
-    required: false
-    default: ""
-  AI_SITE_WORKFLOW_URL:
-    description: "用于站点分析的 AI 服务工作流 URL"
-    required: false
-    default: ""
-  AI_POSTS_API_KEY:
-    description: "用于文章增强的 AI 服务 API Key"
-    required: false
-    default: ""
-  AI_POSTS_WORKFLOW_URL:
-    description: "用于文章增强的 AI 服务工作流 URL"
-    required: false
-    default: ""
-  AI_USER_ID:
-    description: "调用 AI 服务的用户标识符"
-    required: false
-    default: "${{ github.actor }}"
-  NEXT_PUBLIC_SITE_URL:
-    description: "站点 URL，用于生成 Metadata"
-    required: false
-    default: ""
   NEXT_PUBLIC_BLOG_AUTHOR:
-    description: "作者名称，用于生成 Metadata"
+    description: '作者名称'
     required: false
-    default: ""
+  NEXT_PUBLIC_FOOTER_TEXT:
+    description: '页脚文本'
+    required: false
+  NEXT_PUBLIC_BASE_PATH:
+    description: '站点基础路径 (例如 /blog)'
+    required: false
+  NEXT_PUBLIC_SITE_URL:
+    description: '站点的完整 URL，用于生成 SEO 元数据'
+    required: false
+  NEXT_PUBLIC_HEADER_CONFIG:
+    description: 'Header 菜单配置（JSON 字符串）'
+    required: false
+  # SEO 兜底配置
   NEXT_PUBLIC_SEO_DESCRIPTION:
-    description: "用于 SEO 的站点描述"
+    description: '用于 SEO 的站点描述 (无 AI 时使用)'
     required: false
-    default: ""
   NEXT_PUBLIC_SEO_KEYWORDS:
-    description: "用于 SEO 的站点关键词，用逗号分隔"
+    description: '用于 SEO 的站点关键词，用逗号分隔 (无 AI 时使用)'
     required: false
-    default: ""
+  # AI 配置 (细粒度)
+  AI_POSTS_SEO_URL:
+    description: '文章 SEO 优化的 AI 服务 URL'
+    required: false
+  AI_POSTS_SEO_API_KEY:
+    description: '文章 SEO 优化的 AI 服务 API Key'
+    required: false
+  AI_COLUMNS_URL:
+    description: '专栏分析的 AI 服务 URL'
+    required: false
+  AI_COLUMNS_API_KEY:
+    description: '专栏分析的 AI 服务 API Key'
+    required: false
+  AI_SITE_SEO_URL:
+    description: '站点 SEO 汇总的 AI 服务 URL'
+    required: false
+  AI_SITE_SEO_API_KEY:
+    description: '站点 SEO 汇总的 AI 服务 API Key'
+    required: false
 
 outputs:
-  site-url:
-    description: "部署后的网站 URL"
-  build-time:
-    description: "构建耗时"
+  page-url:
+    description: '部署后的网站 URL'
+    value: ${{ steps.deployment.outputs.page_url }}
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-    - name: Install pnpm
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 10
@@ -89,94 +79,72 @@ runs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: "22"
+        node-version: '22'
+        cache: 'pnpm'
 
-    - name: Cache Dify AI data
-      uses: actions/cache@v4
-      with:
-        path: blog-engine/src/data/dify-cache.json
-        key: dify-cache-${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
+    - name: Install Dependencies
+      shell: bash
+      run: pnpm install
 
-    - name: Checkout blog engine
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ github.action_repository }}
-        path: "blog-engine"
-
-    - name: Install dependencies
+    - name: Download user assets (about.md)
       shell: bash
       run: |
-        cd blog-engine
-        pnpm install
-
-    - name: Download user assets (about.md & favicon)
-      shell: bash
-      run: |
-        # About Page
         ABOUT_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/about.md"
-        ABOUT_PATH="blog-engine/about.md"
+        # 2. 将 about.md 下载到 scripts 包可以找到的位置
+        ABOUT_PATH="packages/scripts/about.md" 
         if curl -s --head --fail "$ABOUT_URL" > /dev/null; then
-          echo "Found about.md. Downloading..."
-          curl -s "$ABOUT_URL" -o "$ABOUT_PATH"
+          echo "Found about.md. Downloading to $ABOUT_PATH..."
+          curl -sL "$ABOUT_URL" -o "$ABOUT_PATH"
         else
           echo "No custom about.md found in user repository."
         fi
 
-        # Favicon
-        FAVICON_SVG_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/favicon.svg"
-        FAVICON_PNG_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/favicon.png"
-        PUBLIC_PATH="blog-engine/public"
-
-        # 优先下载 SVG
-        if curl -s --head --fail "$FAVICON_SVG_URL" > /dev/null; then
-          echo "Found favicon.svg. Downloading..."
-          curl -s "$FAVICON_SVG_URL" -o "${PUBLIC_PATH}/favicon.svg"
-          rm -f "${PUBLIC_PATH}/favicon.ico" # 移除默认图标
-        # 否则尝试 PNG
-        elif curl -s --head --fail "$FAVICON_PNG_URL" > /dev/null; then
-          echo "Found favicon.png. Downloading..."
-          curl -s "$FAVICON_PNG_URL" -o "${PUBLIC_PATH}/favicon.png"
-          rm -f "${PUBLIC_PATH}/favicon.ico" # 移除默认图标
-        else
-          echo "No custom favicon found in user repository. Using default."
-        fi
-
-    - name: Set environment variables
+    - name: Create .env file for scripts
       shell: bash
       run: |
-        cd blog-engine
-        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> .env.local
-        echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> .env.local
-        echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}" >> .env.local
-        echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}" >> .env.local
-        echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.NEXT_PUBLIC_BASE_PATH }}" >> .env.local
-        echo "NEXT_PUBLIC_HEADER_CONFIG=${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}" >> .env.local
-        echo "COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}" >> .env.local
-        echo "AI_SITE_API_KEY=${{ inputs.AI_SITE_API_KEY }}" >> .env.local
-        echo "AI_SITE_WORKFLOW_URL=${{ inputs.AI_SITE_WORKFLOW_URL }}" >> .env.local
-        echo "AI_POSTS_API_KEY=${{ inputs.AI_POSTS_API_KEY }}" >> .env.local
-        echo "AI_POSTS_WORKFLOW_URL=${{ inputs.AI_POSTS_WORKFLOW_URL }}" >> .env.local
-        echo "AI_USER_ID=${{ inputs.AI_USER_ID }}" >> .env.local
-        echo "NEXT_PUBLIC_SITE_URL=${{ inputs.NEXT_PUBLIC_SITE_URL }}" >> .env.local
-        echo "NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}" >> .env.local
-        echo "NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}" >> .env.local
-        echo "NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}" >> .env.local
+        ENV_FILE="packages/scripts/.env"
+        echo "Creating .env file at $ENV_FILE"
+        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.NEXT_PUBLIC_BASE_PATH }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_SITE_URL=${{ inputs.NEXT_PUBLIC_SITE_URL }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_HEADER_CONFIG=${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}" >> $ENV_FILE
+        echo "AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}" >> $ENV_FILE
+        echo "AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}" >> $ENV_FILE
+        echo "AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}" >> $ENV_FILE
+        echo "AI_COLUMNS_API_KEY=${{ inputs.AI_COLUMNS_API_KEY }}" >> $ENV_FILE
+        echo "AI_SITE_SEO_URL=${{ inputs.AI_SITE_SEO_URL }}" >> $ENV_FILE
+        echo "AI_SITE_SEO_API_KEY=${{ inputs.AI_SITE_SEO_API_KEY }}" >> $ENV_FILE
+        echo "--- .env content ---"
+        cat $ENV_FILE
+        echo "--------------------"
 
-    - name: Fetch data and build
+    - name: Fetch data
+      shell: bash
+      run: pnpm --filter @yliu/scripts build:data
+
+    - name: Build docs site for GitHub Pages
       shell: bash
       run: |
-        cd blog-engine
-        pnpm install
-        pnpm run build:data
-        pnpm run build
+        # 为 docs 的构建设置 basePath
+        REPO_NAME=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f2)
+        echo "Setting basePath to /$REPO_NAME for docs build"
+        echo "GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" > apps/docs/.env.local
+        pnpm --filter docs build
 
     - name: Setup Pages
       uses: actions/configure-pages@v5
 
-    - name: Upload artifact
+    - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: "blog-engine/out"
+        # 3. 上传 docs 应用的静态导出产物
+        path: 'apps/docs/out'
 
     - name: Deploy to GitHub Pages
       id: deployment

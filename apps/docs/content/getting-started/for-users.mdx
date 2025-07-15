@@ -1,0 +1,66 @@
+# 一键拥有你的博客
+
+本指南面向希望快速搭建个人博客的用户。你几乎不需要编写任何代码，只需在 GitHub 上进行一些简单的点击和配置，即可在 5 分钟内拥有一个功能完备、部署在 GitHub Pages 上的个人博客。
+
+## 前提条件
+
+- 一个 GitHub 账户。
+- 准备好你的第一篇文章（或者先用一个测试的 Issue）。
+
+<Steps>
+
+### 第一步：使用模板创建你的仓库
+
+这是最关键的一步。点击下方的按钮，使用我们的项目作为模板，在你的 GitHub 账户下创建一个全新的仓库。这个新仓库将成为你未来博客文章的家。
+
+<div className="text-center my-8">
+  <a
+    className="inline-block rounded-lg bg-green-600 px-8 py-4 text-center text-xl font-semibold text-white hover:bg-green-700"
+    href="https://github.com/bosens-China/yliu-blog-engine/generate"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    🚀 使用这个模板
+  </a>
+</div>
+
+在创建页面，给你的新仓库取一个名字（例如 `my-blog-posts`），并确保它是一个**公开 (Public)** 仓库，因为 GitHub Pages 目前只支持免费部署公开仓库。
+
+### 第二步：配置 GitHub Token
+
+为了让我们的自动化脚本能读取你仓库中的 Issues，你需要创建一个 GitHub 个人访问令牌 (Personal Access Token)，并将其安全地存放在仓库的 Secrets 中。
+
+1.  **生成令牌**:
+    - 访问你的 GitHub [个人访问令牌页面](https://github.com/settings/tokens?type=beta)。
+    - 点击 **"Generate new token"**，选择 **"Generate new token (classic)"**。
+    - **Note**: 给你的令牌起一个描述性的名字，例如 `BLOG_ACTION_TOKEN`。
+    - **Expiration**: 建议选择一个有效期，例如 90 天。
+    - **Select scopes**: 只勾选 **`repo`** 这一个顶级权限。
+    - 点击页面底部的 **"Generate token"**。
+
+    <Callout type="warning">
+      **请立即复制你的新令牌！** 这个令牌只会显示一次。
+    </Callout>
+
+2.  **存入仓库 Secrets**:
+    - 回到你刚刚创建的新仓库。
+    - 点击 **`Settings`** > **`Secrets and variables`** > **`Actions`**。
+    - 点击 **`New repository secret`**。
+    - **Name**: `ACTION_TOKEN`
+    - **Secret**: 粘贴你刚刚复制的 GitHub 令牌。
+    - 点击 **"Add secret"**。
+
+### 第三步：配置并触发部署
+
+模板中的 `.github/workflows/deploy.yml` 文件已为你准备好。
+
+- **触发部署**:
+  - 转到你仓库的 **`Actions`** 标签页。
+  - 点击 **`Deploy Blog to GitHub Pages`**。
+  - 点击 **`Run workflow`** 按钮。
+
+### 第四步：庆祝！
+
+部署过程大约需要 2-3 分钟。完成后，你可以在仓库的 **`Settings`** > **`Pages`** 页面找到你的博客网址。恭喜！
+
+</Steps>

@@ -1,0 +1,95 @@
+import { Callout } from 'nextra/components';
+import { Cards } from 'nextra/components';
+
+# 指南：AI 增强
+
+本博客引擎内置了可选的 AI 增强功能，旨在通过自动化和智能化，提升您内容的专业度和搜索引擎友好度 (SEO)。
+
+所有 AI 功能都是**完全可选**的。如果您不进行任何配置，系统将优雅地回退到基础模式，核心功能不受任何影响。
+
+## AI 能做什么？
+
+我们目前集成了三大独立的 AI 服务，您可以根据需要灵活启用：
+
+<Cards>
+  > #### 📄 文章 SEO 优化
+  > 这是最核心的 AI 功能。它会为您的每一篇文章：
+  > - **生成摘要**: 替代默认的文字截断，生成更吸引人、更能概括文章内容的元描述 (meta description)。
+  > - **提取关键词**: 智能分析文章内容，提取出 5-8 个核心关键词。
+  > - **建议标签**: 根据文章主题，建议 3-5 个合适的分类标签，并与您原有的标签合并。
+  > - **优化标题 (可选)**: 提出一个更符合 SEO 规范的标题建议。
+
+> #### 📚 专栏智能分析
+>
+> 您是否写了一系列主题相关的文章，却懒于手动管理？开启此功能后，AI 会：
+>
+> - **自动识别系列**: 智能分析您所有文章的标题，找出那些主题相近、可以被组织成一个系列的文章。
+
+- **创建专栏**: 为每个识别出的系列自动创建专栏，并生成专栏的描述。
+  > - **自动关联**: 将相关的文章自动归入对应的专栏。
+
+> #### 🌐 站点 SEO 汇总
+>
+> 在完成所有文章的 SEO 优化后，此功能会：
+>
+> - **分析全局**: 综合分析所有文章的关键词和主题。
+> - **生成站点元数据**: 为您的整个博客生成一个全局的、高度概括的站点描述和核心关键词列表。
+> - **提炼品牌标语**: 甚至可以为您的博客提炼一句响亮的品牌标语 (Tagline)。
+
+</Cards>
+
+## 如何配置
+
+配置 AI 功能非常简单，您只需要提供 AI 服务的 **URL** 和 **API Key** 即可。我们推荐使用 [Dify](https://dify.ai/) 等平台来构建和托管您的 AI 工作流，然后将生成的 API 接口信息填入配置。
+
+您可以通过两种方式进行配置：
+
+1.  **GitHub Action (推荐)**: 在您的 `.github/workflows/deploy.yml` 文件中，添加 `secrets`。
+2.  **本地开发**: 在项目根目录的 `.env` 文件中，添加对应的环境变量。
+
+### 配置项
+
+我们为三个功能提供了独立的配置项，您可以按需启用：
+
+- **文章 SEO 优化服务**:
+  - `AI_POSTS_SEO_URL`
+  - `AI_POSTS_SEO_API_KEY`
+- **专栏智能分析服务**:
+  - `AI_COLUMNS_URL`
+  - `AI_COLUMNS_API_KEY`
+- **站点 SEO 汇总服务**:
+  - `AI_SITE_SEO_URL`
+  - `AI_SITE_SEO_API_KEY`
+
+### 配置示例 (`deploy.yml`)
+
+```yaml
+# in .github/workflows/deploy.yml
+steps:
+  - name: Deploy Blog with AI
+    uses: bosens-China/yliu-blog-engine@main
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 启用文章 SEO 和专栏分析
+      AI_POSTS_SEO_URL: 'https://your-dify-url/posts-seo'
+      AI_POSTS_SEO_API_KEY: ${{ secrets.AI_POSTS_KEY }}
+      AI_COLUMNS_URL: 'https://your-dify-url/columns'
+      AI_COLUMNS_API_KEY: ${{ secrets.AI_COLUMNS_KEY }}
+
+      # 站点 SEO 服务未配置，将自动跳过并使用默认值
+      # AI_SITE_SEO_URL: ...
+      # AI_SITE_SEO_API_KEY: ...
+```
+
+<Callout type="info">
+  如果您所有的 AI 服务使用同一个 API Key，您只需要在仓库 Secrets
+  中创建一个，然后在 `with` 中多次引用它即可。
+</Callout>
+
+## 缓存机制
+
+为了优化性能和节约成本，AI 功能内置了强大的缓存机制：
+
+- 对于**文章 SEO**，脚本会计算每篇文章内容的哈希值 (`sha256`)。只有当文章内容发生变化时，才会重新调用 AI 服务进行分析。对于未修改的文章，将直接从缓存中读取上一次的分析结果。
+- 这意味着，即使您有数百篇文章，每次构建通常也只需要对最新修改的几篇进行 AI 处理，极大地降低了 API 调用成本。

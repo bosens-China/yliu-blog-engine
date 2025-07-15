@@ -1,0 +1,74 @@
+{
+  "type": "object",
+  "properties": {
+    "articles_seo": {
+      "type": "array",
+      "description": "每篇文章的SEO优化结果",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "文章的原始数字ID"
+          },
+          "optimized_title": {
+            "type": "string",
+            "description": "SEO优化后的标题（50字符内）",
+            "maxLength": 50
+          },
+          "description": {
+            "type": "string",
+            "description": "文章的元描述（150字符左右）",
+            "maxLength": 160
+          },
+          "keywords": {
+            "type": "array",
+            "description": "5-8个核心关键词",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "3-5个分类标签",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "optimized_title",
+          "description",
+          "keywords",
+          "tags"
+        ]
+      }
+    },
+    "batch_summary": {
+      "type": "object",
+      "description": "对本次处理批次的宏观分析总结",
+      "properties": {
+        "common_themes": {
+          "type": "array",
+          "description": "在这批文章中识别出的共同主题",
+          "items": {
+            "type": "string"
+          }
+        },
+        "overall_sentiment": {
+          "type": "string",
+          "description": "这批文章的整体情感基调 (例如: 教学性, 探索性, 批判性)"
+        }
+      },
+      "required": [
+        "common_themes",
+        "overall_sentiment"
+      ]
+    }
+  },
+  "required": [
+    "articles_seo",
+    "batch_summary"
+  ]
+}

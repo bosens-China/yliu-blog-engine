@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "columns": {
+      "type": "array",
+      "description": "识别出的专栏列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "专栏的名称，简洁有吸引力"
+          },
+          "description": {
+            "type": "string",
+            "description": "对专栏的简短描述，说明其主题或价值"
+          },
+          "article_ids": {
+            "type": "array",
+            "description": "属于该专栏的文章 ID 列表",
+            "minItems": 2,
+            "items": {
+              "type": "integer",
+              "description": "文章的数字 ID"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "article_ids"
+        ]
+      }
+    }
+  },
+  "required": [
+    "columns"
+  ]
+}

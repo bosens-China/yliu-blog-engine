@@ -1,0 +1,16 @@
+public/images/*
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+src/data

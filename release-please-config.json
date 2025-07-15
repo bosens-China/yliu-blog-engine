@@ -1,60 +1,58 @@
 {
+  "changelog-types": [
+    {
+      "type": "feat",
+      "section": "✨ 新功能"
+    },
+    {
+      "type": "fix",
+      "section": "🐛 错误修复"
+    },
+    {
+      "type": "docs",
+      "section": "📚 文档更新"
+    },
+    {
+      "type": "style",
+      "section": "💄 样式调整"
+    },
+    {
+      "type": "refactor",
+      "section": "♻️ 代码重构"
+    },
+    {
+      "type": "perf",
+      "section": "⚡ 性能优化"
+    },
+    {
+      "type": "test",
+      "section": "✅ 测试相关"
+    },
+    {
+      "type": "build",
+      "section": "📦 构建系统"
+    },
+    {
+      "type": "ci",
+      "section": "🔧 CI/CD"
+    },
+    {
+      "type": "chore",
+      "section": "🔨 其他更新"
+    }
+  ],
   "packages": {
-    ".": {
-      "release-type": "node",
-      "package-name": "yliu-blog-engine",
-      "changelog-types": [
-        {
-          "type": "feat",
-          "section": "✨ 新功能",
-          "hidden": false
-        },
-        {
-          "type": "fix",
-          "section": "🐛 错误修复",
-          "hidden": false
-        },
-        {
-          "type": "docs",
-          "section": "📚 文档更新",
-          "hidden": false
-        },
-        {
-          "type": "style",
-          "section": "💄 样式调整",
-          "hidden": false
-        },
-        {
-          "type": "refactor",
-          "section": "♻️ 代码重构",
-          "hidden": false
-        },
-        {
-          "type": "perf",
-          "section": "⚡ 性能优化",
-          "hidden": false
-        },
-        {
-          "type": "test",
-          "section": "✅ 测试相关",
-          "hidden": false
-        },
-        {
-          "type": "build",
-          "section": "📦 构建系统",
-          "hidden": false
-        },
-        {
-          "type": "ci",
-          "section": "🔧 CI/CD",
-          "hidden": false
-        },
-        {
-          "type": "chore",
-          "section": "🔨 其他更新",
-          "hidden": false
-        }
-      ]
+    "apps/web": {
+      "component": "web",
+      "release-type": "node"
+    },
+    "apps/docs": {
+      "component": "docs",
+      "release-type": "node"
+    },
+    "packages/scripts": {
+      "component": "scripts",
+      "release-type": "node"
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"

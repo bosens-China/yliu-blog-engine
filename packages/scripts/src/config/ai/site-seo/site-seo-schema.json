@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "site_meta": {
+      "type": "object",
+      "description": "用于网站全局<meta>标签的核心SEO信息",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "网站主标题 (例如：张三的博客)"
+        },
+        "description": {
+          "type": "string",
+          "description": "网站的全局元描述 (160字符内)"
+        },
+        "keywords": {
+          "type": "array",
+          "description": "代表整个网站的10-15个核心关键词",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tagline": {
+          "type": "string",
+          "description": "网站的品牌标语或口号 (20字符内)"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "keywords",
+        "tagline"
+      ]
+    }
+  },
+  "required": [
+    "site_meta"
+  ]
+}

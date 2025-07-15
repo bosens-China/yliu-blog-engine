@@ -1,0 +1,74 @@
+name: Deploy Docs to GitHub Pages
+
+on:
+  # 1. 当代码被推送到 main 分支时触发
+  push:
+    branches:
+      - main
+    # 只在 docs 应用或其依赖的包有变化时才运行，以节省资源
+    paths:
+      - 'apps/docs/**'
+      - 'packages/types/**'
+      - '.github/workflows/deploy-docs.yml'
+
+  # 2. 允许在 GitHub Actions 页面手动触发此工作流
+  workflow_dispatch:
+
+# 3. 设置部署所需的权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 4. 设置并发控制，避免同时部署多个版本
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # 5. 设置部署环境，指向 GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10 # 或者你使用的 pnpm 版本
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # 或者你使用的 Node.js 版本
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Set environment variables for Next.js build
+        run: |
+          # 这个环境变量会被 next.config.mjs 读取，用于动态设置 basePath
+          echo "GITHUB_REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
+
+      - name: Build Docs Site
+        run: pnpm --filter docs build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 上传由 `next export` 生成的 `out` 目录
+          path: 'apps/docs/out'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

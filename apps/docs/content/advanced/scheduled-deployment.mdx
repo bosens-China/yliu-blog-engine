@@ -1,0 +1,75 @@
+# 高级主题：定时与条件部署
+
+利用 GitHub Actions 的强大功能，您可以实现更复杂的自动化工作流，例如定时更新您的博客，或在特定条件下才触发部署。
+
+## 定时自动更新
+
+如果您希望博客每天自动拉取最新的内容（例如同步您在其他地方更新的 `about.md`，或者确保数据总是最新的），可以使用 `schedule` 和 `cron` 语法。
+
+### 示例：每天早上 8 点自动构建
+
+编辑您的 `.github/workflows/deploy.yml` 文件，在 `on` 事件中添加 `schedule`：
+
+```yaml
+name: Deploy Blog
+
+on:
+  # 当 issues 有变动时触发
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+
+  # 允许手动触发
+  workflow_dispatch:
+
+  # 新增：定时任务
+  schedule:
+    # cron 语法，'0 8 * * *' 代表 UTC 时间每天早上 8 点
+    # 这对应北京时间下午 4 点
+    - cron: '0 8 * * *'
+
+jobs:
+  # ... job content ...
+```
+
+<Callout type="info">
+  **Cron 语法提示**: - `* * * * *`
+  分别代表：分钟、小时、天（月）、月、天（周）。 - 您可以使用
+  [crontab.guru](https://crontab.guru/) 这个工具来方便地生成和校验您的 cron
+  表达式。
+</Callout>
+
+## 条件部署
+
+在某些场景下，您可能不希望每一次 Issue 的变动都触发一次部署。例如，您可能只想在打上 `blog` 或 `publish` 标签的 Issue 发生变化时才进行部署。
+
+这可以通过在 `jobs` 中添加 `if` 条件来实现。
+
+### 示例：只有带 `blog` 标签的 Issue 变化才部署
+
+```yaml
+name: Conditional Deploy Blog
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # --- 关键的 if 条件 ---
+    # 逻辑：
+    # 1. 如果事件是 'workflow_dispatch' (手动触发)，则总是执行。
+    # 2. 或者，如果事件是 'issues'，则检查变化的 Issue 的标签列表中是否包含 'blog'。
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.issue.labels.*.name, 'blog')
+
+    permissions:
+      # ... permissions ...
+    steps:
+      # ... steps ...
+```
+
+通过这种方式，您可以创建一个专门用于“发布”的标签。只有当您为一个 Issue 打上或移除这个标签时，或者编辑带有这个标签的 Issue 时，部署流程才会被触发，这能有效地节省您的 Action 执行分钟数。

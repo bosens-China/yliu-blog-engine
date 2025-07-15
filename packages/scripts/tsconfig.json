@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "resolveJsonModule": true
+  },
+  "references": [
+    {
+      "path": "../../packages/types/tsconfig.json"
+    }
+  ],
+  "include": ["src"],
+  "files": [
+    "src/config/ai/posts-seo/posts-seo-schema.json",
+    "src/config/ai/columns/columns-schema.json",
+    "src/config/ai/site-seo/site-seo-schema.json"
+  ]
+}
