@@ -1,49 +1,80 @@
 import { Footer, Layout, Navbar } from 'nextra-theme-docs';
 import { Banner, Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
+import { ThemeProvider } from 'next-themes';
 import 'nextra-theme-docs/style.css';
 import React from 'react';
 
+/* ---------- 1. 站点级元数据 ---------- */
 export const metadata = {
-  // Define your metadata here
-  // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
+  title: {
+    template: '%s | Yliu Blog Engine',
+    default: 'Yliu Blog Engine',
+  },
+  description:
+    '基于 GitHub Issues 的现代化、高性能博客引擎。零配置，AI 增强，专为开发者打造。',
+  openGraph: {
+    type: 'website',
+    locale: 'zh_CN',
+    url: 'https://bosens-China.github.io/yliu-blog-engine',
+    siteName: 'Yliu Blog Engine',
+    images: '/og.png',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@bosensChina',
+  },
 };
 
-const banner = <Banner storageKey="some-key">Nextra 4.0 is released 🎉</Banner>;
+/* ---------- 2. 构造导航 ---------- */
+const banner = (
+  <Banner storageKey="docs-v1">
+    🎉 博客引擎 v1 已发布，5 分钟拥有自己的博客！
+  </Banner>
+);
+
 const navbar = (
   <Navbar
-    logo={<b>Nextra</b>}
-    // ... Your additional navbar options
+    logo={
+      <b className="text-xl font-bold">
+        Yliu<span className="text-blue-600">Blog</span>
+      </b>
+    }
+    projectLink="https://github.com/bosens-China/yliu-blog-engine"
   />
 );
-const footer = <Footer>MIT {new Date().getFullYear()} © Nextra.</Footer>;
 
+const footer = (
+  <Footer>
+    <span>MIT © {new Date().getFullYear()} bosens-China</span>
+  </Footer>
+);
+
+/* ---------- 3. 根布局 ---------- */
+// eslint-disable-next-line react/prop-types
 export default async function RootLayout({ children }) {
+  const pageMap = await getPageMap();
+
   return (
-    <html
-      // Not required, but good for SEO
-      lang="en"
-      // Required to be set
-      dir="ltr"
-      // Suggested by `next-themes` package https://github.com/pacocoursey/next-themes#with-app
-      suppressHydrationWarning
-    >
-      <Head
-      // ... Your additional head options
-      >
-        {/* Your additional tags should be passed as `children` of `<Head>` element */}
+    <html lang="zh-CN" dir="ltr" suppressHydrationWarning /* next-themes */>
+      <Head>
+        <link rel="icon" href="/favicon.ico" />
       </Head>
+
       <body>
-        <Layout
-          banner={banner}
-          navbar={navbar}
-          pageMap={await getPageMap()}
-          docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
-          footer={footer}
-          // ... Your additional layout options
-        >
-          {children}
-        </Layout>
+        {/* 暗色模式 Provider */}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Layout
+            banner={banner}
+            navbar={navbar}
+            pageMap={pageMap}
+            docsRepositoryBase="https://github.com/bosens-China/yliu-blog-engine/tree/main/apps/docs"
+            footer={footer}
+            editLink="在 GitHub 上编辑此页 →"
+          >
+            {children}
+          </Layout>
+        </ThemeProvider>
       </body>
     </html>
   );
