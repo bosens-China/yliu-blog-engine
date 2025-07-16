@@ -63,9 +63,6 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.6.1
       framer-motion:
         specifier: ^11.18.2
         version: 11.18.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -93,9 +90,6 @@ importers:
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.1.8)(react@19.1.0)
-      reading-time:
-        specifier: ^1.5.0
-        version: 1.5.0
       rehype-highlight:
         specifier: ^7.0.2
         version: 7.0.2
@@ -105,9 +99,6 @@ importers:
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
-      tsx:
-        specifier: ^4.7.0
-        version: 4.20.3
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -121,33 +112,15 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@4.1.11)
-      '@types/fs-extra':
-        specifier: ^11.0.4
-        version: 11.0.4
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
-      '@types/node':
-        specifier: ^20
-        version: 20.19.4
       '@types/react':
         specifier: ^19
         version: 19.1.8
       '@types/react-dom':
         specifier: ^19
         version: 19.1.6(@types/react@19.1.8)
-      '@types/unist':
-        specifier: ^3.0.3
-        version: 3.0.3
       '@yliu/types':
         specifier: workspace:*
         version: link:../../packages/types
-      ajv:
-        specifier: ^8.16.0
-        version: 8.17.1
-      axios:
-        specifier: ^1.10.0
-        version: 1.10.0
       code-inspector-plugin:
         specifier: ^0.20.15
         version: 0.20.15
@@ -160,33 +133,12 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^5.2.0
         version: 5.2.0(eslint@9.30.1(jiti@2.4.2))
-      fs-extra:
-        specifier: ^11.3.0
-        version: 11.3.0
-      lowdb:
-        specifier: ^7.0.1
-        version: 7.0.1
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0
-      remark-stringify:
-        specifier: ^11.0.0
-        version: 11.0.0
-      strip-markdown:
-        specifier: ^6.0.0
-        version: 6.0.0
       tailwindcss:
         specifier: ^4
         version: 4.1.11
       typescript:
         specifier: ^5
         version: 5.8.3
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
-      unist-util-visit:
-        specifier: ^5.0.0
-        version: 5.0.0
 
   packages/scripts:
     dependencies:

@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/bosens-China/young-blog#readme",
   "scripts": {
+    "type-check": "pnpm -r type-check",
     "type-check:web": "tsc --build apps/web",
     "type-check:docs": "tsc --build apps/docs",
     "type-check:scripts": "tsc --build packages/scripts",
