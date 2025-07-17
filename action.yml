@@ -1,45 +1,60 @@
 name: 'YLiu Blog Engine'
-description: '基于 GitHub Issues 的现代博客解决方案'
+description: '基于 GitHub Issues 的现代博客解决方案，追求零配置和最大化自动推导。'
 author: 'Young Liu'
 
 branding:
-  icon: 'book'
+  icon: 'book-open'
   color: 'blue'
 
+#================================================================================#
+# 输入参数 - 与 Zod schema 完全对应，用户可以覆盖任何默认值
+#================================================================================#
 inputs:
+  # --- 基础与必需 ---
   GITHUB_TOKEN:
-    description: 'GitHub Token，用于读取 Issues（推荐使用以避免 API 限流）'
-    required: false
+    description: '必需。GitHub Token，用于读取 Issues。请传入 `secrets.GITHUB_TOKEN`。'
+    required: true
   NEXT_PUBLIC_GITHUB_REPOSITORY:
-    description: '内容仓库地址，格式：owner/repo。默认为当前仓库。'
+    description: '内容仓库地址，格式：owner/repo。默认为当前触发工作流的仓库。'
     required: false
     default: ${{ github.repository }}
+
+  # --- 站点信息 ---
   NEXT_PUBLIC_BLOG_TITLE:
-    description: '博客标题'
+    description: '博客标题。'
     required: false
   NEXT_PUBLIC_BLOG_AUTHOR:
-    description: '作者名称'
+    description: '作者名称。'
     required: false
   NEXT_PUBLIC_FOOTER_TEXT:
-    description: '页脚文本'
-    required: false
-  NEXT_PUBLIC_BASE_PATH:
-    description: '站点基础路径 (例如 /blog)'
-    required: false
-  NEXT_PUBLIC_SITE_URL:
-    description: '站点的完整 URL，用于生成 SEO 元数据'
+    description: '页脚文本。'
     required: false
   NEXT_PUBLIC_HEADER_CONFIG:
-    description: 'Header 菜单配置（JSON 字符串）'
+    description: 'Header 菜单配置（JSON 字符串）。'
     required: false
-  # SEO 兜底配置
+
+  # --- 路由与 SEO ---
+  NEXT_PUBLIC_BASE_PATH:
+    description: '站点基础路径 (例如 /blog)。若不提供，将根据仓库名自动判断。'
+    required: false
+  NEXT_PUBLIC_SITE_URL:
+    description: '站点的完整 URL。若不提供，将根据仓库名和GitHub Pages域名自动生成。'
+    required: false
   NEXT_PUBLIC_SEO_DESCRIPTION:
-    description: '用于 SEO 的站点描述 (无 AI 时使用)'
+    description: '用于 SEO 的站点描述。'
     required: false
   NEXT_PUBLIC_SEO_KEYWORDS:
-    description: '用于 SEO 的站点关键词，用逗号分隔 (无 AI 时使用)'
+    description: '用于 SEO 的站点关键词，用逗号分隔。'
     required: false
-  # AI 配置 (细粒度)
+
+  # --- AI 和专栏处理 ---
+  AI_ENABLE_PROCESSING:
+    description: '是否启用 AI 处理。'
+    required: false
+    default: 'false'
+  AI_USER_ID:
+    description: '调用 AI 服务的用户标识符。'
+    required: false
   AI_POSTS_SEO_URL:
     description: '文章 SEO 优化的 AI 服务 URL'
     required: false
@@ -58,86 +73,84 @@ inputs:
   AI_SITE_SEO_API_KEY:
     description: '站点 SEO 汇总的 AI 服务 API Key'
     required: false
-  # AI 批处理配置
   COLUMN_DELIMITERS:
-    description: '用于识别专栏的标题分隔符（逗号分隔）'
+    description: '专栏识别分隔符 (逗号分隔)'
     required: false
   COLUMN_MIN_ARTICLES:
-    description: '一个专栏至少需要包含的文章数量'
+    description: '专栏最少文章数'
     required: false
   COLUMN_MIN_PREFIX_LENGTH:
-    description: '自动识别专栏所需的最短公共前缀长度'
-    required: false
-  AI_USER_ID:
-    description: '调用 AI 服务的用户标识符'
+    description: '专栏识别最短公共前缀'
     required: false
   AI_MAX_CHARS_PER_BATCH:
-    description: 'AI 处理时，每个批次的最大字符数'
+    description: 'AI批处理最大字符数'
     required: false
   AI_SINGLE_ARTICLE_THRESHOLD:
-    description: '单篇文章大小超过此阈值将独立处理'
+    description: '独立处理的文章字符阈值'
     required: false
   AI_MAX_ARTICLES_PER_BATCH:
-    description: 'AI 处理时，每个批次的最大文章数量'
+    description: 'AI批处理最大文章数'
     required: false
   AI_ARTICLE_TRUNCATE_LENGTH:
-    description: '为避免超长，输入给 AI 的文章内容将被截断到此长度'
+    description: 'AI输入文章截断长度'
     required: false
   AI_TRUNCATE_SUFFIX:
-    description: '文章被截断时添加的后缀'
-    required: false
-  AI_ENABLE_PROCESSING:
-    description: '是否启用 AI 处理'
+    description: '文章截断后缀'
     required: false
   AI_MAX_CONCURRENT_REQUESTS:
-    description: 'AI 请求的最高并发数'
+    description: 'AI最大并发请求数'
     required: false
-  # -- 缓存与调试 --
+
+  # --- 缓存与调试 ---
   ENABLE_CACHE:
-    description: '是否启用缓存以加速 AI 处理。在遇到缓存问题时可设为 false 以强制刷新。'
+    description: '是否启用构建缓存。'
     required: false
     default: 'true'
 
+#================================================================================#
+# 输出参数 - Action执行完毕后输出的值
+#================================================================================#
 outputs:
-  page-url:
+  page_url:
     description: '部署后的网站 URL'
     value: ${{ steps.deployment.outputs.page_url }}
 
+#================================================================================#
+# 执行步骤 - Action 的核心执行步骤
+#================================================================================#
 runs:
   using: 'composite'
   steps:
-    - name: Checkout User Repository
+    - name: 检出用户仓库
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
         path: user_repo
 
-    - name: Checkout Action Repository
+    - name: 检出 Action 仓库
       uses: actions/checkout@v4
       with:
-        # [关键修正] 不要使用 ${{ github.action_repository }}，因为它在复合 Action 的上下文中会错误地指向 actions/checkout 自身。
-        # 这里需要直接硬编码您的 Action 仓库地址。
-        repository: bosens-China/yliu-blog-engine
+        repository: 'bosens-China/yliu-blog-engine'
         path: blog_engine
 
-    - name: Setup pnpm
+    - name: 安装 pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 10
 
-    - name: Setup Node.js and Cache Dependencies
+    - name: 安装 Node.js 并缓存依赖
       uses: actions/setup-node@v4
       with:
         node-version: '22'
         cache: 'pnpm'
         cache-dependency-path: blog_engine/pnpm-lock.yaml
 
-    - name: Install Dependencies
+    - name: 安装依赖
       shell: bash
       working-directory: ./blog_engine
       run: pnpm install --frozen-lockfile
 
-    - name: Restore AI cache
+    - name: 恢复 AI 缓存
       if: ${{ inputs.ENABLE_CACHE == 'true' }}
       uses: actions/cache@v4
       with:
@@ -146,74 +159,94 @@ runs:
         restore-keys: |
           ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}-
 
-    - name: Prepare user assets (e.g. about.md)
+    - name: 准备用户资源（如 about.md）
       shell: bash
       working-directory: ./blog_engine
       run: |
         ABOUT_PATH_SOURCE="../user_repo/about.md"
         ABOUT_PATH_DEST="about.md"
         if [ -f "$ABOUT_PATH_SOURCE" ]; then
-          echo "Found about.md. Copying to $ABOUT_PATH_DEST..."
+          echo "发现 about.md，复制到 $ABOUT_PATH_DEST..."
           cp "$ABOUT_PATH_SOURCE" "$ABOUT_PATH_DEST"
         else
-          echo "No custom about.md found in user repository. Skipping."
+          echo "用户仓库未发现自定义 about.md，跳过。"
         fi
 
-    - name: Create .env file for scripts
+    - name: 准备环境变量与自动配置
+      id: prep-env
       shell: bash
-      working-directory: ./blog_engine
       run: |
-        ENV_FILE="packages/scripts/.env"
-        echo "Creating .env file at $ENV_FILE"
-        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.NEXT_PUBLIC_BASE_PATH }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_SITE_URL=${{ inputs.NEXT_PUBLIC_SITE_URL }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'" >> $ENV_FILE
-        echo "NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}" >> $ENV_FILE
-        echo "AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}" >> $ENV_FILE
-        echo "AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}" >> $ENV_FILE
-        echo "AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}" >> $ENV_FILE
-        echo "AI_COLUMNS_API_KEY=${{ inputs.AI_COLUMNS_API_KEY }}" >> $ENV_FILE
-        echo "AI_SITE_SEO_URL=${{ inputs.AI_SITE_SEO_URL }}" >> $ENV_FILE
-        echo "AI_SITE_SEO_API_KEY=${{ inputs.AI_SITE_SEO_API_KEY }}" >> $ENV_FILE
-        echo "AI_MAX_CHARS_PER_BATCH=${{ inputs.AI_MAX_CHARS_PER_BATCH }}" >> $ENV_FILE
-        echo "AI_SINGLE_ARTICLE_THRESHOLD=${{ inputs.AI_SINGLE_ARTICLE_THRESHOLD }}" >> $ENV_FILE
-        echo "AI_MAX_ARTICLES_PER_BATCH=${{ inputs.AI_MAX_ARTICLES_PER_BATCH }}" >> $ENV_FILE
-        echo "AI_ARTICLE_TRUNCATE_LENGTH=${{ inputs.AI_ARTICLE_TRUNCATE_LENGTH }}" >> $ENV_FILE
-        echo "AI_TRUNCATE_SUFFIX=${{ inputs.AI_TRUNCATE_SUFFIX }}" >> $ENV_FILE
-        echo "AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}" >> $ENV_FILE
-        echo "AI_MAX_CONCURRENT_REQUESTS=${{ inputs.AI_MAX_CONCURRENT_REQUESTS }}" >> $ENV_FILE
-        echo "COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}" >> $ENV_FILE
-        echo "AI_USER_ID=${{ inputs.AI_USER_ID }}" >> $ENV_FILE
-        echo "COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}" >> $ENV_FILE
-        echo "COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}" >> $ENV_FILE
-        echo "--- .env content ---"
-        cat $ENV_FILE
-        echo "--------------------"
+        echo "开始自动配置..."
+        REPO_OWNER=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f1)
+        REPO_NAME=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f2)
 
-    - name: Fetch data
+        if [[ "$REPO_NAME" == "$REPO_OWNER.github.io" ]]; then
+          DERIVED_BASE_PATH=""
+        else
+          DERIVED_BASE_PATH="/$REPO_NAME"
+        fi
+
+        DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr '[:upper:]' '[:lower:]').github.io$DERIVED_BASE_PATH"
+
+        FINAL_BASE_PATH="${{ inputs.NEXT_PUBLIC_BASE_PATH:-$DERIVED_BASE_PATH }}"
+        FINAL_SITE_URL="${{ inputs.NEXT_PUBLIC_SITE_URL:-$DERIVED_SITE_URL }}"
+
+        ENV_FILE="./blog_engine/packages/scripts/.env"
+        echo "正在创建 .env 文件于 $ENV_FILE"
+
+        cat << EOF > $ENV_FILE
+# 由 yliu-blog-engine action 自动生成
+GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}
+NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
+NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}
+NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}
+NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}
+NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'
+NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
+NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
+AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}
+AI_USER_ID=${{ inputs.AI_USER_ID }}
+AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}
+AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}
+AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}
+AI_COLUMNS_API_KEY=${{ inputs.AI_COLUMNS_API_KEY }}
+AI_SITE_SEO_URL=${{ inputs.AI_SITE_SEO_URL }}
+AI_SITE_SEO_API_KEY=${{ inputs.AI_SITE_SEO_API_KEY }}
+COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}
+COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}
+COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}
+AI_MAX_CHARS_PER_BATCH=${{ inputs.AI_MAX_CHARS_PER_BATCH }}
+AI_SINGLE_ARTICLE_THRESHOLD=${{ inputs.AI_SINGLE_ARTICLE_THRESHOLD }}
+AI_MAX_ARTICLES_PER_BATCH=${{ inputs.AI_MAX_ARTICLES_PER_BATCH }}
+AI_ARTICLE_TRUNCATE_LENGTH=${{ inputs.AI_ARTICLE_TRUNCATE_LENGTH }}
+AI_TRUNCATE_SUFFIX=${{ inputs.AI_TRUNCATE_SUFFIX }}
+AI_MAX_CONCURRENT_REQUESTS=${{ inputs.AI_MAX_CONCURRENT_REQUESTS }}
+NEXT_PUBLIC_BASE_PATH=$FINAL_BASE_PATH
+NEXT_PUBLIC_SITE_URL=$FINAL_SITE_URL
+EOF
+
+        echo "--- 最终 .env 内容 ---"
+        cat $ENV_FILE
+        echo "--------------------------"
+
+    - name: 拉取数据与资源
       shell: bash
       working-directory: ./blog_engine
       run: pnpm --filter @yliu/scripts build:data
 
-    - name: Build web app for GitHub Pages
+    - name: 构建前端应用
       shell: bash
       working-directory: ./blog_engine
       run: pnpm --filter @yliu/web build
 
-    - name: Setup Pages
+    - name: 配置 GitHub Pages
       uses: actions/configure-pages@v5
 
-    - name: Upload Pages artifact
+    - name: 上传 Pages 构建产物
       uses: actions/upload-pages-artifact@v3
       with:
         path: './blog_engine/apps/web/out'
 
-    - name: Deploy to GitHub Pages
+    - name: 部署到 GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
