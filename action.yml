@@ -6,7 +6,6 @@ branding:
   icon: 'book'
   color: 'blue'
 
-# 1. 更新 Inputs 以匹配新的 AI 配置
 inputs:
   GITHUB_TOKEN:
     description: 'GitHub Token，用于读取 Issues（推荐使用以避免 API 限流）'
@@ -93,7 +92,6 @@ inputs:
   AI_MAX_CONCURRENT_REQUESTS:
     description: 'AI 请求的最高并发数'
     required: false
-
   # -- 缓存与调试 --
   ENABLE_CACHE:
     description: '是否启用缓存以加速 AI 处理。在遇到缓存问题时可设为 false 以强制刷新。'
@@ -108,34 +106,31 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    # 步骤 1: 签出调用方（用户）的仓库，以获取 about.md 等内容
     - name: Checkout User Repository
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
-        path: user_repo # 将用户仓库下载到 'user_repo' 子目录
+        path: user_repo
 
-    # 步骤 2: 签出 Action 自身的仓库（博客引擎代码）
     - name: Checkout Action Repository
       uses: actions/checkout@v4
       with:
-        repository: ${{ github.action_repository }} # 自动获取当前 Action 的仓库地址
-        path: blog_engine # 将引擎代码下载到 'blog_engine' 子目录
+        repository: ${{ github.action_repository }}
+        path: blog_engine
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 10
 
-    - name: Setup Node.js
+    - name: Setup Node.js and Cache Dependencies
       uses: actions/setup-node@v4
       with:
         node-version: '22'
         cache: 'pnpm'
-        # 为 pnpm 缓存指定锁文件路径
         cache-dependency-path: '**/pnpm-lock.yaml'
+      working-directory: ./blog_engine
 
-    # 注意：之后所有 pnpm/node 相关命令都需要指定 working-directory
     - name: Install Dependencies
       shell: bash
       working-directory: ./blog_engine
@@ -145,16 +140,15 @@ runs:
       if: ${{ inputs.ENABLE_CACHE == 'true' }}
       uses: actions/cache@v4
       with:
-        path: ./blog_engine/packages/scripts/src/data/local-cache.json # 更新缓存路径
+        path: ./blog_engine/packages/scripts/src/data/local-cache.json
         key: ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}-
 
     - name: Prepare user assets (e.g. about.md)
       shell: bash
-      working-directory: ./blog_engine # 在引擎目录中执行
+      working-directory: ./blog_engine
       run: |
-        # 从之前签出的 user_repo 目录中拷贝 about.md 到引擎根目录
         ABOUT_PATH_SOURCE="../user_repo/about.md"
         ABOUT_PATH_DEST="about.md"
         if [ -f "$ABOUT_PATH_SOURCE" ]; then
@@ -217,7 +211,6 @@ runs:
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        # 确保路径指向正确的构建输出目录
         path: './blog_engine/apps/web/out'
 
     - name: Deploy to GitHub Pages
