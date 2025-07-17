@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.12](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.11...v1.5.12) (2025-07-17)
+
+
+### Bug Fixes
+
+* 修复github ci的错误 ([ea0f48c](https://github.com/bosens-China/yliu-blog-engine/commit/ea0f48cbb369eeeae8d3ff311a4660c62f630d6d))
+
 ## [1.5.11](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.10...v1.5.11) (2025-07-17)
 
 
