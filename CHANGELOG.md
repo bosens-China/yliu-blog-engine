@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.8](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.7...v1.5.8) (2025-07-17)
+
+
+### Bug Fixes
+
+* 优化env.ts文件中的环境变量配置，增强URL验证和描述信息 ([238eb08](https://github.com/bosens-China/yliu-blog-engine/commit/238eb088ebb9a3d329c18f7ef02f02062e391220))
+
 ## [1.5.7](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.6...v1.5.7) (2025-07-17)
 
 
