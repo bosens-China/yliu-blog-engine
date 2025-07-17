@@ -176,9 +176,10 @@ runs:
       id: prep-env
       shell: bash
       run: |
+        echo '
         echo "开始自动配置..."
-        REPO_OWNER=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f1)
-        REPO_NAME=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f2)
+        REPO_OWNER=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d "/" -f1)
+        REPO_NAME=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d "/" -f2)
 
         if [[ "$REPO_NAME" == "$REPO_OWNER.github.io" ]]; then
           DERIVED_BASE_PATH=""
@@ -186,7 +187,7 @@ runs:
           DERIVED_BASE_PATH="/$REPO_NAME"
         fi
 
-        DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr '[:upper:]' '[:lower:]').github.io$DERIVED_BASE_PATH"
+        DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr "[:upper:]" "[:lower:]").github.io$DERIVED_BASE_PATH"
 
         FINAL_BASE_PATH="${{ inputs.NEXT_PUBLIC_BASE_PATH:-$DERIVED_BASE_PATH }}"
         FINAL_SITE_URL="${{ inputs.NEXT_PUBLIC_SITE_URL:-$DERIVED_SITE_URL }}"
@@ -195,39 +196,40 @@ runs:
         echo "正在创建 .env 文件于 $ENV_FILE"
 
         cat << EOF > $ENV_FILE
-# 由 yliu-blog-engine action 自动生成
-GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}
-NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
-NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}
-NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}
-NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}
-NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'
-NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
-NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
-AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}
-AI_USER_ID=${{ inputs.AI_USER_ID }}
-AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}
-AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}
-AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}
-AI_COLUMNS_API_KEY=${{ inputs.AI_COLUMNS_API_KEY }}
-AI_SITE_SEO_URL=${{ inputs.AI_SITE_SEO_URL }}
-AI_SITE_SEO_API_KEY=${{ inputs.AI_SITE_SEO_API_KEY }}
-COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}
-COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}
-COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}
-AI_MAX_CHARS_PER_BATCH=${{ inputs.AI_MAX_CHARS_PER_BATCH }}
-AI_SINGLE_ARTICLE_THRESHOLD=${{ inputs.AI_SINGLE_ARTICLE_THRESHOLD }}
-AI_MAX_ARTICLES_PER_BATCH=${{ inputs.AI_MAX_ARTICLES_PER_BATCH }}
-AI_ARTICLE_TRUNCATE_LENGTH=${{ inputs.AI_ARTICLE_TRUNCATE_LENGTH }}
-AI_TRUNCATE_SUFFIX=${{ inputs.AI_TRUNCATE_SUFFIX }}
-AI_MAX_CONCURRENT_REQUESTS=${{ inputs.AI_MAX_CONCURRENT_REQUESTS }}
-NEXT_PUBLIC_BASE_PATH=$FINAL_BASE_PATH
-NEXT_PUBLIC_SITE_URL=$FINAL_SITE_URL
-EOF
+        # 由 yliu-blog-engine action 自动生成
+        GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}
+        NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
+        NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}
+        NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}
+        NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}
+        NEXT_PUBLIC_HEADER_CONFIG=''${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}''
+        NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
+        NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
+        AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}
+        AI_USER_ID=${{ inputs.AI_USER_ID }}
+        AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}
+        AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}
+        AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}
+        AI_COLUMNS_API_KEY=${{ inputs.AI_COLUMNS_API_KEY }}
+        AI_SITE_SEO_URL=${{ inputs.AI_SITE_SEO_URL }}
+        AI_SITE_SEO_API_KEY=${{ inputs.AI_SITE_SEO_API_KEY }}
+        COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}
+        COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}
+        COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}
+        AI_MAX_CHARS_PER_BATCH=${{ inputs.AI_MAX_CHARS_PER_BATCH }}
+        AI_SINGLE_ARTICLE_THRESHOLD=${{ inputs.AI_SINGLE_ARTICLE_THRESHOLD }}
+        AI_MAX_ARTICLES_PER_BATCH=${{ inputs.AI_MAX_ARTICLES_PER_BATCH }}
+        AI_ARTICLE_TRUNCATE_LENGTH=${{ inputs.AI_ARTICLE_TRUNCATE_LENGTH }}
+        AI_TRUNCATE_SUFFIX=${{ inputs.AI_TRUNCATE_SUFFIX }}
+        AI_MAX_CONCURRENT_REQUESTS=${{ inputs.AI_MAX_CONCURRENT_REQUESTS }}
+        NEXT_PUBLIC_BASE_PATH=$FINAL_BASE_PATH
+        NEXT_PUBLIC_SITE_URL=$FINAL_SITE_URL
+        EOF
 
         echo "--- 最终 .env 内容 ---"
         cat $ENV_FILE
         echo "--------------------------"
+        ' | bash
 
     - name: 拉取数据与资源
       shell: bash
