@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.14](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.13...v1.5.14) (2025-07-17)
+
+
+### Bug Fixes
+
+* 优化环境变量生成脚本，修正字符串处理和默认值设置 ([ee4b66d](https://github.com/bosens-China/yliu-blog-engine/commit/ee4b66d3f372c44b628b9b0b0c052d61f7c225de))
+
 ## [1.5.13](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.12...v1.5.13) (2025-07-17)
 
 
