@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.6](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.5...v1.5.6) (2025-07-17)
+
+
+### Bug Fixes
+
+* 对缓存依赖路径使用健壮的glob模式 ([ccc3306](https://github.com/bosens-China/yliu-blog-engine/commit/ccc330655cac5433411daee46849005e8447cae2))
+
 ## [1.5.5](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.4...v1.5.5) (2025-07-17)
 
 
