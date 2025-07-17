@@ -22,7 +22,7 @@ export default async function Page({ params }: PageProps) {
   const { posts, totalPages } = getPosts(currentPage);
 
   return (
-    <div className="container mx-auto pt-6">
+    <>
       {/* 文章列表 */}
       <section className="max-w-5xl mx-auto">
         <div className="grid gap-8">
@@ -42,6 +42,6 @@ export default async function Page({ params }: PageProps) {
           />
         </div>
       )}
-    </div>
+    </>
   );
 }

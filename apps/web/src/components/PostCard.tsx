@@ -41,17 +41,15 @@ export default function PostCard({ post }: PostCardProps) {
 
       {/* 2-3张缩略图显示在简介下方 */}
       {post.thumbnail && post.thumbnail.length > 1 && (
-        <div className="flex gap-3 mb-4 overflow-x-auto pb-2">
+        <div className="grid grid-cols-1 gap-3 mb-4 sm:flex sm:flex-row sm:flex-nowrap sm:overflow-x-auto sm:pb-2">
           {post.thumbnail.map((img, index) => (
             <div
               key={index}
-              className="rounded-lg overflow-hidden flex-shrink-0"
-              style={{
-                width:
-                  post.thumbnail.length === 2
-                    ? 'calc(50% - 6px)'
-                    : 'calc(33.33% - 8px)',
-              }}
+              className={`rounded-lg overflow-hidden w-full sm:flex-shrink-0 ${
+                post.thumbnail.length === 2
+                  ? 'sm:w-[calc(50%_-_6px)]'
+                  : 'sm:w-[calc(33.33%_-_8px)]'
+              }`}
             >
               <Image
                 src={img}

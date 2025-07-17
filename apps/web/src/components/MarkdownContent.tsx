@@ -112,7 +112,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
               )}
               <button
                 type="button"
-                className="text-xs flex items-center gap-1 p-1 hover:text-foreground transition-colors"
+                className="text-xs flex items-center gap-1 p-1.5 rounded-md text-muted-foreground transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                 onClick={() => copyToClipboard(codeText)}
                 aria-label="复制代码"
               >

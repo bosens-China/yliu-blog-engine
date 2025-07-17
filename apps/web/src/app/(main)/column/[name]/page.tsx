@@ -49,44 +49,42 @@ export default async function ColumnPage({
     column.lastUpdated && !isNaN(new Date(column.lastUpdated).getTime());
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="max-w-5xl mx-auto">
-        <header className="page-content-bg rounded-lg p-6 border border-border/20 dark:border-transparent mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <h1 className="text-3xl font-bold">{decodedName}</h1>
-          </div>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              {column.posts.length} 篇文章
-            </span>
-            {hasValidDate && (
-              <span className="flex items-center gap-1">
-                最后更新:{' '}
-                {format(new Date(column.lastUpdated), 'yyyy年MM月dd日')}
-              </span>
-            )}
-          </div>
-          {column.description && (
-            <div className="mt-3 text-muted-foreground">
-              <p>{column.description}</p>
-            </div>
-          )}
-        </header>
-
-        <div className="grid gap-8 mt-8">
-          {posts.map((post: Post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+    <div className="max-w-5xl mx-auto">
+      <header className="page-content-bg rounded-lg p-6 border border-border/20 dark:border-transparent mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <h1 className="text-3xl font-bold">{decodedName}</h1>
         </div>
-
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={1}
-            totalPages={totalPages}
-            createHref={(p) => `/column/${name}?page=${p}`}
-          />
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1">
+            {column.posts.length} 篇文章
+          </span>
+          {hasValidDate && (
+            <span className="flex items-center gap-1">
+              最后更新:{' '}
+              {format(new Date(column.lastUpdated), 'yyyy年MM月dd日')}
+            </span>
+          )}
+        </div>
+        {column.description && (
+          <div className="mt-3 text-muted-foreground">
+            <p>{column.description}</p>
+          </div>
         )}
+      </header>
+
+      <div className="grid gap-8 mt-8">
+        {posts.map((post: Post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={1}
+          totalPages={totalPages}
+          createHref={(p) => `/column/${name}?page=${p}`}
+        />
+      )}
     </div>
   );
 }
