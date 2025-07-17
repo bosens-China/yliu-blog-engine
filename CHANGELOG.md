@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.9](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.8...v1.5.9) (2025-07-17)
+
+
+### Bug Fixes
+
+* 修改名称导致ci构建失败 ([28240fb](https://github.com/bosens-China/yliu-blog-engine/commit/28240fb99d7d1e94455ed4d16b2e6f3f1002b3d2))
+
 ## [1.5.8](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.7...v1.5.8) (2025-07-17)
 
 
