@@ -1,5 +1,5 @@
 {
-  "name": "yliu-blog-engine",
+  "name": "@yliu/web",
   "version": "1.5.2",
   "private": true,
   "scripts": {
