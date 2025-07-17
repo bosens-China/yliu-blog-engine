@@ -15,8 +15,9 @@ export function createImagesTransformPlugin(
     name: 'plugin-transform-images',
 
     async transform(context: BuildContext) {
-      if (!context.data.posts || context.data.posts.length === 0) {
-        log('没有文章数据，跳过图片处理。');
+      const issues = context.dataSource.github?.issues;
+      if (!issues || issues.length === 0) {
+        log('没有原始 issue 数据，跳过图片处理。');
         return;
       }
 
@@ -32,7 +33,6 @@ export function createImagesTransformPlugin(
         return;
       }
 
-      // 由插件根据 context 配置来决定最终的物理路径
       const publicDir = path.join(webAppDir, 'public/images/downloaded');
 
       const processor = new ImageProcessor(
@@ -41,8 +41,12 @@ export function createImagesTransformPlugin(
         publicDir,
       );
 
-      const processedPosts = await processor.process(context.data.posts);
-      context.data.posts = processedPosts;
+      const processedIssues = await processor.process(issues);
+      context.dataSource.github ||= {
+        issues: [],
+        repoDetails: null,
+      };
+      context.dataSource.github.issues = processedIssues;
     },
   };
 }

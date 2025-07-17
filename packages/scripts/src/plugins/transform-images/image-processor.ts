@@ -1,13 +1,13 @@
-import path from 'node:path';
-import crypto from 'node:crypto';
-import fse from 'fs-extra';
+import type { GithubIssue } from '@yliu/types/issues';
+import { log, warn } from '@/utils/logger';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import { visit } from 'unist-util-visit';
 import type { Image } from 'mdast';
-import type { Post } from '@yliu/types/blog';
 import type { CacheManager } from '@/core/cache';
-import { log, warn } from '@/utils/logger';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import fse from 'fs-extra';
 
 const BROWSER_USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36';
@@ -25,14 +25,14 @@ export class ImageProcessor {
     this.urlReplacements = new Map();
   }
 
-  public async process(posts: Post[]): Promise<Post[]> {
+  public async process(issues: GithubIssue[]): Promise<GithubIssue[]> {
     log('🖼️ 开始批量处理文章图片...');
     await fse.ensureDir(this.publicDir);
 
-    const allImages = this.extractAllImages(posts);
+    const allImages = this.extractAllImagesFromIssues(issues);
     if (allImages.length === 0) {
       log('未在文章中发现外部图片，跳过处理。');
-      return posts;
+      return issues;
     }
 
     const domainGroups = this.groupImagesByDomain(allImages);
@@ -40,7 +40,6 @@ export class ImageProcessor {
       `发现 ${allImages.length} 张图片，来自 ${domainGroups.size} 个不同域名。`,
     );
 
-    // 对每个域名的处理也可以并发
     const domainProcessingTasks = Array.from(domainGroups.entries()).map(
       async ([domain, images]) => {
         const firstImageUrl = images[0]?.url;
@@ -64,14 +63,13 @@ export class ImageProcessor {
 
     if (this.urlReplacements.size === 0) {
       log('图片处理完成，没有链接被替换。');
-      return posts;
+      return issues;
     }
 
     log('图片处理完成，正在应用链接替换...');
-    return this.applyReplacements(posts);
+    return this.applyReplacementsToIssues(issues);
   }
 
-  // --- 关键修改点：改为并发下载 ---
   private async processDomainImages(images: { url: string }[]): Promise<void> {
     const downloadTasks = images.map(async (image) => {
       const { localPath, publicPath } = this.generateLocalImagePath(image.url);
@@ -85,32 +83,28 @@ export class ImageProcessor {
         } catch (error: unknown) {
           warn(`  [失败] 下载 ${image.url}: ${(error as Error).message}`);
           await fse.unlink(localPath).catch(() => {});
-          return; // 出错时，不设置 urlReplacements
+          return;
         }
       }
-      // 使用 this.urlReplacements.set 是线程安全的，因为 Map 的 set 不是异步操作
       this.urlReplacements.set(image.url, publicPath);
     });
 
-    // 并发执行当前域名的所有下载任务
     await Promise.all(downloadTasks);
   }
 
-  // --- 其他方法保持不变 ---
-
-  private extractAllImages(
-    posts: Post[],
-  ): { url: string; postIndex: number }[] {
-    const images: { url: string; postIndex: number }[] = [];
-    posts.forEach((post, postIndex) => {
-      if (!post.content) return;
-      const tree = unified().use(remarkParse).parse(post.content);
+  private extractAllImagesFromIssues(
+    issues: GithubIssue[],
+  ): { url: string; issueIndex: number }[] {
+    const images: { url: string; issueIndex: number }[] = [];
+    issues.forEach((issue, issueIndex) => {
+      if (!issue.body) return;
+      const tree = unified().use(remarkParse).parse(issue.body);
       visit(tree, 'image', (node: Image) => {
         if (
           node.url &&
           (node.url.startsWith('http://') || node.url.startsWith('https://'))
         ) {
-          images.push({ url: node.url, postIndex });
+          images.push({ url: node.url, issueIndex });
         }
       });
     });
@@ -253,14 +247,14 @@ export class ImageProcessor {
     });
   }
 
-  private applyReplacements(posts: Post[]): Post[] {
-    return posts.map((post) => {
-      if (!post.content) return post;
-      let newContent = post.content;
+  private applyReplacementsToIssues(issues: GithubIssue[]): GithubIssue[] {
+    return issues.map((issue) => {
+      if (!issue.body) return issue;
+      let newBody = issue.body;
       for (const [originalUrl, localPath] of this.urlReplacements.entries()) {
-        newContent = newContent.replaceAll(originalUrl, localPath);
+        newBody = newBody.replaceAll(originalUrl, localPath);
       }
-      return { ...post, content: newContent };
+      return { ...issue, body: newBody };
     });
   }
 }

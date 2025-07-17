@@ -34,17 +34,22 @@ async function main() {
   log('配置插件流水线...');
   const buildPlugins = [
     createGithubResourcePlugin({ token: env.GITHUB_TOKEN }),
-    createPostsTransformPlugin(),
+    // 1. 首先处理图片，确保所有外部链接都被替换为本地链接
     createImagesTransformPlugin({
       siteUrl:
         env.NEXT_PUBLIC_SITE_URL || `https://${githubRepo.owner}.github.io`,
     }),
+    // 2. 然后再进行文章转换，此时可以从干净的内容中提取正确的缩略图
+    createPostsTransformPlugin(),
+    // 3. 接着进行 AI 增强
     createAITransformPlugin({
       enablePostsSeo: true,
       enableColumns: true,
       enableSiteSeo: true,
     }),
+    // 4. 应用所有转换结果
     createApplyDataTransformPlugin(),
+    // 5. 最后输出构建产物
     createBuildOutputPlugin({
       fileName: 'blog-data.json',
     }),
