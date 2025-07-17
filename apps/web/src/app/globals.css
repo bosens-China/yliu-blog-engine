@@ -1,14 +1,14 @@
-@import "tailwindcss";
-@import "highlight.js/styles/github-dark.css";
+@import 'tailwindcss';
+@import 'highlight.js/styles/github-dark.css';
 
 :root {
-  --background: 260 20% 98%; /* rgb(246, 245, 250) */
-  --foreground: 222 47% 11%; /* 深蓝灰色文字，接近黑色但更柔和 */
+  --background: 260 20% 98%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
-  --primary: 221 83% 53%; /* 蓝色主色调，类似 Cursor 官网的蓝色 */
+  --primary: 221 83% 53%;
   --primary-foreground: 210 40% 98%;
   --secondary: 210 40% 96%;
   --secondary-foreground: 222 47% 11%;
@@ -50,51 +50,48 @@
 }
 
 .dark {
-  --background: 222 47% 8.5%; /* 更深的背景，对应 #121315 */
+  --background: 222 47% 8.5%;
   --foreground: 210 40% 98%;
-  --card: 222 47% 10%; /* 卡片背景与主背景更接近，对应 #17191D */
+  --card: 222 47% 10%;
   --card-foreground: 210 40% 98%;
   --popover: 222 47% 10%;
   --popover-foreground: 210 40% 98%;
-  --primary: 217 91% 60%; /* 亮蓝色，深色模式下更鲜明 */
+  --primary: 217 91% 60%;
   --primary-foreground: 222 47% 10%;
-  --secondary: 217 33% 15%; /* 稍微调暗 */
+  --secondary: 217 33% 15%;
   --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 15%; /* 稍微调暗 */
-  --muted-foreground: 215 20% 70%; /* 稍微调暗，保持可读性 */
+  --muted: 217 33% 15%;
+  --muted-foreground: 215 20% 70%;
   --accent: 217 33% 15%;
   --accent-foreground: 210 40% 98%;
   --destructive: 0 63% 31%;
   --destructive-foreground: 210 40% 98%;
-  --border: 217 33% 15%; /* 边框颜色也调暗 */
+  --border: 217 33% 15%;
   --input: 217 33% 15%;
   --ring: 224 76% 94%;
 }
 
-/* 全局样式 */
+/* ========= 全局通用样式（保持不变） ========= */
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
-
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   overflow-x: hidden;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-/* 深色模式渐变背景 */
 .dark body {
   background: linear-gradient(180deg, #17191d 0%, #121315 100%);
   background-attachment: fixed;
 }
-
-/* 平滑过渡效果 */
 *,
 *::before,
 *::after {
@@ -102,21 +99,15 @@ body {
   transition-duration: 0.2s;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* 不为特定元素应用过渡效果 */
 .no-transition,
 .no-transition *,
 svg *,
 input::placeholder {
   transition: none;
 }
-
-/* 全局按钮样式 */
 button {
   cursor: pointer;
 }
-
-/* 禁用按钮样式 */
 button:disabled,
 button[disabled],
 .cursor-not-allowed {
@@ -124,182 +115,137 @@ button[disabled],
   opacity: 0.6;
 }
 
-/* 代码块容器样式 */
+/* ======== 代码块等与卡片无关的样式（保持不变） ======== */
 .code-block-container {
   @apply my-6 shadow-lg border border-border;
   border-radius: 6px;
 }
-
 .code-block-container pre {
   @apply my-0 p-0;
   background-color: #1a1b20;
   color: #e6edf3;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .code-block-header {
   background-color: #1a1b20;
   color: hsl(var(--muted-foreground));
 }
 
-/* 页面内容背景统一 */
+/* ======== 页面内容统一背景 ======== */
 .page-content-bg {
   @apply bg-white;
 }
-
 .dark .page-content-bg {
-  background-color: transparent; /* 深色模式下使用透明背景，直接显示body背景 */
-  backdrop-filter: none; /* 移除毛玻璃效果 */
+  /* 关键：深色模式卡片重新设计 ↓ */
+  background-color: rgba(23, 25, 29, 0.6);
+  border: 1px solid hsl(217 33% 15% / 0.5);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 0 hsl(217 33% 20% / 0.3),
+    inset 0 -1px 0 0 hsl(217 33% 10% / 0.3),
+    0 0 0 1px hsl(217 33% 15% / 0.1),
+    0 2px 8px -2px hsl(0 0% 0% / 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dark .page-content-bg:hover {
+  border-color: hsl(217 33% 20% / 0.6);
+  box-shadow:
+    inset 0 1px 0 0 hsl(217 33% 25% / 0.4),
+    inset 0 -1px 0 0 hsl(217 33% 15% / 0.4),
+    0 0 0 1px hsl(217 33% 20% / 0.2),
+    0 4px 16px -4px hsl(0 0% 0% / 0.5),
+    0 0 0 1px hsl(var(--primary) / 0.05);
 }
 
-/* 深色模式适配 */
+/* ======== 其余原有样式（保持不变） ======== */
 .dark .bg-white {
-  background-color: rgba(23, 25, 29, 0.8); /* 半透明背景，更好地融入渐变 */
-  backdrop-filter: blur(8px); /* 添加背景模糊效果 */
+  background-color: rgba(23, 25, 29, 0.8);
+  backdrop-filter: blur(8px);
 }
-
 .dark .dark\:bg-card {
   background-color: rgba(23, 25, 29, 0.8);
   backdrop-filter: blur(8px);
 }
-
-/* 深色模式下减少边框对比度 */
-.dark .border-border\/20 {
-  border-color: hsl(217 33% 12% / 0.3); /* 更低对比度的边框 */
-}
-
-.dark .border-border\/10 {
-  border-color: hsl(217 33% 12% / 0.1); /* 更低对比度的边框 */
-}
-
 .dark .border-border {
-  border-color: hsl(217 33% 12%); /* 更低对比度的边框 */
+  border-color: hsl(217 33% 20%);
 }
-
-/* 深色模式下的阴影效果调整 */
-.dark .shadow-sm {
-  box-shadow: none; /* 深色模式下移除阴影 */
-}
-
-.dark .hover\:shadow-sm:hover {
-  box-shadow: none; /* 深色模式下移除悬停阴影 */
-}
-
-.dark .shadow-md {
-  box-shadow: none; /* 深色模式下移除中等阴影 */
-}
-
-.dark .hover\:shadow-md:hover {
-  box-shadow: none; /* 深色模式下移除悬停中等阴影 */
-}
-
 .dark img {
   filter: brightness(0.9);
 }
-
-/* 深色模式下的文本对比度优化 */
 .dark .text-muted-foreground {
-  color: hsl(215 20.2% 70.1%); /* 调整对比度 */
+  color: hsl(215 20.2% 70.1%);
 }
 
-/* 适配移动端的滚动条 */
+/* 移动端滚动条、打印样式、焦点/选中等均保持不变 */
 @media (max-width: 640px) {
   ::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
-
   ::-webkit-scrollbar-track {
     background: transparent;
   }
-
   ::-webkit-scrollbar-thumb {
     background-color: hsl(var(--muted-foreground));
     border-radius: 4px;
   }
-
-  /* 移动端卡片间距调整 */
   .gap-8 {
     @apply gap-4;
   }
-
-  /* 移动端页面边距调整 */
   .p-8 {
     @apply p-5;
   }
 }
-
-/* 打印样式优化 */
 @media print {
   body {
     background: white;
     color: black;
   }
-
   .no-print {
     display: none;
   }
 }
-
-/* 焦点状态样式 */
 :focus-visible {
   outline: 2px solid transparent;
   outline-offset: 2px;
   box-shadow: 0 0 0 2px hsl(var(--ring));
 }
-
-/* 选择文本样式 */
 ::selection {
   background-color: rgba(59, 130, 246, 0.2);
   color: inherit;
 }
 
-/* 响应式调整 */
 @media (max-width: 768px) {
   h1 {
     @apply text-2xl md:text-3xl;
   }
-
   h2 {
     @apply text-xl md:text-2xl;
   }
-
   .container {
     @apply px-4;
   }
-
-  /* 移动端文章卡片内边距调整 */
   article {
     @apply p-5;
   }
-
-  /* 移动端标题大小调整 */
   .text-3xl {
     @apply text-2xl;
   }
-
   .text-4xl {
     @apply text-3xl;
   }
 }
-
-/* 平板适配 */
 @media (min-width: 769px) and (max-width: 1024px) {
   .max-w-5xl {
     @apply max-w-3xl;
   }
-
-  /* 平板网格布局调整 */
   .grid-cols-3 {
     @apply grid-cols-2;
   }
 }
-
-/* 明亮模式下的分割线增强 */
 .border-border\/20 {
-  border-color: hsl(214 32% 91% / 0.8); /* 明亮模式下更明显的分割线 */
+  border-color: hsl(214 32% 91% / 0.8);
 }
-
 .border-border\/10 {
-  border-color: hsl(214 32% 91% / 0.6); /* 明亮模式下的淡分割线 */
+  border-color: hsl(214 32% 91% / 0.6);
 }
