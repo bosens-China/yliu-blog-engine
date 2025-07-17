@@ -31,7 +31,7 @@ pnpm install
 1.  在项目的根目录下，创建一个名为 `.env` 的文件。
 2.  打开 `.env` 文件，并至少添加以下两个变量：
 
-    ```env
+    ```bash
     # [必需] 您希望作为内容来源的 GitHub 仓库
     NEXT_PUBLIC_GITHUB_REPOSITORY=your-github-username/your-repo-name
 
@@ -61,7 +61,7 @@ pnpm --filter @yliu/scripts build:data
 pnpm --filter @yliu/web dev
 ```
 
-服务器启动后，在浏览器中访问 [http://localhost:3000](http://localhost:3000)，您就可以看到您的博客了。
+服务器启动后，在浏览器中访问 `http://localhost:3000`，您就可以看到您的博客了。
 
 ## 主题与样式定制
 
