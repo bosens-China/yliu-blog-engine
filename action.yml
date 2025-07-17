@@ -133,7 +133,7 @@ runs:
         node-version: '22'
         cache: 'pnpm'
         # 为 pnpm 缓存指定锁文件路径
-        cache-dependency-path: blog_engine/pnpm-lock.yaml
+        cache-dependency-path: '**/pnpm-lock.yaml
 
     # 注意：之后所有 pnpm/node 相关命令都需要指定 working-directory
     - name: Install Dependencies
