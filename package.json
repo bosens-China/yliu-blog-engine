@@ -1,6 +1,6 @@
 {
   "name": "yliu-blog-engine",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "description": "一个基于 Next.js 15 + React 19 构建的现代化、高性能、易于部署的博客系统。它将您的 GitHub Issues 无缝转化为优雅的博文，让您专注于写作，而非繁琐的后台管理。",
   "private": true,
   "devDependencies": {
