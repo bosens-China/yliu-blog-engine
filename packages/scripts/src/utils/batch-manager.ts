@@ -1,13 +1,40 @@
 import type { Post } from '@yliu/types/blog';
 import { log, warn } from '@/utils/logger';
-import { AI_BATCH_CONFIG, type ArticleBatch } from '@/config/ai/batch-config';
+import { env } from '@/config/env';
+
+/**
+ * 批处理统计信息
+ */
+export interface BatchStats {
+  totalArticles: number;
+  normalBatches: number;
+  oversizedArticles: number;
+  truncatedArticles: number;
+  totalBatches: number;
+}
+
+/**
+ * 文章批次信息
+ */
+export interface ArticleBatch {
+  articles: Post[];
+  totalChars: number;
+  batchIndex: number;
+  type: 'normal' | 'oversized';
+}
 
 /**
  * 文章批处理管理器
  * 负责将文章按复杂规则（字符数、文章数、截断等）进行分批。
  */
 export class BatchManager {
-  private config = AI_BATCH_CONFIG;
+  private config = {
+    MAX_CHARS_PER_BATCH: env.AI_MAX_CHARS_PER_BATCH,
+    SINGLE_ARTICLE_THRESHOLD: env.AI_SINGLE_ARTICLE_THRESHOLD,
+    MAX_ARTICLES_PER_BATCH: env.AI_MAX_ARTICLES_PER_BATCH,
+    ARTICLE_TRUNCATE_LENGTH: env.AI_ARTICLE_TRUNCATE_LENGTH,
+    TRUNCATE_SUFFIX: env.AI_TRUNCATE_SUFFIX,
+  };
 
   /**
    * 创建文章批次

@@ -59,6 +59,46 @@ inputs:
   AI_SITE_SEO_API_KEY:
     description: '站点 SEO 汇总的 AI 服务 API Key'
     required: false
+  # AI 批处理配置
+  COLUMN_DELIMITERS:
+    description: '用于识别专栏的标题分隔符（逗号分隔）'
+    required: false
+  COLUMN_MIN_ARTICLES:
+    description: '一个专栏至少需要包含的文章数量'
+    required: false
+  COLUMN_MIN_PREFIX_LENGTH:
+    description: '自动识别专栏所需的最短公共前缀长度'
+    required: false
+  AI_USER_ID:
+    description: '调用 AI 服务的用户标识符'
+    required: false
+  AI_MAX_CHARS_PER_BATCH:
+    description: 'AI 处理时，每个批次的最大字符数'
+    required: false
+  AI_SINGLE_ARTICLE_THRESHOLD:
+    description: '单篇文章大小超过此阈值将独立处理'
+    required: false
+  AI_MAX_ARTICLES_PER_BATCH:
+    description: 'AI 处理时，每个批次的最大文章数量'
+    required: false
+  AI_ARTICLE_TRUNCATE_LENGTH:
+    description: '为避免超长，输入给 AI 的文章内容将被截断到此长度'
+    required: false
+  AI_TRUNCATE_SUFFIX:
+    description: '文章被截断时添加的后缀'
+    required: false
+  AI_ENABLE_PROCESSING:
+    description: '是否启用 AI 处理'
+    required: false
+  AI_MAX_CONCURRENT_REQUESTS:
+    description: 'AI 请求的最高并发数'
+    required: false
+
+  # -- 缓存与调试 --
+  ENABLE_CACHE:
+    description: '是否启用缓存以加速 AI 处理。在遇到缓存问题时可设为 false 以强制刷新。'
+    required: false
+    default: 'true'
 
 outputs:
   page-url:
@@ -86,12 +126,21 @@ runs:
       shell: bash
       run: pnpm install
 
+    - name: Restore cache
+      if: ${{ inputs.ENABLE_CACHE == 'true' }}
+      uses: actions/cache@v4
+      with:
+        path: packages/scripts/src/data/local-cache.json
+        key: ${{ runner.os }}-yliu-blog-engine-cache-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-yliu-blog-engine-cache-
+
     - name: Download user assets (about.md)
       shell: bash
       run: |
         ABOUT_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/about.md"
-        # 2. 将 about.md 下载到 scripts 包可以找到的位置
-        ABOUT_PATH="packages/scripts/about.md" 
+        # Download about.md to the root, where the script expects it.
+        ABOUT_PATH="about.md" 
         if curl -s --head --fail "$ABOUT_URL" > /dev/null; then
           echo "Found about.md. Downloading to $ABOUT_PATH..."
           curl -sL "$ABOUT_URL" -o "$ABOUT_PATH"
@@ -120,6 +169,17 @@ runs:
         echo "AI_COLUMNS_API_KEY=${{ inputs.AI_COLUMNS_API_KEY }}" >> $ENV_FILE
         echo "AI_SITE_SEO_URL=${{ inputs.AI_SITE_SEO_URL }}" >> $ENV_FILE
         echo "AI_SITE_SEO_API_KEY=${{ inputs.AI_SITE_SEO_API_KEY }}" >> $ENV_FILE
+        echo "AI_MAX_CHARS_PER_BATCH=${{ inputs.AI_MAX_CHARS_PER_BATCH }}" >> $ENV_FILE
+        echo "AI_SINGLE_ARTICLE_THRESHOLD=${{ inputs.AI_SINGLE_ARTICLE_THRESHOLD }}" >> $ENV_FILE
+        echo "AI_MAX_ARTICLES_PER_BATCH=${{ inputs.AI_MAX_ARTICLES_PER_BATCH }}" >> $ENV_FILE
+        echo "AI_ARTICLE_TRUNCATE_LENGTH=${{ inputs.AI_ARTICLE_TRUNCATE_LENGTH }}" >> $ENV_FILE
+        echo "AI_TRUNCATE_SUFFIX=${{ inputs.AI_TRUNCATE_SUFFIX }}" >> $ENV_FILE
+        echo "AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}" >> $ENV_FILE
+        echo "AI_MAX_CONCURRENT_REQUESTS=${{ inputs.AI_MAX_CONCURRENT_REQUESTS }}" >> $ENV_FILE
+        echo "COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}" >> $ENV_FILE
+        echo "AI_USER_ID=${{ inputs.AI_USER_ID }}" >> $ENV_FILE
+        echo "COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}" >> $ENV_FILE
+        echo "COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}" >> $ENV_FILE
         echo "--- .env content ---"
         cat $ENV_FILE
         echo "--------------------"
@@ -128,14 +188,9 @@ runs:
       shell: bash
       run: pnpm --filter @yliu/scripts build:data
 
-    - name: Build docs site for GitHub Pages
+    - name: Build web app for GitHub Pages
       shell: bash
-      run: |
-        # 为 docs 的构建设置 basePath
-        REPO_NAME=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f2)
-        echo "Setting basePath to /$REPO_NAME for docs build"
-        echo "GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" > apps/docs/.env.local
-        pnpm --filter docs build
+      run: pnpm --filter @yliu/web build
 
     - name: Setup Pages
       uses: actions/configure-pages@v5
@@ -143,8 +198,7 @@ runs:
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        # 3. 上传 docs 应用的静态导出产物
-        path: 'apps/docs/out'
+        path: 'apps/web/out'
 
     - name: Deploy to GitHub Pages
       id: deployment

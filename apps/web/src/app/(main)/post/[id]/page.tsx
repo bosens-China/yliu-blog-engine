@@ -30,7 +30,7 @@ export async function generateMetadata({
 
   const { metadata: blogMetadata } = getBlogData();
   const repoOwner = blogMetadata.repository.split("/")[0];
-  const authorName = process.env.NEXT_PUBLIC_BLOG_AUTHOR || repoOwner;
+  const authorName = blogMetadata.author;
 
   const description = post.excerpt;
   const keywords = [...(post.keywords || []), ...(post.labels || [])];

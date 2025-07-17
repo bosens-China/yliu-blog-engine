@@ -40,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = siteMetadata.description;
   const keywords = siteMetadata.keywords;
 
-  const authorName = process.env.NEXT_PUBLIC_BLOG_AUTHOR || repoOwner;
+  const authorName = siteMetadata.author;
   const authorUrl = `https://github.com/${repoOwner}`;
 
   return {

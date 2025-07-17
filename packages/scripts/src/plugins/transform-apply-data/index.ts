@@ -152,6 +152,9 @@ function generateMetadata(
 ): Metadata {
   const [owner] = env.NEXT_PUBLIC_GITHUB_REPOSITORY.split('/');
   const siteUrl = env.NEXT_PUBLIC_SITE_URL || `https://${owner}.github.io`;
+  const author = env.NEXT_PUBLIC_BLOG_AUTHOR || owner;
+  const headerConfig = env.NEXT_PUBLIC_HEADER_CONFIG || null;
+
   if (siteMeta) {
     log('使用 AI 生成的站点元数据...');
     return {
@@ -166,6 +169,8 @@ function generateMetadata(
         siteMeta.description || repo?.description || '一个由内容驱动的博客',
       keywords: siteMeta.keywords || ['blog', 'tech', 'code'],
       url: siteUrl,
+      author,
+      headerConfig,
     };
   } else {
     log('兜底：使用默认值生成站点元数据...');
@@ -187,6 +192,8 @@ function generateMetadata(
         'code',
       ],
       url: siteUrl,
+      author,
+      headerConfig,
     };
   }
 }

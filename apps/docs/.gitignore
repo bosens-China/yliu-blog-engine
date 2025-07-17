@@ -1,3 +1,2 @@
-.next
-out
-next-env.d.ts
+.vitepress/**/*
+!.vitepress/config.mts

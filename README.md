@@ -7,12 +7,7 @@
 
 一个基于 Next.js 和 GitHub Issues 构建的现代化、高性能博客引擎。让你专注于写作，而非繁琐的后台。
 
-**[查看 Demo](https://bosens-china.github.io/yliu-blog-engine/demo) | [阅读完整文档](https://bosens-china.github.io/yliu-blog-engine/docs)**
-
-![YLiu Blog Engine 截图](https://user-images.githubusercontent.com/path/to/your/screenshot.png)
-_<p align="center">在这里放一张你的博客主页或文章页的精美截图</p>_
-
----
+**[阅读完整文档](https://bosens-china.github.io/yliu-blog-engine/)**
 
 ## ✨ 核心特性
 
@@ -23,38 +18,58 @@ _<p align="center">在这里放一张你的博客主页或文章页的精美截�
 - 🔧 **高度可定制**: 从博客标题、导航菜单到 AI 服务，一切皆可配置。
 - 现代化的技术栈: **Next.js (App Router), React 19, TypeScript, pnpm Workspaces**。
 
-## 🚀 快速拥有你的博客
+## 🚀 如何使用
 
 我们为不同需求的用户提供了清晰的路径。
 
-| 我想...                    | 我应该去...                                                                                                      |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **快速拥有一个自己的博客** | ➡️ **[快速上手指南 (一键部署)](https://bosens-china.github.io/yliu-blog-engine/docs/getting-started/for-users)** |
-| **深入了解所有配置和功能** | ➡️ **[查阅完整文档](https://bosens-china.github.io/yliu-blog-engine/docs)**                                      |
-| **在本地运行和开发项目**   | ➡️ **[本地开发指南](https://bosens-china.github.io/yliu-blog-engine/docs/getting-started/for-developers)**       |
-| **为这个项目贡献代码**     | ➡️ **[贡献指南](https://bosens-china.github.io/yliu-blog-engine/docs/contributing/guide)**                       |
+| 如果您想...                | 您应该阅读...                                           |
+| -------------------------- | ------------------------------------------------------- |
+| **快速拥有一个自己的博客** | ➡️ **[快速上手指南](./apps/docs/getting-started.md)**   |
+| **进行个性化设置**         | ➡️ **[高级定制指南](./apps/docs/customization.md)**     |
+| **启用 AI 增强功能**       | ➡️ **[AI 增强指南](./apps/docs/ai-enhancement.md)**     |
+| **在本地运行或二次开发**   | ➡️ **[本地开发指南](./apps/docs/local-development.md)** |
+| **查看所有可用配置**       | ➡️ **[环境变量参考](./apps/docs/env-variables.md)**     |
 
 ## 📦 作为 Action 使用
 
-你可以直接在你的 workflow 中使用这个项目，来为你自己的内容仓库构建和部署博客。
+在您的内容仓库中，创建一个 `.github/workflows/blog.yml` 文件，并粘贴以下内容：
 
 ```yaml
-steps:
-  - name: Deploy My Blog
-    uses: bosens-China/yliu-blog-engine@v1 # 推荐使用主版本号
-    with:
-      # 必需：你的 GitHub Token
-      GITHUB_TOKEN: ${{ secrets.YOUR_ACTION_TOKEN }}
-      # 必需：你的内容仓库地址
-      NEXT_PUBLIC_GITHUB_REPOSITORY: 'your-username/your-blog-repo'
-      # 可选：自定义你的博客标题
-      NEXT_PUBLIC_BLOG_TITLE: '我的数字花园'
-      # ... 更多配置请查阅文档
+name: Deploy Blog
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: bosens-China/yliu-blog-engine@v1 # 推荐使用主版本号
+        with:
+          # [推荐] 使用 GitHub 自动提供的令牌以避免 API 速率限制
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # [可选] 自定义您的博客标题
+          # NEXT_PUBLIC_BLOG_TITLE: '我的数字花园'
+
+          # ... 更多配置请查阅文档
 ```
 
 ## 🤝 贡献
 
-本项目是一个开源项目，我们欢迎任何形式的贡献！请先阅读我们的 **[贡献指南](https://bosens-china.github.io/yliu-blog-engine/docs/contributing/guide)**。
+本项目是一个开源项目，我们欢迎任何形式的贡献！请先阅读我们的 **[本地开发指南](./apps/docs/local-development.md)**，它将帮助您在本地将项目跑起来。
 
 如果您发现了 Bug 或有功能建议，请随时在 [Issues](https://github.com/bosens-China/yliu-blog-engine/issues) 中提出。
 

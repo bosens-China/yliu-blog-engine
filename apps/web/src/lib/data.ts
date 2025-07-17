@@ -225,7 +225,8 @@ export function getBlogStats() {
 
 // 解析 Header 菜单配置
 export function getHeaderConfig(): HeaderConfig {
-  const configStr = process.env.NEXT_PUBLIC_HEADER_MENU_CONFIG;
+  const { metadata } = getBlogData();
+  const configStr = metadata.headerConfig;
 
   // 默认菜单配置
   const defaultConfig: HeaderConfig = {

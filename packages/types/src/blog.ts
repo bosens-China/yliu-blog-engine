@@ -67,6 +67,8 @@ export interface Metadata {
   description: string; // 博客描述
   keywords: string[]; // 全局关键词
   url: string; // 博客主页 URL
+  author: string; // 作者名称
+  headerConfig: string | null; // Header 菜单配置 (JSON 字符串)
 }
 
 /**

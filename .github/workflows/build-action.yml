@@ -37,10 +37,10 @@ jobs:
 
       - name: Create Mock Data for Build Verification
         run: |
-          # 在 web 应用内部创建它需要的数据文件
+          # 在 web 应用中为数据文件创建目录
           mkdir -p apps/web/src/data
-          # 使用一个最小化的、有效的 JSON 结构
-          echo '{"posts":[],"labels":[],"columns":[],"about":null,"metadata":{"totalPosts":0,"totalColumns":0,"totalLabels":0,"lastUpdate":"","repository":"mock/repo","avatarUrl":"","title":"Mock Blog","url":"https://example.com"}}' > apps/web/src/data/blog-data.json
+          # 使用包含新字段的最小有效 JSON 结构
+          echo '{"posts":[],"labels":[],"columns":[],"about":null,"metadata":{"totalPosts":0,"totalColumns":0,"totalLabels":0,"lastUpdate":"","repository":"mock/repo","avatarUrl":"","title":"Mock Blog","url":"https://example.com","author":"Mock Author","headerConfig":null}} ' > apps/web/src/data/blog-data.json
 
       - name: Verify Web App Build
         # 我们只需要验证 web 应用是否能成功构建
