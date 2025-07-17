@@ -118,24 +118,35 @@ runs:
         repository: ${{ github.action_repository }}
         path: blog_engine
 
+    # [新增] 关键的调试步骤，用于打印文件列表
+    - name: 'Debug: List all files in workspace'
+      shell: bash
+      run: |
+        echo "================== DEBUGGING FILE STRUCTURE =================="
+        echo "Current directory: $(pwd)"
+        echo "Workspace content:"
+        ls -laR
+        echo "=============================================================="
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 10
 
+    # [修正] 移除了无效的 working-directory，并暂时使用最直接的路径
     - name: Setup Node.js and Cache Dependencies
       uses: actions/setup-node@v4
       with:
         node-version: '22'
         cache: 'pnpm'
-        cache-dependency-path: '**/pnpm-lock.yaml'
-      working-directory: ./blog_engine
+        cache-dependency-path: blog_engine/pnpm-lock.yaml
 
     - name: Install Dependencies
       shell: bash
       working-directory: ./blog_engine
       run: pnpm install --frozen-lockfile
 
+    # ... 后续步骤保持不变 ...
     - name: Restore AI cache
       if: ${{ inputs.ENABLE_CACHE == 'true' }}
       uses: actions/cache@v4
