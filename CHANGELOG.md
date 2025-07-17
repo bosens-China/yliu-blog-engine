@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.10](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.9...v1.5.10) (2025-07-17)
+
+
+### Bug Fixes
+
+* 移除冲突的assetPrefix覆盖 ([2c201c0](https://github.com/bosens-China/yliu-blog-engine/commit/2c201c0c484af81c4dc8dad12bfb3ee0e17b85e4))
+
 ## [1.5.9](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.8...v1.5.9) (2025-07-17)
 
 
