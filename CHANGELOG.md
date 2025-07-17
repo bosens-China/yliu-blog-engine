@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.7](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.6...v1.5.7) (2025-07-17)
+
+
+### Bug Fixes
+
+* 修复action.yml中缓存依赖路径的引号问题 ([091b2f2](https://github.com/bosens-China/yliu-blog-engine/commit/091b2f2ecc93d50884bc02533b7c75461f7b7d24))
+
 ## [1.5.6](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.5...v1.5.6) (2025-07-17)
 
 
