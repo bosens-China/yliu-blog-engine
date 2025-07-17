@@ -176,10 +176,9 @@ runs:
       id: prep-env
       shell: bash
       run: |
-        echo '
         echo "开始自动配置..."
-        REPO_OWNER=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d "/" -f1)
-        REPO_NAME=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d "/" -f2)
+        REPO_OWNER=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f1)
+        REPO_NAME=$(echo "${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" | cut -d'/' -f2)
 
         if [[ "$REPO_NAME" == "$REPO_OWNER.github.io" ]]; then
           DERIVED_BASE_PATH=""
@@ -187,10 +186,15 @@ runs:
           DERIVED_BASE_PATH="/$REPO_NAME"
         fi
 
-        DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr "[:upper:]" "[:lower:]").github.io$DERIVED_BASE_PATH"
+        DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr '[:upper:]' '[:lower:]').github.io$DERIVED_BASE_PATH"
 
-        FINAL_BASE_PATH="${{ inputs.NEXT_PUBLIC_BASE_PATH:-$DERIVED_BASE_PATH }}"
-        FINAL_SITE_URL="${{ inputs.NEXT_PUBLIC_SITE_URL:-$DERIVED_SITE_URL }}"
+        # 1. 将 GitHub Actions 的输入存入一个临时的 Shell 变量
+        INPUT_BASE_PATH='${{ inputs.NEXT_PUBLIC_BASE_PATH }}'
+        INPUT_SITE_URL='${{ inputs.NEXT_PUBLIC_SITE_URL }}'
+
+        # 2. 使用纯粹的 Shell 语法来处理默认值
+        FINAL_BASE_PATH="${INPUT_BASE_PATH:-$DERIVED_BASE_PATH}"
+        FINAL_SITE_URL="${INPUT_SITE_URL:-$DERIVED_SITE_URL}"
 
         ENV_FILE="./blog_engine/packages/scripts/.env"
         echo "正在创建 .env 文件于 $ENV_FILE"
@@ -202,7 +206,7 @@ runs:
         NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}
         NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}
         NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}
-        NEXT_PUBLIC_HEADER_CONFIG=''${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}''
+        NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'
         NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
         NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
         AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}
@@ -229,7 +233,6 @@ runs:
         echo "--- 最终 .env 内容 ---"
         cat $ENV_FILE
         echo "--------------------------"
-        ' | bash
 
     - name: 拉取数据与资源
       shell: bash
