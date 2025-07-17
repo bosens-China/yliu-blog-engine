@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.11](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.10...v1.5.11) (2025-07-17)
+
+
+### Bug Fixes
+
+* 修复推导参数错误 ([4070329](https://github.com/bosens-China/yliu-blog-engine/commit/4070329d4c89c5af8c1c4550f96ed166e96fe9b8))
+
 ## [1.5.10](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.9...v1.5.10) (2025-07-17)
 
 
