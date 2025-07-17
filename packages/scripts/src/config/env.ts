@@ -5,22 +5,38 @@ import { error } from '@/utils/logger';
 const envSchema = z.object({
   // --- 基础配置 ---
   NEXT_PUBLIC_GITHUB_REPOSITORY: z.string().min(1, 'Github 仓库地址是必需的'),
-  GITHUB_TOKEN: z.string().optional().describe('GitHub 访问令牌（推荐，避免 API 限流）'),
+  GITHUB_TOKEN: z
+    .string()
+    .optional()
+    .describe('GitHub 访问令牌（推荐，避免 API 限流）'),
 
   // --- 站点信息定制 ---
   NEXT_PUBLIC_BLOG_TITLE: z.string().optional().describe('博客标题'),
-  NEXT_PUBLIC_BLOG_AUTHOR: z.string().optional().describe('作者名称 (默认: 仓库所有者)'),
+  NEXT_PUBLIC_BLOG_AUTHOR: z
+    .string()
+    .optional()
+    .describe('作者名称 (默认: 仓库所有者)'),
   NEXT_PUBLIC_FOOTER_TEXT: z.string().optional().describe('页脚文本'),
 
   // --- 路由与 URL ---
   NEXT_PUBLIC_SITE_URL: z
-    .url({ message: 'NEXT_PUBLIC_SITE_URL 必须是一个有效的 URL' })
+    .string()
     .optional()
+    .refine((val) => !val || /^https?:\/\/.+/.test(val), {
+      message: 'NEXT_PUBLIC_SITE_URL 必须是一个有效的 URL',
+    })
+    .transform((val) => val || undefined)
     .describe('站点 URL (例如 `https://blog.example.com`)'),
-  NEXT_PUBLIC_BASE_PATH: z.string().optional().describe('站点基础路径 (例如 /blog)'),
+  NEXT_PUBLIC_BASE_PATH: z
+    .string()
+    .optional()
+    .describe('站点基础路径 (例如 /blog)'),
 
   // --- 高级定制 ---
-  NEXT_PUBLIC_HEADER_CONFIG: z.string().optional().describe('Header 菜单配置 (JSON 字符串)'),
+  NEXT_PUBLIC_HEADER_CONFIG: z
+    .string()
+    .optional()
+    .describe('Header 菜单配置 (JSON 字符串)'),
   COLUMN_DELIMITERS: z
     .string()
     .optional()
@@ -38,28 +54,58 @@ const envSchema = z.object({
     .describe('自动识别专栏所需的最短公共前缀长度'),
 
   // --- SEO 兜底配置 ---
-  NEXT_PUBLIC_SEO_DESCRIPTION: z.string().optional().describe('用于 SEO 的站点描述 (无 AI 时使用)'),
-  NEXT_PUBLIC_SEO_KEYWORDS: z.string().optional().describe('用于 SEO 的站点关键词，用逗号分隔 (无 AI 时使用)'),
+  NEXT_PUBLIC_SEO_DESCRIPTION: z
+    .string()
+    .optional()
+    .describe('用于 SEO 的站点描述 (无 AI 时使用)'),
+  NEXT_PUBLIC_SEO_KEYWORDS: z
+    .string()
+    .optional()
+    .describe('用于 SEO 的站点关键词，用逗号分隔 (无 AI 时使用)'),
 
   // --- AI 服务配置 (Dify, etc.) ---
-  AI_USER_ID: z.string().optional().describe('调用 AI 服务的用户标识符 (默认: github.actor)'),
-
-  AI_POSTS_SEO_API_KEY: z.string().optional().describe('文章 SEO 优化的 AI 服务 API Key'),
-  AI_POSTS_SEO_URL: z
-    .url({ message: 'AI_POSTS_SEO_URL 必须是一个有效的 URL' })
+  AI_USER_ID: z
+    .string()
     .optional()
+    .describe('调用 AI 服务的用户标识符 (默认: github.actor)'),
+
+  AI_POSTS_SEO_API_KEY: z
+    .string()
+    .optional()
+    .describe('文章 SEO 优化的 AI 服务 API Key'),
+  AI_POSTS_SEO_URL: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^https?:\/\/.+/.test(val), {
+      message: 'AI_POSTS_SEO_URL 必须是一个有效的 URL',
+    })
+    .transform((val) => val || undefined)
     .describe('文章 SEO 优化的 AI 服务 URL'),
 
-  AI_COLUMNS_API_KEY: z.string().optional().describe('专栏分析的 AI 服务 API Key'),
-  AI_COLUMNS_URL: z
-    .url({ message: 'AI_COLUMNS_URL 必须是一个有效的 URL' })
+  AI_COLUMNS_API_KEY: z
+    .string()
     .optional()
+    .describe('专栏分析的 AI 服务 API Key'),
+  AI_COLUMNS_URL: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^https?:\/\/.+/.test(val), {
+      message: 'AI_COLUMNS_URL 必须是一个有效的 URL',
+    })
+    .transform((val) => val || undefined)
     .describe('专栏分析的 AI 服务 URL'),
 
-  AI_SITE_SEO_API_KEY: z.string().optional().describe('站点 SEO 汇总的 AI 服务 API Key'),
-  AI_SITE_SEO_URL: z
-    .url({ message: 'AI_SITE_SEO_URL 必须是一个有效的 URL' })
+  AI_SITE_SEO_API_KEY: z
+    .string()
     .optional()
+    .describe('站点 SEO 汇总的 AI 服务 API Key'),
+  AI_SITE_SEO_URL: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^https?:\/\/.+/.test(val), {
+      message: 'AI_SITE_SEO_URL 必须是一个有效的 URL',
+    })
+    .transform((val) => val || undefined)
     .describe('站点 SEO 汇总的 AI 服务 URL'),
 
   // --- AI 批处理配置 ---
