@@ -37,10 +37,7 @@ export default function ColumnsPage() {
                   key={column.name}
                   className="border-b border-border/20 dark:border-border/10 pb-6 last:border-b-0 last:pb-0"
                 >
-                  <Link
-                    href={`/column/${encodeURIComponent(column.name)}`}
-                    className="block group"
-                  >
+                  <Link href={`/column/${column.name}`} className="block group">
                     <h2 className="text-xl font-semibold group-hover:text-primary transition-colors mb-3">
                       {column.name}
                     </h2>

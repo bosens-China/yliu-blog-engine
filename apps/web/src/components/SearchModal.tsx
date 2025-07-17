@@ -209,9 +209,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                           {post.labels.length > 0 && (
                             <Link
-                              href={`/category/${encodeURIComponent(
-                                post.labels[0],
-                              )}`}
+                              href={`/category/${post.labels[0]}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onClose();

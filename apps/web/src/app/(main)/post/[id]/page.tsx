@@ -94,7 +94,7 @@ export default async function PostPage({ params }: Props) {
               {post.labels.map((label, index) => (
                 <span key={label}>
                   <Link
-                    href={`/category/${encodeURIComponent(label)}`}
+                    href={`/category/${label}`}
                     className="bg-secondary/50 text-foreground dark:text-secondary-foreground text-xs px-3 py-1 rounded-full hover:bg-secondary/70 transition-colors"
                   >
                     #{label}

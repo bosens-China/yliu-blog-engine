@@ -69,7 +69,7 @@ export default function Header() {
         }
       case 'label':
         return {
-          href: `/category/${encodeURIComponent(item.label!)}`,
+          href: `/category/${item.label!}`,
           show:
             blogData &&
             blogData.labels.some(

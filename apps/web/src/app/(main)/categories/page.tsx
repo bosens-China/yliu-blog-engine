@@ -32,7 +32,7 @@ export default function CategoriesPage() {
           {labels.map((label) => (
             <Link
               key={label.name}
-              href={`/category/${encodeURIComponent(label.name)}`}
+              href={`/category/${label.name}`}
               className="flex items-center gap-2 page-content-bg border border-border dark:border-border/30 rounded-full px-4 py-2 hover:border-primary transition-all group"
             >
               <span className="font-medium text-foreground group-hover:text-primary transition-colors">

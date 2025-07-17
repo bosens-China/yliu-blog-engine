@@ -16,7 +16,7 @@ export async function generateStaticParams() {
   }
 
   return labels.map((label) => ({
-    name: label.name,
+    name: encodeURIComponent(label.name),
   }));
 }
 
@@ -73,9 +73,7 @@ export default async function CategoryPage({
           <Pagination
             currentPage={1}
             totalPages={totalPages}
-            createHref={(page) =>
-              `/category/${encodeURIComponent(name)}?page=${page}`
-            }
+            createHref={(page) => `/category/${name}?page=${page}`}
           />
         )}
       </div>
