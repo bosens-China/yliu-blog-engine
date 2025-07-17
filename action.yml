@@ -108,8 +108,19 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout Repository
+    # 步骤 1: 签出调用方（用户）的仓库，以获取 about.md 等内容
+    - name: Checkout User Repository
       uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
+        path: user_repo # 将用户仓库下载到 'user_repo' 子目录
+
+    # 步骤 2: 签出 Action 自身的仓库（博客引擎代码）
+    - name: Checkout Action Repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.action_repository }} # 自动获取当前 Action 的仓库地址
+        path: blog_engine # 将引擎代码下载到 'blog_engine' 子目录
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
@@ -121,35 +132,41 @@ runs:
       with:
         node-version: '22'
         cache: 'pnpm'
+        # 为 pnpm 缓存指定锁文件路径
+        cache-dependency-path: blog_engine/pnpm-lock.yaml
 
+    # 注意：之后所有 pnpm/node 相关命令都需要指定 working-directory
     - name: Install Dependencies
       shell: bash
-      run: pnpm install
+      working-directory: ./blog_engine
+      run: pnpm install --frozen-lockfile
 
-    - name: Restore cache
+    - name: Restore AI cache
       if: ${{ inputs.ENABLE_CACHE == 'true' }}
       uses: actions/cache@v4
       with:
-        path: packages/scripts/src/data/local-cache.json
-        key: ${{ runner.os }}-yliu-blog-engine-cache-${{ github.sha }}
+        path: ./blog_engine/packages/scripts/src/data/local-cache.json # 更新缓存路径
+        key: ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-yliu-blog-engine-cache-
+          ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}-
 
-    - name: Download user assets (about.md)
+    - name: Prepare user assets (e.g. about.md)
       shell: bash
+      working-directory: ./blog_engine # 在引擎目录中执行
       run: |
-        ABOUT_URL="https://raw.githubusercontent.com/${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}/main/about.md"
-        # Download about.md to the root, where the script expects it.
-        ABOUT_PATH="about.md" 
-        if curl -s --head --fail "$ABOUT_URL" > /dev/null; then
-          echo "Found about.md. Downloading to $ABOUT_PATH..."
-          curl -sL "$ABOUT_URL" -o "$ABOUT_PATH"
+        # 从之前签出的 user_repo 目录中拷贝 about.md 到引擎根目录
+        ABOUT_PATH_SOURCE="../user_repo/about.md"
+        ABOUT_PATH_DEST="about.md"
+        if [ -f "$ABOUT_PATH_SOURCE" ]; then
+          echo "Found about.md. Copying to $ABOUT_PATH_DEST..."
+          cp "$ABOUT_PATH_SOURCE" "$ABOUT_PATH_DEST"
         else
-          echo "No custom about.md found in user repository."
+          echo "No custom about.md found in user repository. Skipping."
         fi
 
     - name: Create .env file for scripts
       shell: bash
+      working-directory: ./blog_engine
       run: |
         ENV_FILE="packages/scripts/.env"
         echo "Creating .env file at $ENV_FILE"
@@ -160,7 +177,7 @@ runs:
         echo "NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}" >> $ENV_FILE
         echo "NEXT_PUBLIC_BASE_PATH=${{ inputs.NEXT_PUBLIC_BASE_PATH }}" >> $ENV_FILE
         echo "NEXT_PUBLIC_SITE_URL=${{ inputs.NEXT_PUBLIC_SITE_URL }}" >> $ENV_FILE
-        echo "NEXT_PUBLIC_HEADER_CONFIG=${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}" >> $ENV_FILE
+        echo "NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'" >> $ENV_FILE
         echo "NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}" >> $ENV_FILE
         echo "NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}" >> $ENV_FILE
         echo "AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}" >> $ENV_FILE
@@ -186,10 +203,12 @@ runs:
 
     - name: Fetch data
       shell: bash
+      working-directory: ./blog_engine
       run: pnpm --filter @yliu/scripts build:data
 
     - name: Build web app for GitHub Pages
       shell: bash
+      working-directory: ./blog_engine
       run: pnpm --filter @yliu/web build
 
     - name: Setup Pages
@@ -198,7 +217,8 @@ runs:
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: 'apps/web/out'
+        # 确保路径指向正确的构建输出目录
+        path: './blog_engine/apps/web/out'
 
     - name: Deploy to GitHub Pages
       id: deployment
