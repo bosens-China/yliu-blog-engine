@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.0.3...scripts-v1.0.4) (2025-07-18)
+
+
+### Bug Fixes
+
+* 添加 .gitattributes 文件并移除 AI_ENABLE_PROCESSING 输入，更新文档格式 ([0a18fe3](https://github.com/bosens-China/yliu-blog-engine/commit/0a18fe36db4b68a84267384b16bcaa793ff88758))
+
 ## [1.0.3](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.0.2...scripts-v1.0.3) (2025-07-18)
 
 
