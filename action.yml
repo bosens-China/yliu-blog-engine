@@ -196,7 +196,12 @@ runs:
         FINAL_BASE_PATH="${INPUT_BASE_PATH:-$DERIVED_BASE_PATH}"
         FINAL_SITE_URL="${INPUT_SITE_URL:-$DERIVED_SITE_URL}"
 
-        ENV_FILE="./blog_engine/.env"
+        # 3. 将 web 包需要的变量导出到 GitHub Actions 环境
+        echo "为 web build 步骤导出 NEXT_PUBLIC_BASE_PATH..."
+        echo "NEXT_PUBLIC_BASE_PATH=${FINAL_BASE_PATH}" >> $GITHUB_ENV
+
+        # 4. 为 scripts 包创建 .env 文件
+        ENV_FILE="./blog_engine/packages/scripts/.env"
         echo "正在创建 .env 文件于 $ENV_FILE"
 
         cat << EOF > $ENV_FILE
