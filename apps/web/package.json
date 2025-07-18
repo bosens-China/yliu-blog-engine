@@ -38,13 +38,5 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "@yliu/types": "workspace:*"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@tailwindcss/oxide",
-      "esbuild",
-      "sharp",
-      "unrs-resolver"
-    ]
   }
 }

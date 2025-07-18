@@ -12,8 +12,8 @@ branding:
 inputs:
   # --- 基础与必需 ---
   GITHUB_TOKEN:
-    description: '必需。GitHub Token，用于读取 Issues。请传入 `secrets.GITHUB_TOKEN`。'
-    required: true
+    description: 'GitHub Token，用于读取 Issues。在公开仓库中也强烈推荐配置，以避免触发 GitHub API 的速率限制。请传入 `secrets.GITHUB_TOKEN`。'
+    required: false
   NEXT_PUBLIC_GITHUB_REPOSITORY:
     description: '内容仓库地址，格式：owner/repo。默认为当前触发工作流的仓库。'
     required: false
@@ -52,9 +52,6 @@ inputs:
     description: '是否启用 AI 处理。'
     required: false
     default: 'false'
-  AI_USER_ID:
-    description: '调用 AI 服务的用户标识符。'
-    required: false
   AI_POSTS_SEO_URL:
     description: '文章 SEO 优化的 AI 服务 URL'
     required: false
@@ -96,9 +93,6 @@ inputs:
     required: false
   AI_TRUNCATE_SUFFIX:
     description: '文章截断后缀'
-    required: false
-  AI_MAX_CONCURRENT_REQUESTS:
-    description: 'AI最大并发请求数'
     required: false
 
   # --- 缓存与调试 ---
@@ -155,9 +149,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ./blog_engine/packages/scripts/src/data/local-cache.json
-        key: ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}-
+        key: ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}
 
     - name: 准备用户资源（如 about.md）
       shell: bash
@@ -197,8 +189,20 @@ runs:
         FINAL_SITE_URL="${INPUT_SITE_URL:-$DERIVED_SITE_URL}"
 
         # 3. 将 web 包需要的变量导出到 GitHub Actions 环境
-        echo "为 web build 步骤导出 NEXT_PUBLIC_BASE_PATH..."
+        echo "为 web build 步骤导出环境变量..."
+        echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}" >> $GITHUB_ENV
         echo "NEXT_PUBLIC_BASE_PATH=${FINAL_BASE_PATH}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_SITE_URL=${FINAL_SITE_URL}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_FOOTER_TEXT<<EOF" >> $GITHUB_ENV
+        echo "${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_HEADER_CONFIG<<EOF" >> $GITHUB_ENV
+        echo "${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
         # 4. 为 scripts 包创建 .env 文件
         ENV_FILE="./blog_engine/packages/scripts/.env"
@@ -215,7 +219,6 @@ runs:
         NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
         NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
         AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}
-        AI_USER_ID=${{ inputs.AI_USER_ID }}
         AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}
         AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}
         AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}
@@ -230,7 +233,6 @@ runs:
         AI_MAX_ARTICLES_PER_BATCH=${{ inputs.AI_MAX_ARTICLES_PER_BATCH }}
         AI_ARTICLE_TRUNCATE_LENGTH=${{ inputs.AI_ARTICLE_TRUNCATE_LENGTH }}
         AI_TRUNCATE_SUFFIX=${{ inputs.AI_TRUNCATE_SUFFIX }}
-        AI_MAX_CONCURRENT_REQUESTS=${{ inputs.AI_MAX_CONCURRENT_REQUESTS }}
         NEXT_PUBLIC_BASE_PATH=$FINAL_BASE_PATH
         NEXT_PUBLIC_SITE_URL=$FINAL_SITE_URL
         EOF

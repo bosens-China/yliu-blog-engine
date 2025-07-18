@@ -30,6 +30,14 @@ export class CacheManager {
       db.data = {};
     }
 
+    // 初始化时预设白名单
+    if (!db.data.hotlinkDomains) {
+      db.data.hotlinkDomains = {
+        'github.com': false,
+        'user-images.githubusercontent.com': false,
+      };
+    }
+
     return new CacheManager(db);
   }
 

@@ -64,10 +64,6 @@ const envSchema = z.object({
     .describe('用于 SEO 的站点关键词，用逗号分隔 (无 AI 时使用)'),
 
   // --- AI 服务配置 (Dify, etc.) ---
-  AI_USER_ID: z
-    .string()
-    .optional()
-    .describe('调用 AI 服务的用户标识符 (默认: github.actor)'),
 
   AI_POSTS_SEO_API_KEY: z
     .string()
@@ -139,11 +135,6 @@ const envSchema = z.object({
     .optional()
     .default(true)
     .describe('是否启用 AI 处理'),
-  AI_MAX_CONCURRENT_REQUESTS: z.coerce
-    .number()
-    .optional()
-    .default(3)
-    .describe('AI 请求的最高并发数'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
