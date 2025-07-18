@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.18](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.17...v1.5.18) (2025-07-18)
+
+
+### Bug Fixes
+
+* 更新 action.yml 和文档，调整输入参数描述及默认值，移除不必要的参数 ([93c4360](https://github.com/bosens-China/yliu-blog-engine/commit/93c4360adf93b42bc146c690a8c73de07e05912d))
+
 ## [1.5.17](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.16...v1.5.17) (2025-07-18)
 
 
