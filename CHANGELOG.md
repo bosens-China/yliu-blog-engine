@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.16](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.15...v1.5.16) (2025-07-18)
+
+
+### Bug Fixes
+
+* 为 web build 步骤导出环境变量并更新 .env 文件路径 ([a91b4f0](https://github.com/bosens-China/yliu-blog-engine/commit/a91b4f094c73fda346c05012b08543d0ade8988f))
+
 ## [1.5.15](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.14...v1.5.15) (2025-07-18)
 
 
