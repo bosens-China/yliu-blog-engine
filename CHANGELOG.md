@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.15](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.14...v1.5.15) (2025-07-18)
+
+
+### Bug Fixes
+
+* 更新环境变量文件路径，修正.env文件生成位置 ([134ccae](https://github.com/bosens-China/yliu-blog-engine/commit/134ccaebc39957db8647bfcadae65520c88a828c))
+
 ## [1.5.14](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.13...v1.5.14) (2025-07-17)
 
 
