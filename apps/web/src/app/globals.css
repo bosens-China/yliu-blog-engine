@@ -50,7 +50,7 @@
 }
 
 .dark {
-  --background: 222 47% 8.5%;
+  --background: 220 12% 10% / 0.8;
   --foreground: 210 40% 98%;
   --card: 222 47% 10%;
   --card-foreground: 210 40% 98%;
@@ -159,7 +159,7 @@ button[disabled],
 
 /* ======== 其余原有样式（保持不变） ======== */
 .dark .bg-white {
-  background-color: rgba(23, 25, 29, 0.8);
+  background-color: hsl(var(--background));
   backdrop-filter: blur(8px);
 }
 .dark .dark\:bg-card {
