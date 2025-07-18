@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0 (2025-07-18)
+
+
+### Bug Fixes
+
+* 优化 basePath 处理逻辑，简化代码并确保在图像处理时正确使用环境变量 ([e17b59c](https://github.com/bosens-China/yliu-blog-engine/commit/e17b59c3c54492e063a29c6c2c40324e76dc3922))
+* 修改名称导致ci构建失败 ([28240fb](https://github.com/bosens-China/yliu-blog-engine/commit/28240fb99d7d1e94455ed4d16b2e6f3f1002b3d2))
+* 对nextjs的generateStaticParams错误修复 ([afce8f8](https://github.com/bosens-China/yliu-blog-engine/commit/afce8f8a9c3de685698fa6c37ab5f9754be8a7ed))
+* 更新 action.yml 和文档，调整输入参数描述及默认值，移除不必要的参数 ([93c4360](https://github.com/bosens-China/yliu-blog-engine/commit/93c4360adf93b42bc146c690a8c73de07e05912d))
+* 移除冲突的assetPrefix覆盖 ([2c201c0](https://github.com/bosens-China/yliu-blog-engine/commit/2c201c0c484af81c4dc8dad12bfb3ee0e17b85e4))
+
 ## [1.5.2](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.1...v1.5.2) (2025-07-09)
 
 
