@@ -42,15 +42,17 @@ const envSchema = z.object({
     .optional()
     .default('之,系列,-,（,(,）,)#')
     .describe('用于识别专栏的标题分隔符（逗号分隔）'),
-  COLUMN_MIN_ARTICLES: z.coerce
-    .number()
-    .optional()
-    .default(2)
+  COLUMN_MIN_ARTICLES: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.coerce.number().optional().default(2),
+    )
     .describe('一个专栏至少需要包含的文章数量'),
-  COLUMN_MIN_PREFIX_LENGTH: z.coerce
-    .number()
-    .optional()
-    .default(6)
+  COLUMN_MIN_PREFIX_LENGTH: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.coerce.number().optional().default(6),
+    )
     .describe('自动识别专栏所需的最短公共前缀长度'),
 
   // --- SEO 兜底配置 ---
@@ -105,25 +107,29 @@ const envSchema = z.object({
     .describe('站点 SEO 汇总的 AI 服务 URL'),
 
   // --- AI 批处理配置 ---
-  AI_MAX_CHARS_PER_BATCH: z.coerce
-    .number()
-    .optional()
-    .default(50000)
+  AI_MAX_CHARS_PER_BATCH: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.coerce.number().optional().default(50000),
+    )
     .describe('AI 处理时，每个批次的最大字符数'),
-  AI_SINGLE_ARTICLE_THRESHOLD: z.coerce
-    .number()
-    .optional()
-    .default(40000)
+  AI_SINGLE_ARTICLE_THRESHOLD: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.coerce.number().optional().default(40000),
+    )
     .describe('单篇文章大小超过此阈值将独立处理'),
-  AI_MAX_ARTICLES_PER_BATCH: z.coerce
-    .number()
-    .optional()
-    .default(15)
+  AI_MAX_ARTICLES_PER_BATCH: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.coerce.number().optional().default(15),
+    )
     .describe('AI 处理时，每个批次的最大文章数量'),
-  AI_ARTICLE_TRUNCATE_LENGTH: z.coerce
-    .number()
-    .optional()
-    .default(45000)
+  AI_ARTICLE_TRUNCATE_LENGTH: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.coerce.number().optional().default(45000),
+    )
     .describe('为避免超长，输入给 AI 的文章内容将被截断到此长度'),
   AI_TRUNCATE_SUFFIX: z
     .string()
