@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.6.2...root-v1.6.3) (2025-07-18)
+
+
+### Bug Fixes
+
+* 修复专栏本地算法 ([ff0281a](https://github.com/bosens-China/yliu-blog-engine/commit/ff0281a46a4042a993dc69c5fc5946523a80bd76))
+
 ## [1.6.2](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.6.1...root-v1.6.2) (2025-07-18)
 
 
