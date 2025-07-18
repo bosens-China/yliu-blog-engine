@@ -48,10 +48,6 @@ inputs:
     required: false
 
   # --- AI 和专栏处理 ---
-  AI_ENABLE_PROCESSING:
-    description: '是否启用 AI 处理。'
-    required: false
-    default: 'false'
   AI_POSTS_SEO_URL:
     description: '文章 SEO 优化的 AI 服务 URL'
     required: false
@@ -218,7 +214,6 @@ runs:
         NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'
         NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
         NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
-        AI_ENABLE_PROCESSING=${{ inputs.AI_ENABLE_PROCESSING }}
         AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}
         AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}
         AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}

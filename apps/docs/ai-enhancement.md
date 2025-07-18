@@ -6,11 +6,11 @@
 
 我们目前提供三大独立的 AI 功能，您可以选择性地开启一项或多项。
 
-| 功能               | 描述                                                     |
-| ------------------ | -------------------------------------------------------- |
-| **文章 SEO 优化**  | 为每篇文章自动生成更具吸引力的标题、摘要和 SEO 关键词。    |
-| **专栏智能分析**   | 自动分析所有文章，将内容相关的文章组织成专栏系列。       |
-| **全站 SEO 汇总**  | 基于所有文章内容，为您的整个博客生成一个全局的、一致的 SEO 策略。 |
+| 功能              | 描述                                                              |
+| ----------------- | ----------------------------------------------------------------- |
+| **文章 SEO 优化** | 为每篇文章自动生成更具吸引力的标题、摘要和 SEO 关键词。           |
+| **专栏智能分析**  | 自动分析所有文章，将内容相关的文章组织成专栏系列。                |
+| **全站 SEO 汇总** | 基于所有文章内容，为您的整个博客生成一个全局的、一致的 SEO 策略。 |
 
 ## 快速配置
 
@@ -21,19 +21,16 @@
 with:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # [必需] 全局开启 AI 处理
-  AI_ENABLE_PROCESSING: true
-
   # --- 文章 SEO 优化 ---
-  AI_POSTS_SEO_URL: "https://your-dify-url.com/workflows/xxxx/run"
+  AI_POSTS_SEO_URL: 'https://your-dify-url.com/workflows/xxxx/run'
   AI_POSTS_SEO_API_KEY: ${{ secrets.AI_API_KEY }}
 
   # --- 专栏智能分析 ---
-  AI_COLUMNS_URL: "https://your-dify-url.com/workflows/yyyy/run"
+  AI_COLUMNS_URL: 'https://your-dify-url.com/workflows/yyyy/run'
   AI_COLUMNS_API_KEY: ${{ secrets.AI_API_KEY }} # 如果 Key 相同，可复用
 
   # --- 全站 SEO 汇总 ---
-  AI_SITE_SEO_URL: "https://your-dify-url.com/workflows/zzzz/run"
+  AI_SITE_SEO_URL: 'https://your-dify-url.com/workflows/zzzz/run'
   AI_SITE_SEO_API_KEY: ${{ secrets.AI_API_KEY }} # 如果 Key 相同，可复用
 ```
 
@@ -46,7 +43,7 @@ with:
 
 #### **提示词 (Prompt)**
 
-```txt
+````txt
 **角色**: 你是一位顶级的SEO专家和内容分析师。
 
 **任务**: 处理一批以JSON格式提供的文章数据。你需要为每篇文章生成独立的SEO元信息。
@@ -66,9 +63,9 @@ with:
 
 ```json
 {{#articles#}}
-```
+````
 
-```
+````
 
 #### **输出 (JSON Schema)**
 
@@ -147,7 +144,7 @@ with:
     "batch_summary"
   ]
 }
-```
+````
 
 </details>
 
@@ -156,7 +153,7 @@ with:
 
 #### **提示词 (Prompt)**
 
-```txt
+````txt
 **角色**: 你是一位资深的内容策划师，擅长从文章标题列表中发现内在联系，将相关内容组织成系列专栏。
 
 **任务**: 分析给出的文章列表（包含ID和标题），识别并创建专栏。每个专栏应包含至少2篇主题相关的文章。
@@ -180,9 +177,9 @@ with:
 
 ```json
 {{#articles#}}
-```
+````
 
-```
+````
 
 #### **输出 (JSON Schema)**
 
@@ -226,7 +223,7 @@ with:
     "columns"
   ]
 }
-```
+````
 
 </details>
 
@@ -235,7 +232,7 @@ with:
 
 #### **提示词 (Prompt)**
 
-```txt
+````txt
 **角色**: 你是一位品牌策略专家和顶尖SEO顾问。
 
 **任务**: 基于一个网站所有文章的SEO数据（关键词和标签），提炼并生成代表整个网站身份的核心元信息。
@@ -253,9 +250,9 @@ with:
 
 ```json
 {{#all_articles_seo#}}
-```
+````
 
-```
+````
 
 #### **输出 (JSON Schema)**
 
@@ -299,7 +296,7 @@ with:
     "site_meta"
   ]
 }
-```
+````
 
 </details>
 

@@ -15,7 +15,10 @@ export class LocalColumnProcessor {
   }
 
   public process(posts: Post[]): Column[] {
-        const columnMap = new Map<string, number[]>();
+    if (this.minArticles === 0) {
+      return [];
+    }
+    const columnMap = new Map<string, number[]>();
 
         // 1. 基于分隔符的精确匹配
         posts.forEach((post) => {

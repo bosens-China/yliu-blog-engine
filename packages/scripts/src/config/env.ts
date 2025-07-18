@@ -43,16 +43,14 @@ const envSchema = z.object({
     .default('之,系列,-,（,(,）,)#')
     .describe('用于识别专栏的标题分隔符（逗号分隔）'),
   COLUMN_MIN_ARTICLES: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.coerce.number().optional().default(2),
-    )
-    .describe('一个专栏至少需要包含的文章数量'),
+    .coerce.number()
+    .optional()
+    .default(2)
+    .describe('一个专栏至少需要包含的文章数量（设置为 0 禁用）'),
   COLUMN_MIN_PREFIX_LENGTH: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.coerce.number().optional().default(6),
-    )
+    .coerce.number()
+    .optional()
+    .default(6)
     .describe('自动识别专栏所需的最短公共前缀长度'),
 
   // --- SEO 兜底配置 ---
@@ -108,28 +106,24 @@ const envSchema = z.object({
 
   // --- AI 批处理配置 ---
   AI_MAX_CHARS_PER_BATCH: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.coerce.number().optional().default(50000),
-    )
+    .coerce.number()
+    .optional()
+    .default(50000)
     .describe('AI 处理时，每个批次的最大字符数'),
   AI_SINGLE_ARTICLE_THRESHOLD: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.coerce.number().optional().default(40000),
-    )
+    .coerce.number()
+    .optional()
+    .default(40000)
     .describe('单篇文章大小超过此阈值将独立处理'),
   AI_MAX_ARTICLES_PER_BATCH: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.coerce.number().optional().default(15),
-    )
+    .coerce.number()
+    .optional()
+    .default(15)
     .describe('AI 处理时，每个批次的最大文章数量'),
   AI_ARTICLE_TRUNCATE_LENGTH: z
-    .preprocess(
-      (val) => (val === '' ? undefined : val),
-      z.coerce.number().optional().default(45000),
-    )
+    .coerce.number()
+    .optional()
+    .default(45000)
     .describe('为避免超长，输入给 AI 的文章内容将被截断到此长度'),
   AI_TRUNCATE_SUFFIX: z
     .string()
@@ -143,7 +137,23 @@ const envSchema = z.object({
     .describe('是否启用 AI 处理'),
 });
 
-const parsedEnv = envSchema.safeParse(process.env);
+// 创建一个 process.env 的可写副本
+const processedEnv = { ...process.env };
+
+// 定义一个白名单，其中的键即使用户输入为空字符串，也应被视为空字符串，而不是回退到默认值
+const allowEmptyString = new Set<string>([
+  /* 例如: 'NEXT_PUBLIC_FOOTER_TEXT' */
+]);
+
+// 遍历环境变量，如果值为空字符串且不在白名单中，则将其删除
+// 这样 Zod 在解析时会因为找不到该键而自动应用 schema 中定义的默认值
+for (const key in processedEnv) {
+  if (processedEnv[key] === '' && !allowEmptyString.has(key)) {
+    delete processedEnv[key];
+  }
+}
+
+const parsedEnv = envSchema.safeParse(processedEnv);
 
 if (!parsedEnv.success) {
   const issues = parsedEnv.error.issues
@@ -159,7 +169,7 @@ export const githubRepo = (() => {
   const [owner, name] = repoPath.split('/');
   if (!owner || !name) {
     error(
-      `环境变量 NEXT_PUBLIC_GITHUB_REPOSITORY 格式不正确，应为 "owner/name"，当前值为 "${repoPath}"`,
+      `环境变量 NEXT_PUBLIC_GITHUB_REPOSITORY 格式不正确，应为 "owner/name"，当前值为 "${repoPath}"`, 
     );
   }
   return { owner, name };
