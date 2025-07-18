@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.6.1...root-v1.6.2) (2025-07-18)
+
+
+### Bug Fixes
+
+* 更新样式以支持深色模式下的边框颜色，并优化列处理逻辑以移除标题末尾的分隔符 ([2a9d563](https://github.com/bosens-China/yliu-blog-engine/commit/2a9d563cd64d08c3f2ffd7804af89e23e2be2c56))
+
 ## [1.6.1](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.6.0...root-v1.6.1) (2025-07-18)
 
 
