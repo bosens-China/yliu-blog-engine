@@ -246,6 +246,9 @@ button[disabled],
 .border-border\/20 {
   border-color: hsl(214 32% 91% / 0.8);
 }
+.dark .border-border\/20 {
+  border-color: hsl(214 32% 91% / 0.2);
+}
 .border-border\/10 {
   border-color: hsl(214 32% 91% / 0.6);
 }

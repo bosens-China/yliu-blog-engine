@@ -45,7 +45,14 @@ export class LocalColumnProcessor {
       for (let i = 0; i < sorted.length - 1; i++) {
         const lcp = this.longestCommonPrefix(sorted[i].title, sorted[i + 1].title);
         if (lcp.length >= env.COLUMN_MIN_PREFIX_LENGTH) {
-          const columnName = lcp.trim();
+          let columnName = lcp.trim();
+          // 检查并移除末尾可能存在的分隔符
+          for (const delimiter of this.delimiters) {
+            if (columnName.endsWith(delimiter)) {
+              columnName = columnName.slice(0, -delimiter.length).trim();
+              break; // 假设一个标题只匹配一个分隔符
+            }
+          }
           if (!columnMap.has(columnName)) {
             columnMap.set(columnName, []);
           }
