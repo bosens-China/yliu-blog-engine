@@ -15,64 +15,90 @@ export class LocalColumnProcessor {
   }
 
   public process(posts: Post[]): Column[] {
-    const columnMap = new Map<string, number[]>();
+        const columnMap = new Map<string, number[]>();
 
-    // 1. 基于分隔符的精确匹配
-    posts.forEach((post) => {
-      for (const delimiter of this.delimiters) {
-        const parts = post.title.split(delimiter);
-        if (parts.length > 1) {
-          const columnName = parts[0].trim();
-          if (columnName) {
-            if (!columnMap.has(columnName)) {
-              columnMap.set(columnName, []);
-            }
-            columnMap.get(columnName)!.push(post.id);
-            return; // 一旦匹配成功，就不再尝试其他分隔符
-          }
-        }
-      }
-    });
-
-    // 2. 对剩余文章进行基于公共前缀的模糊匹配
-    const remainingPosts = posts.filter(
-      (p) => !Array.from(columnMap.values()).flat().includes(p.id),
-    );
-
-    if (remainingPosts.length > 1) {
-      // 按标题排序以便于比较相邻项
-      const sorted = remainingPosts.sort((a, b) => a.title.localeCompare(b.title));
-      for (let i = 0; i < sorted.length - 1; i++) {
-        const lcp = this.longestCommonPrefix(sorted[i].title, sorted[i + 1].title);
-        if (lcp.length >= env.COLUMN_MIN_PREFIX_LENGTH) {
-          let columnName = lcp.trim();
-          // 检查并移除末尾可能存在的分隔符
+        // 1. 基于分隔符的精确匹配
+        posts.forEach((post) => {
           for (const delimiter of this.delimiters) {
-            if (columnName.endsWith(delimiter)) {
-              columnName = columnName.slice(0, -delimiter.length).trim();
-              break; // 假设一个标题只匹配一个分隔符
+            const parts = post.title.split(delimiter);
+            if (parts.length > 1) {
+              const columnName = parts[0].trim();
+              if (columnName) {
+                if (!columnMap.has(columnName)) {
+                  columnMap.set(columnName, []);
+                }
+                columnMap.get(columnName)!.push(post.id);
+                return; // 一旦匹配成功，就不再尝试其他分隔符
+              }
             }
           }
-          if (!columnMap.has(columnName)) {
-            columnMap.set(columnName, []);
-          }
-          // 将所有具有此公共前缀的文章归入该专栏
-          sorted.forEach((p) => {
-            if (p.title.startsWith(lcp) && !columnMap.get(columnName)?.includes(p.id)) {
-              columnMap.get(columnName)!.push(p.id);
+        });
+
+        // 2. 对剩余文章进行基于公共前缀的模糊匹配
+        const remainingPosts = posts.filter(
+          (p) => !Array.from(columnMap.values()).flat().includes(p.id),
+        );
+
+        if (remainingPosts.length > 1) {
+          // 按标题排序以便于比较相邻项
+          const sorted = remainingPosts.sort((a, b) =>
+            a.title.localeCompare(b.title),
+          );
+          let i = 0;
+          while (i < sorted.length - 1) {
+            const lcp = this.longestCommonPrefix(
+              sorted[i].title,
+              sorted[i + 1].title,
+            );
+
+            if (lcp.length < env.COLUMN_MIN_PREFIX_LENGTH) {
+              i++;
+              continue;
             }
-          });
+
+            // 发现潜在专栏，收集所有具有此前缀的连续文章
+            const group = [sorted[i]];
+            let j = i + 1;
+            while (j < sorted.length && sorted[j].title.startsWith(lcp)) {
+              group.push(sorted[j]);
+              j++;
+            }
+
+            // 清理专栏名称
+            let columnName = lcp.trim();
+            // 首先，尝试移除已知的分隔符
+            for (const delimiter of this.delimiters) {
+              if (columnName.endsWith(delimiter)) {
+                columnName = columnName.slice(0, -delimiter.length).trim();
+                break;
+              }
+            }
+            // 然后，移除所有末尾的非单词字符，以处理类似“之”或“-”的残留
+            columnName = columnName.replace(/[\W_]+$/g, '').trim();
+
+            if (columnName) {
+              if (!columnMap.has(columnName)) {
+                columnMap.set(columnName, []);
+              }
+              const currentColumnPosts = columnMap.get(columnName)!;
+              group.forEach((p) => {
+                // 确保文章未被添加到此专栏中
+                if (!currentColumnPosts.includes(p.id)) {
+                  currentColumnPosts.push(p.id);
+                }
+              });
+            }
+            i = j; // 跳转到下一个未处理的文章
+          }
         }
+
+        // 3. 过滤掉不满足最小文章数的专栏，并创建最终对象
+        const finalColumns = Array.from(columnMap.entries())
+          .filter(([, postIds]) => postIds.length >= this.minArticles)
+          .map(([name, postIds]) => this.createColumnObject(name, postIds, posts));
+
+        return finalColumns;
       }
-    }
-
-    // 3. 过滤掉不满足最小文章数的专栏，并创建最终对象
-    const finalColumns = Array.from(columnMap.entries())
-      .filter(([, postIds]) => postIds.length >= this.minArticles)
-      .map(([name, postIds]) => this.createColumnObject(name, postIds, posts));
-
-    return finalColumns;
-  }
 
   private longestCommonPrefix(str1: string, str2: string): string {
     let i = 0;
