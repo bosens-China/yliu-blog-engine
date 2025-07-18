@@ -3,24 +3,8 @@ import type { NextConfig } from 'next';
 
 // 智能解析 basePath
 function getBasePath(): string {
-  // 1. 优先使用显式设置的环境变量
-  if (process.env.NEXT_PUBLIC_BASE_PATH) {
-    return process.env.NEXT_PUBLIC_BASE_PATH;
-  }
-
-  // 2. 在 GitHub Action 环境中自动解析
-  if (process.env.GITHUB_ACTIONS && process.env.NEXT_PUBLIC_GITHUB_REPOSITORY) {
-    const [owner, repo] = process.env.NEXT_PUBLIC_GITHUB_REPOSITORY.split('/');
-    // 如果仓库名是 owner.github.io，则不需要 basePath
-    if (repo === `${owner}.github.io`) {
-      return '';
-    }
-    // 否则使用仓库名作为 basePath
-    return `/${repo}`;
-  }
-
-  // 3. 本地开发或其他环境，不设置 basePath
-  return '';
+  // 优先使用显式设置的环境变量
+  return process.env.NEXT_PUBLIC_BASE_PATH || '';
 }
 
 const basePath = getBasePath();

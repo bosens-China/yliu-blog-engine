@@ -1,3 +1,4 @@
+import { env } from '@/config/env';
 import type { GithubIssue } from '@yliu/types/issues';
 import { log, warn } from '@/utils/logger';
 import { unified } from 'unified';
@@ -181,6 +182,7 @@ export class ImageProcessor {
   }
 
   private generateLocalImagePath(url: string) {
+    const basePath = env.NEXT_PUBLIC_BASE_PATH || '';
     try {
       const parsedUrl = new URL(url);
       const fileExtension = path.extname(parsedUrl.pathname) || '.png';
@@ -192,7 +194,7 @@ export class ImageProcessor {
       const localFilename = `${hash}${fileExtension}`;
       return {
         localPath: path.join(this.publicDir, localFilename),
-        publicPath: `/images/downloaded/${localFilename}`,
+        publicPath: `${basePath}/images/downloaded/${localFilename}`,
       };
     } catch {
       const hash = crypto
@@ -202,7 +204,7 @@ export class ImageProcessor {
         .substring(0, 16);
       return {
         localPath: path.join(this.publicDir, `${hash}.png`),
-        publicPath: `/images/downloaded/${hash}.png`,
+        publicPath: `${basePath}/images/downloaded/${hash}.png`,
       };
     }
   }
