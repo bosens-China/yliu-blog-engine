@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.17](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.16...v1.5.17) (2025-07-18)
+
+
+### Bug Fixes
+
+* 优化 basePath 处理逻辑，简化代码并确保在图像处理时正确使用环境变量 ([e17b59c](https://github.com/bosens-China/yliu-blog-engine/commit/e17b59c3c54492e063a29c6c2c40324e76dc3922))
+
 ## [1.5.16](https://github.com/bosens-China/yliu-blog-engine/compare/v1.5.15...v1.5.16) (2025-07-18)
 
 
