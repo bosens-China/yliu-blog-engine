@@ -196,7 +196,7 @@ runs:
         FINAL_BASE_PATH="${INPUT_BASE_PATH:-$DERIVED_BASE_PATH}"
         FINAL_SITE_URL="${INPUT_SITE_URL:-$DERIVED_SITE_URL}"
 
-        ENV_FILE="./blog_engine/packages/scripts/.env"
+        ENV_FILE="./blog_engine/.env"
         echo "正在创建 .env 文件于 $ENV_FILE"
 
         cat << EOF > $ENV_FILE
