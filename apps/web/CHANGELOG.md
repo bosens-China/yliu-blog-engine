@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.0.1...web-v1.0.2) (2025-07-18)
+
+
+### Bug Fixes
+
+* 更新深色模式背景颜色为 HSL 格式，以提高可读性 ([24a7b4f](https://github.com/bosens-China/yliu-blog-engine/commit/24a7b4f151e4be69e61723bac3ce8c5ad39753b9))
+
 ## [1.0.1](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.0.0...web-v1.0.1) (2025-07-18)
 
 
