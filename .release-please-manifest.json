@@ -1,6 +1,6 @@
 {
-  ".": "1.6.1",
-  "apps/web": "1.0.0",
+  ".": "1.6.2",
+  "apps/web": "1.0.1",
   "apps/docs": "1.0.0",
-  "packages/scripts": "1.0.1"
+  "packages/scripts": "1.0.2"
 }
