@@ -42,6 +42,11 @@
     }
   ],
   "packages": {
+    ".": {
+      "component": "root",
+      "release-type": "node",
+      "changelog-path": "CHANGELOG.md"
+    },
     "apps/web": {
       "component": "web",
       "release-type": "node"
@@ -52,6 +57,10 @@
     },
     "packages/scripts": {
       "component": "scripts",
+      "release-type": "node"
+    },
+    "packages/types": {
+      "component": "types",
       "release-type": "node"
     }
   },
