@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.0.2...scripts-v1.0.3) (2025-07-18)
+
+
+### Bug Fixes
+
+* 修复专栏本地算法 ([ff0281a](https://github.com/bosens-China/yliu-blog-engine/commit/ff0281a46a4042a993dc69c5fc5946523a80bd76))
+
 ## [1.0.2](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.0.1...scripts-v1.0.2) (2025-07-18)
 
 
