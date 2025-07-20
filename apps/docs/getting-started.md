@@ -38,6 +38,11 @@ permissions:
   pages: write
   id-token: write
 
+# 优化：避免因快速连续操作（如创建、打标签、编辑）导致的重复构建
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -54,6 +59,12 @@ jobs:
 ```
 
 保存并提交这个文件。
+
+::: tip
+您可能会注意到，当您创建一个新的 Issue 并为其添加标签时，CI 流程可能会被触发多次。这是因为您的每个动作（`创建`、`打标签`、`编辑`）都对应着 `on.issues.types` 中监听的一个事件类型。
+
+`concurrency` 配置可以完美解决这个问题。它能确保对于同一个 Issue，只有一个构建任务可以处于“正在运行”的状态。如果一个新的构建被触发，它会自动取消掉前一个正在运行的构建，从而只执行最新的构建，节省您的构建资源。
+:::
 
 ## 🎉 部署完成！
 

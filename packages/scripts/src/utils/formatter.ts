@@ -2,9 +2,11 @@ import readingTime from 'reading-time';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import stripMarkdown from 'strip-markdown';
-import { visit } from 'unist-util-visit';
-import type { Image } from 'mdast';
 import remarkStringify from 'remark-stringify';
+import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
+import { visit } from 'unist-util-visit';
+import type { Element } from 'hast';
 
 /**
  * 计算内容的预估阅读时间。
@@ -48,13 +50,21 @@ export function extractThumbnails(content: string): string[] {
   if (!content) return [];
 
   const imageUrls: string[] = [];
-  const tree = unified().use(remarkParse).parse(content);
 
-  visit(tree, 'image', (node: Image) => {
-    if (node.url && imageUrls.length < 3) {
-      imageUrls.push(node.url);
+  const processor = unified()
+    .use(remarkParse)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw);
+
+  const tree = processor.parse(content);
+  const hast = processor.runSync(tree);
+
+  visit(hast, 'element', (node: Element) => {
+    if (node.tagName === 'img' && node.properties && node.properties.src) {
+      imageUrls.push(String(node.properties.src));
     }
   });
 
-  return imageUrls;
+  const uniqueImageUrls = [...new Set(imageUrls)];
+  return uniqueImageUrls.slice(0, 3);
 }
