@@ -1,9 +1,11 @@
-import { useTheme } from "next-themes";
-import Link from "next/link";
-import { X, Sun, Moon } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from 'next-themes';
+import Link from 'next/link';
+import { X, Sun, Moon } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import clsx from 'clsx';
+import { useClickAway } from 'ahooks';
 
 interface NavLink {
   href: string;
@@ -25,12 +27,19 @@ export default function MobileMenu({
 }: MobileMenuProps) {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useClickAway(() => {
+    if (isOpen) {
+      onClose();
+    }
+  }, menuRef);
 
   // 检查链接是否活跃
   const isLinkActive = (href: string, type: string) => {
-    if (href === "/page/1" && pathname === "/") return true;
-    if (href === "/page/1" && pathname.startsWith("/page")) return true;
-    if (type === "label" && href.startsWith("/category/")) {
+    if (href === '/page/1' && pathname === '/') return true;
+    if (href === '/page/1' && pathname.startsWith('/page')) return true;
+    if (type === 'label' && href.startsWith('/category/')) {
       return pathname === href;
     }
     return pathname.startsWith(href);
@@ -38,43 +47,42 @@ export default function MobileMenu({
 
   // 切换主题函数
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   // 当菜单打开时，禁止body滚动
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
   return (
-    <div
-      className={`fixed inset-0 z-50 md:hidden bg-black/20 dark:bg-black/50 backdrop-blur-sm ${
-        isOpen
-          ? "opacity-100 pointer-events-auto"
-          : "opacity-0 pointer-events-none"
-      }`}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-      style={{ transition: "opacity 0.2s ease" }}
-    >
-      <AnimatePresence mode="wait">
-        {isOpen && (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <div
+          className={clsx(
+            'fixed inset-0 z-50 md:hidden bg-black/20 dark:bg-black/50 backdrop-blur-sm',
+            {
+              'opacity-100 pointer-events-auto': isOpen,
+              'opacity-0 pointer-events-none': !isOpen,
+            },
+          )}
+        >
           <motion.div
-            initial={{ x: "100%" }}
+            ref={menuRef}
+            initial={{ x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: "100%" }}
+            exit={{ x: '100%' }}
             transition={{
-              type: "tween",
+              type: 'tween',
               duration: 0.15,
-              ease: "easeOut",
+              ease: 'easeOut',
             }}
             className="absolute right-0 top-0 h-full w-4/5 max-w-xs bg-white dark:bg-gray-900/95 border-l border-border shadow-xl flex flex-col backdrop-blur-sm"
           >
@@ -94,11 +102,17 @@ export default function MobileMenu({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center px-4 py-3 rounded-md text-base transition-colors ${
-                    isLinkActive(link.href, link.type)
-                      ? "text-primary font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={clsx(
+                    'flex items-center px-4 py-3 rounded-md text-base transition-colors',
+                    {
+                      'text-primary font-medium': isLinkActive(
+                        link.href,
+                        link.type,
+                      ),
+                      'text-muted-foreground hover:text-foreground':
+                        !isLinkActive(link.href, link.type),
+                    },
+                  )}
                   onClick={onClose}
                 >
                   {link.text}
@@ -117,15 +131,15 @@ export default function MobileMenu({
                   className="w-full flex items-center gap-3 px-3 py-3 rounded-md text-base text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                 >
                   <span className="text-primary">
-                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                   </span>
-                  {theme === "dark" ? "切换到明亮模式" : "切换到暗黑模式"}
+                  {theme === 'dark' ? '切换到明亮模式' : '切换到暗黑模式'}
                 </button>
               </div>
             </nav>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

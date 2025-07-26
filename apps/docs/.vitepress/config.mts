@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress';
+import llmstxt from 'vitepress-plugin-llms';
 
 /**
  * 动态计算 base 路径
@@ -87,5 +88,8 @@ export default defineConfig({
         'https://github.com/bosens-China/yliu-blog-engine/edit/main/apps/docs/:path',
       text: '在 GitHub 上编辑此页',
     },
+  },
+  vite: {
+    plugins: [llmstxt()],
   },
 });

@@ -10,6 +10,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/unist": "^3.0.3",
+    "ahooks": "^3.9.0",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.18.2",
     "fuse.js": "^7.0.0",
@@ -22,21 +25,26 @@
     "react-markdown": "^10.1.0",
     "rehype-highlight": "^7.0.2",
     "rehype-raw": "^7.0.0",
-    "remark-gfm": "^4.0.1"
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@next/eslint-plugin-next": "^15.3.4",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/mdast": "^4.0.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@yliu/types": "workspace:*",
     "code-inspector-plugin": "^0.20.15",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "eslint-plugin-react-hooks": "^5.2.0",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "@yliu/types": "workspace:*"
+    "typescript": "^5"
   }
 }

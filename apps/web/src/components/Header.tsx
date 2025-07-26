@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import clsx from 'clsx';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Menu, X, Sun, Moon, Search } from 'lucide-react';
+import { Menu, X, Sun, Moon, Search, Monitor } from 'lucide-react';
 import SearchModal from './SearchModal';
 import MobileMenu from './MobileMenu';
 import { usePathname } from 'next/navigation';
@@ -101,20 +102,57 @@ export default function Header() {
     if (type === 'label' && href.startsWith('/category/')) {
       return pathname === href;
     }
-    return pathname.startsWith(href);
+    return pathname.startsWith(href) && href !== '/';
   };
 
-  // 切换主题函数
+  // 切换主题函数 - 循环切换 light -> dark -> system
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    if (theme === 'light') {
+      setTheme('dark');
+    } else if (theme === 'dark') {
+      setTheme('system');
+    } else {
+      setTheme('light');
+    }
+  };
+
+  // 获取当前主题图标
+  const getThemeIcon = () => {
+    switch (theme) {
+      case 'light':
+        return <Sun size={20} />;
+      case 'dark':
+        return <Moon size={20} />;
+      case 'system':
+        return <Monitor size={20} />;
+      default:
+        return <Monitor size={20} />;
+    }
+  };
+
+  // 获取主题描述
+  const getThemeLabel = () => {
+    switch (theme) {
+      case 'light':
+        return '切换到暗黑模式';
+      case 'dark':
+        return '切换到系统模式';
+      case 'system':
+        return '切换到明亮模式';
+      default:
+        return '切换主题';
+    }
   };
 
   return (
     <>
       <header
-        className={`sticky top-0 z-40 w-full border-b border-border bg-white dark:bg-background/95 backdrop-blur-md transition-all print:hidden ${
-          scrolled ? 'shadow-sm' : ''
-        }`}
+        className={clsx(
+          'sticky top-0 z-40 w-full border-b border-border bg-white dark:bg-background/95 backdrop-blur-md transition-all print:hidden',
+          {
+            'shadow-sm': scrolled,
+          },
+        )}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -131,11 +169,17 @@ export default function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`text-sm px-4 py-2 rounded-md transition-colors ${
-                      isLinkActive(link.href, link.type)
-                        ? 'text-primary font-medium'
-                        : 'text-foreground/70 dark:text-foreground/80 hover:text-foreground'
-                    }`}
+                    className={clsx(
+                      'text-sm px-4 py-2 rounded-md transition-colors',
+                      {
+                        'text-primary font-medium': isLinkActive(
+                          link.href,
+                          link.type,
+                        ),
+                        'text-foreground/70 dark:text-foreground/80 hover:text-foreground':
+                          !isLinkActive(link.href, link.type),
+                      },
+                    )}
                   >
                     {link.text}
                   </Link>
@@ -155,13 +199,10 @@ export default function Header() {
               <button
                 onClick={toggleTheme}
                 className="p-2 text-foreground/70 dark:text-foreground/80 hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
-                aria-label={
-                  theme === 'dark' ? '切换到明亮模式' : '切换到暗黑模式'
-                }
-                title={theme === 'dark' ? '切换到明亮模式' : '切换到暗黑模式'}
+                aria-label={mounted ? getThemeLabel() : '切换主题'}
+                title={mounted ? getThemeLabel() : '切换主题'}
               >
-                {mounted &&
-                  (theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />)}
+                {mounted ? getThemeIcon() : <Monitor size={20} />}
               </button>
 
               <button

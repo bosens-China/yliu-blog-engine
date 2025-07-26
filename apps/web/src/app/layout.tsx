@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { getBlogData } from "@/lib/data";
 import fs from "node:fs";
 import path from "node:path";
+import clsx from "clsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -106,7 +107,11 @@ export default function RootLayout({
         ))}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen flex flex-col`}
+        className={clsx(
+          geistSans.variable,
+          geistMono.variable,
+          'antialiased bg-background text-foreground min-h-screen flex flex-col',
+        )}
       >
         <ThemeProvider
           attribute="class"

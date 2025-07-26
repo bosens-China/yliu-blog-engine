@@ -1,5 +1,27 @@
 @import 'tailwindcss';
-@import 'highlight.js/styles/github-dark.css';
+
+/* ========= v4 推荐的插件加载方式 ========= */
+@plugin "@tailwindcss/typography";
+
+/* ========= 暗色模式 prose 样式覆盖 ========= */
+.dark .prose {
+  --tw-prose-body: oklch(78% 0.03 264.1);
+  --tw-prose-headings: oklch(92% 0.02 264.1);
+  --tw-prose-lead: oklch(70% 0.03 264.1);
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: oklch(92% 0.02 264.1);
+  --tw-prose-counters: oklch(70% 0.03 264.1);
+  --tw-prose-bullets: oklch(50% 0.05 264.1);
+  --tw-prose-hr: oklch(30% 0.05 264.1);
+  --tw-prose-quotes: oklch(85% 0.03 264.1);
+  --tw-prose-quote-borders: oklch(30% 0.05 264.1);
+  --tw-prose-captions: oklch(65% 0.03 264.1);
+  --tw-prose-code: oklch(85% 0.04 264.1);
+  --tw-prose-pre-code: oklch(85% 0.04 264.1);
+  --tw-prose-pre-bg: oklch(17% 0.05 264.1);
+  --tw-prose-th-borders: oklch(30% 0.05 264.1);
+  --tw-prose-td-borders: oklch(30% 0.05 264.1);
+}
 
 :root {
   --background: 260 20% 98%;
@@ -115,20 +137,11 @@ button[disabled],
   opacity: 0.6;
 }
 
-/* ======== 代码块等与卡片无关的样式（保持不变） ======== */
+/* ======== 代码块样式 ======== */
 .code-block-container {
-  @apply my-6 shadow-lg border border-border;
-  border-radius: 6px;
-}
-.code-block-container pre {
-  @apply my-0 p-0;
-  background-color: #1a1b20;
-  color: #e6edf3;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-.code-block-header {
-  background-color: #1a1b20;
-  color: hsl(var(--muted-foreground));
+  @apply my-6 shadow-lg;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 /* ======== 页面内容统一背景 ======== */
@@ -216,10 +229,11 @@ button[disabled],
 }
 
 @media (max-width: 768px) {
-  h1 {
+  /* 避免影响文章内容的标题，只针对页面级标题 */
+  .page-title h1 {
     @apply text-2xl md:text-3xl;
   }
-  h2 {
+  .page-title h2 {
     @apply text-xl md:text-2xl;
   }
   .container {

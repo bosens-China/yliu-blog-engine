@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import clsx from "clsx";
 
 interface PaginationProps {
   /**
@@ -84,19 +85,18 @@ export default function Pagination({
         {pageNumbers.map((pageNum) => {
           const isCurrentPage = pageNum === currentPage;
 
-          return isCurrentPage ? (
-            <span
-              key={pageNum}
-              className="flex items-center justify-center w-9 h-9 rounded-md bg-primary text-white dark:text-white font-medium text-sm"
-              aria-current="page"
-            >
-              {pageNum}
-            </span>
-          ) : (
+          return (
             <Link
               key={pageNum}
               href={createHref(pageNum)}
-              className="flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg hover:bg-muted/50 transition-colors text-sm"
+              className={clsx(
+                'flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg hover:bg-muted/50 transition-colors text-sm',
+                {
+                  'bg-primary text-white dark:text-white font-medium':
+                    isCurrentPage,
+                },
+              )}
+              aria-current={isCurrentPage ? 'page' : undefined}
             >
               {pageNum}
             </Link>

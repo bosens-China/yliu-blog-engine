@@ -7,6 +7,12 @@ import { searchPosts, getLabels } from '@/lib/data';
 import type { Post } from '@yliu/types/blog';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import {
+  useDebounceEffect,
+  useLocalStorageState,
+  useKeyPress,
+  useClickAway,
+} from 'ahooks';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -17,20 +23,32 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useLocalStorageState<string[]>(
+    'recent-searches',
+    {
+      defaultValue: [],
+    },
+  );
   const [hotTags, setHotTags] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useClickAway(() => {
+    if (isOpen) {
+      onClose();
+    }
+  }, modalRef);
+
+  useKeyPress('Escape', () => {
+    if (isOpen) {
+      onClose();
+    }
+  });
 
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
-      // 从localStorage加载最近搜索
-      const saved = localStorage.getItem('recent-searches');
-      if (saved) {
-        setRecentSearches(JSON.parse(saved));
-      }
-
       // 获取热门标签（取前5个）
       try {
         const labels = getLabels();
@@ -42,14 +60,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
+  useDebounceEffect(
+    () => {
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
 
-    setIsLoading(true);
-    const debounceTimer = setTimeout(() => {
+      setIsLoading(true);
       try {
         const results = searchPosts(query);
         setSearchResults(results.posts.slice(0, 5)); // 只显示前5条结果
@@ -58,10 +76,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         setSearchResults([]);
       }
       setIsLoading(false);
-    }, 300);
-
-    return () => clearTimeout(debounceTimer);
-  }, [query]);
+    },
+    [query],
+    { wait: 300 },
+  );
 
   const handleSearch = (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -69,12 +87,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     // 保存到最近搜索
     const newRecentSearches = [
       searchQuery,
-      ...recentSearches.filter((s) => s !== searchQuery),
+      ...(recentSearches?.filter((s) => s !== searchQuery) || []),
     ].slice(0, 5);
 
     setRecentSearches(newRecentSearches);
-    localStorage.setItem('recent-searches', JSON.stringify(newRecentSearches));
-
     setQuery(searchQuery);
   };
 
@@ -83,28 +99,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     onClose();
   };
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm"
-      onClick={handleBackdropClick}
-      onKeyDown={handleKeyDown}
-    >
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm">
       {/* 桌面端搜索框 */}
-      <div className="hidden sm:flex w-full max-w-2xl mx-4 mt-24 bg-white dark:bg-gray-900/95 rounded-lg shadow-xl border border-border/20 dark:border-border/30 overflow-hidden backdrop-blur-sm">
+      <div
+        ref={modalRef}
+        className="hidden sm:flex w-full max-w-2xl mx-4 mt-24 bg-white dark:bg-gray-900/95 rounded-lg shadow-xl border border-border/20 dark:border-border/30 overflow-hidden backdrop-blur-sm"
+      >
         {/* 搜索框 */}
         <div className="w-full">
           <div className="flex items-center px-4 py-4 border-b border-border/20 dark:border-border/30">
@@ -130,7 +133,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             {!query && (
               <div className="p-6 space-y-6">
                 {/* 最近搜索 */}
-                {recentSearches.length > 0 && (
+                {recentSearches && recentSearches.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-foreground mb-3 flex items-center">
                       <Clock size={16} className="mr-2 text-primary" />
@@ -288,7 +291,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {!query && (
             <div className="p-4 space-y-6">
               {/* 最近搜索 */}
-              {recentSearches.length > 0 && (
+              {recentSearches && recentSearches.length > 0 && (
                 <div>
                   <h3 className="text-base font-medium text-foreground mb-3 flex items-center">
                     <Clock size={18} className="mr-2 text-primary" />
