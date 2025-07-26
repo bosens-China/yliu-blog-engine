@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.7.0...root-v1.7.1) (2025-07-26)
+
+
+### Bug Fixes
+
+* 对链接进行编码以确保正确处理特殊字符，更新样式文件路径以支持基础路径配置 ([197ad5e](https://github.com/bosens-China/yliu-blog-engine/commit/197ad5e0a2500ff2e82cae50e2f790486b666da3))
+
 ## [1.7.0](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.6.5...root-v1.7.0) (2025-07-26)
 
 
