@@ -22,40 +22,45 @@
 ```yaml
 # .github/workflows/blog.yml
 
-name: Deploy Blog
+name: Blog CI
 
 on:
-  # 允许您在 Actions 页面手动触发此工作流
+  issues:
+    types:
+      - opened
+      - edited
+      - deleted
+      - closed
+      - reopened
+      - labeled
+      - unlabeled
   workflow_dispatch:
 
-  # 当您的 Issues 发生任何变化时，自动触发
-  issues:
-    types: [opened, edited, closed, reopened, labeled, unlabeled]
-
-# 授予工作流部署到 GitHub Pages 的权限
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# 优化：避免因快速连续操作（如创建、打标签、编辑）导致的重复构建
+# 并发控制：确保只运行最新的构建任务
+# group: ${{ github.workflow }} - 将所有由此工作流触发的任务归为一组
+# cancel-in-progress: true - 当新任务启动时，自动取消同一组内正在运行的旧任务
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: bosens-China/yliu-blog-engine@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Blog
+        uses: yiliang114/yliu-blog-engine@main # 引用你的 Action
         with:
-          # 强烈推荐：使用 GitHub 自动提供的令牌以避免 API 速率限制
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          issue_number: ${{ github.event.issue.number }}
+          branch: 'gh-pages' # 你希望部署到的分支
 ```
 
 保存并提交这个文件。
