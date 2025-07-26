@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.1.1...web-v1.2.0) (2025-07-26)
+
+
+### Features
+
+* 更新 Tailwind 配置以支持新的颜色和边框半径，添加滚动条样式，重构文章和专栏页面以使用 ID 进行链接，优化搜索模态和 Markdown 内容组件，增强深色模式支持 ([8e85aa6](https://github.com/bosens-China/yliu-blog-engine/commit/8e85aa636708b2a063d378c2f6ca4ae654fe3e6e))
+* 添加 GitHub 链接到移动菜单和头部组件，优化样式，更新全局样式以支持移动菜单背景，简化深色模式检测逻辑 ([e8e32f1](https://github.com/bosens-China/yliu-blog-engine/commit/e8e32f12175fd6ac64f7aedd862b210025f4478e))
+
 ## [1.1.1](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.1.0...web-v1.1.1) (2025-07-26)
 
 
