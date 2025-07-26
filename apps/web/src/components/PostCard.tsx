@@ -69,7 +69,7 @@ export default function PostCard({ post }: PostCardProps) {
           {post.labels.slice(0, 3).map((label) => (
             <Link
               key={label}
-              href={`/category/${label}`}
+              href={`/category/${encodeURIComponent(label)}`}
               className="bg-secondary/50 text-foreground dark:text-secondary-foreground text-xs px-3 py-1 rounded-full hover:bg-secondary/70 transition-colors"
             >
               #{label}

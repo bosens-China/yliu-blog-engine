@@ -25,8 +25,8 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     const fn = async () => {
       fetch(
         theme === 'dark'
-          ? '/styles/github-dark.min.css'
-          : '/styles/github.min.css',
+          ? `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/styles/github-dark.min.css`
+          : `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/styles/github.min.css`,
       )
         .then((res) => res.text())
         .then((text) => {
