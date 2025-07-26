@@ -98,7 +98,7 @@ export class LocalColumnProcessor {
         // 3. 过滤掉不满足最小文章数的专栏，并创建最终对象
         const finalColumns = Array.from(columnMap.entries())
           .filter(([, postIds]) => postIds.length >= this.minArticles)
-          .map(([name, postIds]) => this.createColumnObject(name, postIds, posts));
+          .map(([name, postIds], index) => this.createColumnObject(name, postIds, posts, index + 1));
 
         return finalColumns;
       }
@@ -115,6 +115,7 @@ export class LocalColumnProcessor {
     name: string,
     postIds: number[],
     allPosts: Post[],
+    id: number,
   ): Column {
     const postsInColumn = allPosts.filter((p) => postIds.includes(p.id));
     const latestPost = postsInColumn.sort(
@@ -123,6 +124,7 @@ export class LocalColumnProcessor {
     )[0];
 
     return {
+      id,
       name,
       description: `关于“${name}”的系列文章。`,
       posts: postIds,

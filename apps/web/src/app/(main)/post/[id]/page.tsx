@@ -34,7 +34,10 @@ export async function generateMetadata({
   const authorName = blogMetadata.author;
 
   const description = post.excerpt;
-  const keywords = [...(post.keywords || []), ...(post.labels || [])];
+  const keywords = [
+    ...(post.keywords || []),
+    ...(post.labels.map((f) => f.name) || []),
+  ];
   if (post.column) {
     keywords.push(post.column);
   }
@@ -95,13 +98,13 @@ export default async function PostPage({ params }: Props) {
                   {format(new Date(post.createdAt), 'yyyy年MM月dd日')}
                 </time>
                 {post.labels.map((label, index) => (
-                  <span key={label}>
+                  <span key={label.id}>
                     <Link
-                      key={label}
-                      href={`/category/${encodeURIComponent(label)}`}
+                      key={label.id}
+                      href={`/category/${label.id}`}
                       className="bg-secondary/50 text-foreground dark:text-secondary-foreground text-xs px-3 py-1 rounded-full hover:bg-secondary/70 transition-colors"
                     >
-                      #{label}
+                      #{label.name}
                     </Link>
                     {index < post.labels.length - 1 && ', '}
                   </span>

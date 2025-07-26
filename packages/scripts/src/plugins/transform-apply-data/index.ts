@@ -76,7 +76,12 @@ function applyPostSEO(
         ...post,
         excerpt: seo.description,
         keywords: seo.keywords,
-        labels: [...new Set([...post.labels, ...seo.tags])],
+        labels: [
+          ...new Set([
+            ...post.labels,
+            ...seo.tags.map((tag) => ({ id: 0, name: tag })), // AI a tag id
+          ]),
+        ],
       };
     }
     return post;
@@ -88,7 +93,8 @@ function processColumns(posts: Post[], columns?: AIEnhancements['columns']) {
   if (columns && columns.length > 0) {
     log('使用 AI 生成的专栏数据...');
     const postMap = new Map(posts.map((p) => [p.id, p]));
-    finalColumns = columns.map((col) => ({
+    finalColumns = columns.map((col, index) => ({
+      id: index + 1,
       name: col.name,
       description: col.description,
       posts: col.article_ids,
@@ -118,16 +124,20 @@ function processColumns(posts: Post[], columns?: AIEnhancements['columns']) {
 }
 
 function processLabels(posts: Post[], issues: GithubIssue[]): Label[] {
-  const allLabelNames = new Set<string>(posts.flatMap((p) => p.labels));
+  const allLabels = new Set<string>(posts.flatMap((p) => p.labels.map(l => l.name)));
   const issueLabelMap = new Map(
     issues.flatMap((i) => i.labels).map((l) => [l.name, l]),
   );
-  return Array.from(allLabelNames).map((name) => ({
-    name: name,
-    color: issueLabelMap.get(name)?.color || '000000',
-    description: issueLabelMap.get(name)?.description || null,
-    count: posts.filter((p) => p.labels.includes(name)).length,
-  }));
+  return Array.from(allLabels).map((name) => {
+    const issueLabel = issueLabelMap.get(name);
+    return {
+      id: issueLabel?.id || 0,
+      name: name,
+      color: issueLabel?.color || '000000',
+      description: issueLabel?.description || null,
+      count: posts.filter((p) => p.labels.some(l => l.name === name)).length,
+    };
+  });
 }
 
 async function readAboutFile(): Promise<string | null> {

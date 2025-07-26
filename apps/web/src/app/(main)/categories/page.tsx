@@ -1,5 +1,5 @@
-import { getLabels, getBlogData } from "@/lib/data";
-import Link from "next/link";
+import { getLabels, getBlogData } from '@/lib/data';
+import Link from 'next/link';
 
 export default function CategoriesPage() {
   const labels = getLabels();
@@ -30,8 +30,8 @@ export default function CategoriesPage() {
 
         {labels.map((label) => (
           <Link
-            key={label.name}
-            href={`/category/${encodeURIComponent(label.name)}`}
+            key={label.id}
+            href={`/category/${label.id}`}
             className="flex items-center gap-2 page-content-bg border border-border dark:border-border/30 rounded-full px-4 py-2 hover:border-primary transition-all group"
           >
             <span className="font-medium text-foreground group-hover:text-primary transition-colors">

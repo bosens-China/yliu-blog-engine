@@ -14,9 +14,7 @@ export default function ColumnsPage() {
           <BookOpen className="w-7 h-7 text-primary" />
           所有专栏
         </h1>
-        <p className="text-muted-foreground">
-          共 {columns.length} 个专栏系列
-        </p>
+        <p className="text-muted-foreground">共 {columns.length} 个专栏系列</p>
       </header>
 
       {columns.length > 0 ? (
@@ -36,10 +34,7 @@ export default function ColumnsPage() {
                 key={column.name}
                 className="border-b border-border/20 dark:border-border/10 pb-6 last:border-b-0 last:pb-0"
               >
-                <Link
-                  href={`/column/${encodeURIComponent(column.name)}`}
-                  className="block group"
-                >
+                <Link href={`/column/${column.id}`} className="block group">
                   <h2 className="text-xl font-semibold group-hover:text-primary transition-colors mb-3">
                     {column.name}
                   </h2>
@@ -49,10 +44,7 @@ export default function ColumnsPage() {
                     {hasValidDate && (
                       <span>
                         最后更新：
-                        {format(
-                          new Date(column.lastUpdated),
-                          'yyyy年MM月dd日',
-                        )}
+                        {format(new Date(column.lastUpdated), 'yyyy年MM月dd日')}
                       </span>
                     )}
                   </div>

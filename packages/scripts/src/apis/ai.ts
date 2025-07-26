@@ -96,7 +96,7 @@ export async function enhancePostsSEO(
       id: p.id,
       title: p.title,
       content: p.content,
-      labels: p.labels,
+      labels: p.labels.map((l) => ({ id: l.id, name: l.name })),
     })),
   };
 

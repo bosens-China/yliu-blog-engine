@@ -68,11 +68,11 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex flex-wrap items-center gap-2">
           {post.labels.slice(0, 3).map((label) => (
             <Link
-              key={label}
-              href={`/category/${encodeURIComponent(label)}`}
+              key={label.id}
+              href={`/category/${label.id}`}
               className="bg-secondary/50 text-foreground dark:text-secondary-foreground text-xs px-3 py-1 rounded-full hover:bg-secondary/70 transition-colors"
             >
-              #{label}
+              #{label.name}
             </Link>
           ))}
         </div>

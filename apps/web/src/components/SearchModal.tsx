@@ -7,12 +7,7 @@ import { searchPosts, getLabels } from '@/lib/data';
 import type { Post } from '@yliu/types/blog';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import {
-  useDebounceEffect,
-  useLocalStorageState,
-  useKeyPress,
-  useClickAway,
-} from 'ahooks';
+import { useLocalStorageState, useKeyPress } from 'ahooks';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -31,23 +26,22 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   );
   const [hotTags, setHotTags] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
-  useClickAway(() => {
-    if (isOpen) {
-      onClose();
-    }
-  }, modalRef);
+  const router = useRouter();
 
   useKeyPress('Escape', () => {
     if (isOpen) {
-      onClose();
+      handleForceClose();
     }
   });
 
+  // 禁止/恢复页面滚动
   useEffect(() => {
     if (isOpen) {
+      // 只在PC和平板上禁止滚动
+      if (window.innerWidth >= 640) {
+        document.body.style.overflow = 'hidden';
+      }
       inputRef.current?.focus();
       // 获取热门标签（取前5个）
       try {
@@ -57,29 +51,33 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         console.warn('获取标签失败:', error);
         setHotTags(['JavaScript', 'React', 'TypeScript', 'Node.js', 'CSS']);
       }
+    } else {
+      // 恢复滚动
+      document.body.style.overflow = '';
     }
+
+    // 清理函数
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
-  useDebounceEffect(
-    () => {
-      if (!query.trim()) {
-        setSearchResults([]);
-        return;
-      }
+  useEffect(() => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
-      setIsLoading(true);
-      try {
-        const results = searchPosts(query);
-        setSearchResults(results.posts.slice(0, 5)); // 只显示前5条结果
-      } catch (error) {
-        console.error('搜索失败:', error);
-        setSearchResults([]);
-      }
-      setIsLoading(false);
-    },
-    [query],
-    { wait: 300 },
-  );
+    setIsLoading(true);
+    try {
+      const results = searchPosts(query);
+      setSearchResults(results.posts);
+    } catch (error) {
+      console.error('搜索失败:', error);
+      setSearchResults([]);
+    }
+    setIsLoading(false);
+  }, [query]);
 
   const handleSearch = (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -96,6 +94,30 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const handlePostClick = (postId: number) => {
     router.push(`/post/${postId}`);
+    handleForceClose();
+  };
+
+  const handleClose = () => {
+    // 如果输入框有内容，先清空
+    if (query.trim()) {
+      setQuery('');
+      setSearchResults([]);
+      setIsLoading(false);
+      // 让输入框重新获得焦点
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
+    } else {
+      // 如果没有内容，关闭弹窗
+      onClose();
+    }
+  };
+
+  const handleForceClose = () => {
+    // 强制关闭弹窗（重置所有状态）
+    setQuery('');
+    setSearchResults([]);
+    setIsLoading(false);
     onClose();
   };
 
@@ -104,10 +126,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm">
       {/* 桌面端搜索框 */}
-      <div
-        ref={modalRef}
-        className="hidden sm:flex w-full max-w-2xl mx-4 mt-24 bg-white dark:bg-gray-900/95 rounded-lg shadow-xl border border-border/20 dark:border-border/30 overflow-hidden backdrop-blur-sm"
-      >
+      <div className="hidden sm:flex w-full max-w-2xl mx-4 mt-24 bg-white dark:bg-gray-900/95 rounded-lg shadow-xl border border-border/20 dark:border-border/30 overflow-hidden backdrop-blur-sm">
         {/* 搜索框 */}
         <div className="w-full">
           <div className="flex items-center px-4 py-4 border-b border-border/20 dark:border-border/30">
@@ -121,7 +140,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
             />
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             >
               <X size={18} />
@@ -185,7 +204,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 ) : searchResults.length > 0 ? (
                   <div className="space-y-4">
                     <div className="text-sm text-muted-foreground mb-3">
-                      显示前 {searchResults.length} 条结果
+                      共找到 {searchResults.length} 条结果
                     </div>
                     {searchResults.map((post) => (
                       <div
@@ -212,15 +231,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                           {post.labels.length > 0 && (
                             <Link
-                              href={`/category/${post.labels[0]}`}
+                              href={`/category/${post.labels[0].id}`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onClose();
+                                handleForceClose();
                               }}
                               className="flex items-center gap-1 bg-muted/80 dark:bg-muted/40 text-foreground px-2 py-0.5 rounded-full hover:bg-muted dark:hover:bg-muted/60 transition-colors"
                             >
                               <Tag size={12} />
-                              <span>{post.labels[0]}</span>
+                              <span>{post.labels[0].name}</span>
                               {post.labels.length > 1 && (
                                 <span>+{post.labels.length - 1}</span>
                               )}
@@ -279,7 +298,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground text-base"
           />
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <X size={20} />
@@ -343,7 +362,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               ) : searchResults.length > 0 ? (
                 <div className="space-y-3">
                   <div className="text-sm text-muted-foreground mb-4">
-                    显示前 {searchResults.length} 条结果
+                    共找到 {searchResults.length} 条结果
                   </div>
                   {searchResults.map((post) => (
                     <div
@@ -367,17 +386,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                         {post.labels.length > 0 && (
                           <Link
-                            href={`/category/${encodeURIComponent(
-                              post.labels[0],
-                            )}`}
+                            href={`/category/${post.labels[0].id}`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              onClose();
+                              handleForceClose();
                             }}
                             className="flex items-center gap-1 bg-muted/80 dark:bg-muted/40 text-foreground px-2 py-1 rounded-full hover:bg-muted dark:hover:bg-muted/60 transition-colors"
                           >
                             <Tag size={12} />
-                            <span>{post.labels[0]}</span>
+                            <span>{post.labels[0].name}</span>
                             {post.labels.length > 1 && (
                               <span>+{post.labels.length - 1}</span>
                             )}

@@ -19,7 +19,7 @@ export interface Post {
 
   // 派生或关联数据
   author: Author;
-  labels: string[]; // 标签名称列表, e.g., ["React", "TypeScript"]
+  labels: { id: number; name: string }[]; // 标签名称列表, e.g., [{ id: 1, name: "React" }]
   column: string | null; // 所属专栏的名称, e.g., "深入浅出设计模式"
 
   // 用于渲染和SEO的元数据
@@ -36,6 +36,7 @@ export interface Post {
  * 标签的结构
  */
 export interface Label {
+  id: number;
   name: string;
   color: string; // Hex color string, e.g., "e7e7e7"
   description: string | null;
@@ -46,6 +47,7 @@ export interface Label {
  * 专栏的结构
  */
 export interface Column {
+  id: number;
   name: string;
   description: string;
   posts: number[]; // 包含的文章 ID 列表

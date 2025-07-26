@@ -1,3 +1,5 @@
+import { Label } from './issues';
+
 // 用于专栏分析的单篇文章信息
 export interface ColumnInputItem {
   id: number;
@@ -16,7 +18,7 @@ export interface PostSeoInputItem {
   // 从 GithubIssue 的 body 字段获取
   content: string;
   // 从 GithubIssue 的 labels 字段提取名称
-  labels: string[];
+  labels: Pick<Label, 'name' | 'id'>[];
 }
 
 // 文章SEO分析服务的完整输入结构（一个批次）

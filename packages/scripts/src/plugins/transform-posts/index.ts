@@ -18,7 +18,7 @@ function issueToPost(issue: GithubIssue): Post {
     createdAt: issue.created_at,
     updatedAt: issue.updated_at,
     author: { name: issue.user.login, avatar: issue.user.avatar_url },
-    labels: issue.labels.map((label) => label.name),
+    labels: issue.labels.map((label) => ({ id: label.id, name: label.name })),
     reactions: issue.reactions.total_count,
     comments: issue.comments,
     url: issue.html_url,

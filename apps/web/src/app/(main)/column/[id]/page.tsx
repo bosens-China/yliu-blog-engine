@@ -1,4 +1,4 @@
-import { getColumnByName, getPostsByColumn, getColumns } from '@/lib/data';
+import { getColumnById, getPostsByColumn, getColumns } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import Pagination from '@/components/Pagination';
@@ -6,43 +6,46 @@ import { Post } from '@yliu/types/blog';
 import PostCard from '@/components/PostCard';
 
 // 占位符，防止为空时构建失败
-const NO_COLUMNS_PLACEHOLDER = 'no-columns-placeholder';
+const NO_COLUMNS_PLACEHOLDER = -999;
+
+interface Params {
+  id: string;
+}
 
 // 预构建所有专栏页面
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<Params[]> {
   const columns = getColumns();
 
   // 如果没有专栏，返回一个占位符以防止构建失败
   if (columns.length === 0) {
-    return [{ name: NO_COLUMNS_PLACEHOLDER }];
+    return [{ id: NO_COLUMNS_PLACEHOLDER.toString() }];
   }
 
   return columns.map((column) => ({
-    name: encodeURIComponent(column.name),
+    id: column.id.toString(),
   }));
 }
 
 export default async function ColumnPage({
   params,
 }: {
-  params: Promise<{ name: string }>;
+  params: Promise<Params>;
 }) {
-  const { name } = await params;
+  const id = Number((await params).id);
 
   // 如果是占位符，直接返回 404
-  if (name === NO_COLUMNS_PLACEHOLDER) {
-    notFound();
+  if (id === NO_COLUMNS_PLACEHOLDER) {
+    return notFound();
   }
 
-  const decodedName = decodeURIComponent(name);
-  const column = getColumnByName(decodedName);
+  const column = getColumnById(id);
 
   if (!column) {
-    notFound();
+    return notFound();
   }
 
   // 在静态导出模式下，我们只生成第一页，分页将通过客户端路由处理
-  const { posts, totalPages } = getPostsByColumn(decodedName, 1, 10);
+  const { posts, totalPages } = getPostsByColumn(id, 1, 10);
 
   // 确保日期是有效的
   const hasValidDate =
@@ -52,7 +55,7 @@ export default async function ColumnPage({
     <div className="max-w-5xl mx-auto">
       <header className="page-content-bg rounded-lg p-6 border border-border/20 dark:border-transparent mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <h1 className="text-3xl font-bold">{decodedName}</h1>
+          <h1 className="text-3xl font-bold">{column.name}</h1>
         </div>
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
@@ -60,8 +63,7 @@ export default async function ColumnPage({
           </span>
           {hasValidDate && (
             <span className="flex items-center gap-1">
-              最后更新:{' '}
-              {format(new Date(column.lastUpdated), 'yyyy年MM月dd日')}
+              最后更新: {format(new Date(column.lastUpdated), 'yyyy年MM月dd日')}
             </span>
           )}
         </div>

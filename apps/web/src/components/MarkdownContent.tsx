@@ -10,31 +10,35 @@ import { ExternalLink } from 'lucide-react';
 import type { Components } from 'react-markdown';
 import CodeBlock from './CodeBlock';
 import '../styles/markdown.css';
-import { useTheme } from 'next-themes';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 interface MarkdownContentProps {
   content: string;
 }
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
-  const { theme } = useTheme();
+  const isDark = useDarkMode();
 
   const [styleContent, setStyleContent] = useState('');
 
   useEffect(() => {
     const fn = async () => {
       fetch(
-        theme === 'dark'
+        isDark
           ? `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/styles/github-dark.min.css`
           : `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/styles/github.min.css`,
       )
         .then((res) => res.text())
         .then((text) => {
           setStyleContent(text);
+        })
+        .catch((error) => {
+          console.error('Failed to load GitHub styles:', error);
+          setStyleContent(''); // 如果加载失败，设置为空字符串
         });
     };
     fn();
-  }, [theme]);
+  }, [isDark]);
 
   // 生成锚点 ID 的工具函数
   const generateId = (text: string) => {

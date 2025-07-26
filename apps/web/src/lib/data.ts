@@ -67,20 +67,16 @@ export function getLabels(): Label[] {
 }
 
 /**
- * 根据标签获取文章（支持分页）
+ * 根据标签id获取文章（支持分页）
  */
-export function getPostsByLabel(
-  labelName: string,
+export function getPostsByLabelId(
+  id: number,
   page = 1,
   pageSize = ITEMS_PER_PAGE,
 ): { posts: Post[]; totalPages: number; currentPage: number; total: number } {
   const data = getBlogData();
   const filteredPosts = data.posts
-    .filter((post) =>
-      post.labels.some(
-        (label) => label.toLowerCase() === labelName.toLowerCase(),
-      ),
-    )
+    .filter((post) => post.labels.some((label) => label.id === id))
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -106,24 +102,26 @@ export function getColumns(): Column[] {
 }
 
 /**
- * 根据专栏名称获取专栏
+ * 根据专栏id获取专栏
  */
-export function getColumnByName(columnName: string): Column | null {
+export function getColumnById(id: number): Column | null {
   const data = getBlogData();
-  return data.columns.find((column) => column.name === columnName) || null;
+  return data.columns.find((column) => column.id === id) || null;
 }
 
 /**
- * 根据专栏名称获取文章（支持分页）
+ * 根据专栏id获取文章（支持分页）
  */
 export function getPostsByColumn(
-  columnName: string,
+  id: number,
   page = 1,
   pageSize = ITEMS_PER_PAGE,
 ): { posts: Post[]; totalPages: number; currentPage: number; total: number } {
   const data = getBlogData();
+  const currentColumn = data.columns.find((f) => f.id === id);
+
   const filteredPosts = data.posts
-    .filter((post) => post.column === columnName)
+    .filter((post) => currentColumn?.posts.includes(post.id))
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -158,8 +156,8 @@ export function searchPosts(
     keys: [
       { name: 'title', weight: 0.4 },
       { name: 'excerpt', weight: 0.3 },
-      { name: 'labels', weight: 0.2 },
-      { name: 'column', weight: 0.1 },
+      { name: 'labels.name', weight: 0.2 },
+      { name: 'content', weight: 0.1 },
     ],
     threshold: 0.3,
     includeScore: true,

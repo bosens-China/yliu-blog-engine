@@ -21,6 +21,7 @@ async function main() {
       isDev: true, // 标记为开发模式
       repo: githubRepo,
       outputDir: path.join(process.cwd(), 'src/data'),
+      webAppDir: '',
     },
     dataSource: {},
     data: {},

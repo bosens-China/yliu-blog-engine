@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import clsx from "clsx";
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import clsx from 'clsx';
 
 interface PaginationProps {
   /**
@@ -90,10 +90,11 @@ export default function Pagination({
               key={pageNum}
               href={createHref(pageNum)}
               className={clsx(
-                'flex items-center justify-center w-9 h-9 rounded-md border border-border page-content-bg hover:bg-muted/50 transition-colors text-sm',
+                'flex items-center justify-center w-9 h-9 rounded-md border border-border transition-colors text-sm',
                 {
                   'bg-primary text-white dark:text-white font-medium':
                     isCurrentPage,
+                  'page-content-bg hover:bg-muted/50': !isCurrentPage,
                 },
               )}
               aria-current={isCurrentPage ? 'page' : undefined}

@@ -7,7 +7,7 @@ import { visit } from 'unist-util-visit';
 import type { Heading } from 'mdast';
 import clsx from 'clsx';
 import { useBoolean, useScroll, useClickAway } from 'ahooks';
-import { useTheme } from 'next-themes';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 interface HeadingItem {
   id: string;
@@ -30,7 +30,7 @@ const TableOfContentsList = ({
   activeId: string;
   handleHeadingClick: (id: string) => void;
 }) => (
-  <nav className="px-2 py-3 max-h-80">
+  <nav className="px-2 py-3 max-h-80 overflow-y-auto overflow-x-hidden scroll-smooth">
     <ul className="space-y-1">
       {headings.map(({ id, text, level }) => (
         <li key={id}>
@@ -48,7 +48,7 @@ const TableOfContentsList = ({
             )}
             title={text}
           >
-            <span className="block leading-relaxed break-words line-clamp-2">
+            <span className="block leading-relaxed break-words line-clamp-2 overflow-hidden">
               {text}
             </span>
           </button>
@@ -65,7 +65,7 @@ export default function TableOfContents({
   const [activeId, setActiveId] = useState<string>('');
   const [isCollapsed, { toggle: toggleCollapse, set: setIsCollapsed }] =
     useBoolean(false);
-  const { theme } = useTheme();
+  const isDark = useDarkMode();
   const floatingMenuRef = useRef<HTMLDivElement>(null);
 
   useClickAway(() => {
@@ -170,8 +170,8 @@ export default function TableOfContents({
     return null;
   }
 
-  const floatingTocStyle = theme === 'dark' 
-    ? { backgroundColor: 'rgba(23, 25, 29, 1)' } 
+  const floatingTocStyle = isDark
+    ? { backgroundColor: 'rgba(23, 25, 29, 1)' }
     : {};
 
   if (variant === 'floating') {
@@ -204,11 +204,13 @@ export default function TableOfContents({
                   文章目录
                 </span>
               </div>
-              <TableOfContentsList
-                headings={headings}
-                activeId={activeId}
-                handleHeadingClick={handleHeadingClick}
-              />
+              <div className="w-full overflow-hidden">
+                <TableOfContentsList
+                  headings={headings}
+                  activeId={activeId}
+                  handleHeadingClick={handleHeadingClick}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -218,7 +220,7 @@ export default function TableOfContents({
 
   return (
     <aside className="sticky top-24 w-72 h-fit shrink-0">
-      <div className="page-content-bg rounded-lg border border-border/30 shadow-sm backdrop-blur-sm overflow-hidden">
+      <div className="page-content-bg rounded-lg border border-border/30 shadow-sm backdrop-blur-sm overflow-hidden w-full">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
           <div className="flex items-center gap-2">
             <List size={16} className="text-muted-foreground" />
@@ -238,17 +240,20 @@ export default function TableOfContents({
         </div>
         <div
           className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            isCollapsed ? 'max-h-0' : 'max-h-96'
+            isCollapsed
+              ? 'max-h-0'
+              : 'max-h-96 overflow-y-auto overflow-x-hidden scroll-smooth'
           }`}
         >
-          <TableOfContentsList
-            headings={headings}
-            activeId={activeId}
-            handleHeadingClick={handleHeadingClick}
-          />
+          <div className="w-full overflow-hidden">
+            <TableOfContentsList
+              headings={headings}
+              activeId={activeId}
+              handleHeadingClick={handleHeadingClick}
+            />
+          </div>
         </div>
       </div>
     </aside>
   );
 }
-
