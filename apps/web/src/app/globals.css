@@ -23,6 +23,15 @@
   --tw-prose-td-borders: oklch(30% 0.05 264.1);
 }
 
+/* ========= 菜单专用背景 ========= */
+.mobile-menu-bg {
+  background-color: white;
+}
+
+.dark .mobile-menu-bg {
+  background-color: hsl(220 12% 10%);
+}
+
 :root {
   --background: 260 20% 98%;
   --foreground: 222 47% 11%;
@@ -275,7 +284,7 @@ button[disabled],
   }
 }
 .border-border\/20 {
-  border-color: hsl(214 32% 91% / 0.8);
+  border-color: hsla(213, 5%, 53%, 0.2);
 }
 .dark .border-border\/20 {
   border-color: hsl(214 32% 91% / 0.2);

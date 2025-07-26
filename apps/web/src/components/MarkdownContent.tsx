@@ -160,7 +160,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
   return (
     <>
-      <div className="prose dark:prose-invert prose-headings:scroll-mt-20 prose-pre:p-0 prose-pre:bg-transparent prose-pre:overflow-x-auto max-w-none markdown-content">
+      <div className="prose prose-headings:scroll-mt-20 prose-pre:p-0 prose-pre:bg-transparent prose-pre:overflow-x-auto max-w-none markdown-content">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[

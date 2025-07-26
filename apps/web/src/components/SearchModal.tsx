@@ -7,7 +7,7 @@ import { searchPosts, getLabels } from '@/lib/data';
 import type { Post } from '@yliu/types/blog';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { useLocalStorageState, useKeyPress } from 'ahooks';
+import { useLocalStorageState, useKeyPress, useClickAway } from 'ahooks';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -26,6 +26,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   );
   const [hotTags, setHotTags] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const desktopModalRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
 
@@ -34,6 +35,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       handleForceClose();
     }
   });
+
+  // PC端点击外部关闭 - 只有在input没有值时才关闭
+  useClickAway(() => {
+    if (window.innerWidth >= 640 && query.trim() === '') {
+      onClose();
+    }
+  }, desktopModalRef);
 
   // 禁止/恢复页面滚动
   useEffect(() => {
@@ -126,7 +134,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm">
       {/* 桌面端搜索框 */}
-      <div className="hidden sm:flex w-full max-w-2xl mx-4 mt-24 bg-white dark:bg-gray-900/95 rounded-lg shadow-xl border border-border/20 dark:border-border/30 overflow-hidden backdrop-blur-sm">
+      <div
+        ref={desktopModalRef}
+        className="hidden sm:flex w-full max-w-2xl mx-4 mt-24 bg-background/95 rounded-lg shadow-xl border border-border/20 overflow-hidden backdrop-blur-sm"
+      >
         {/* 搜索框 */}
         <div className="w-full">
           <div className="flex items-center px-4 py-4 border-b border-border/20 dark:border-border/30">
@@ -285,9 +296,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       </div>
 
       {/* 移动端全屏搜索界面 */}
-      <div className="sm:hidden w-full h-full bg-white dark:bg-gray-900 flex flex-col">
+      <div className="sm:hidden w-full h-full bg-background flex flex-col">
         {/* 搜索框 */}
-        <div className="flex items-center p-4 border-b border-border/20 dark:border-border/30 bg-white dark:bg-gray-900">
+        <div className="flex items-center p-4 border-b border-border/20 bg-background">
           <Search className="w-5 h-5 text-muted-foreground mr-3" />
           <input
             ref={inputRef}

@@ -2,49 +2,29 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
 /**
- * 可靠的 dark 模式检测 hook
- * 结合多种检测方式，确保在 system 模式下也能正确识别 dark 状态
+ * 简化的 dark 模式检测 hook
+ * 优先考虑用户的明确选择，只在 system 模式下检测系统偏好
  */
 export function useDarkMode() {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-
-  // 使用原生 API 检测系统暗色模式偏好
-  const [prefersDark, setPrefersDark] = useState(false);
-
-  // 检测 DOM 中的 dark 类
-  const [hasDarkClass, setHasDarkClass] = useState(false);
+  const [systemPrefersDark, setSystemPrefersDark] = useState(false);
 
   useEffect(() => {
     setMounted(true);
 
     // 检测系统暗色模式偏好
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    setPrefersDark(mediaQuery.matches);
+    setSystemPrefersDark(mediaQuery.matches);
 
     const handleMediaChange = (e: MediaQueryListEvent) => {
-      setPrefersDark(e.matches);
+      setSystemPrefersDark(e.matches);
     };
 
     mediaQuery.addEventListener('change', handleMediaChange);
 
-    // 检测 document.documentElement 是否有 dark 类
-    const checkDarkClass = () => {
-      setHasDarkClass(document.documentElement.classList.contains('dark'));
-    };
-
-    checkDarkClass();
-
-    // 监听类名变化
-    const observer = new MutationObserver(checkDarkClass);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
     return () => {
       mediaQuery.removeEventListener('change', handleMediaChange);
-      observer.disconnect();
     };
   }, []);
 
@@ -53,12 +33,25 @@ export function useDarkMode() {
     return false;
   }
 
-  // 多重检测逻辑：只要有一个条件符合 dark，就认为是 dark 模式
-  const isDark =
-    resolvedTheme === 'dark' || // next-themes 解析后的主题
-    theme === 'dark' || // 直接设置的主题
-    hasDarkClass || // DOM 中的 dark 类
-    (theme === 'system' && prefersDark); // 系统模式且用户偏好暗色
+  // 简化的逻辑：用户选择优先
+  if (theme === 'light') {
+    return false; // 用户明确选择 light，不管系统如何
+  }
 
-  return isDark;
+  if (theme === 'dark') {
+    return true; // 用户明确选择 dark，不管系统如何
+  }
+
+  // 只有在 system 模式下才检测系统偏好
+  if (theme === 'system') {
+    // 优先使用 resolvedTheme（next-themes 的计算结果）
+    if (resolvedTheme) {
+      return resolvedTheme === 'dark';
+    }
+    // 降级到系统检测
+    return systemPrefersDark;
+  }
+
+  // 默认返回 false
+  return false;
 }

@@ -32,7 +32,7 @@ export default function CategoriesPage() {
           <Link
             key={label.id}
             href={`/category/${label.id}`}
-            className="flex items-center gap-2 page-content-bg border border-border dark:border-border/30 rounded-full px-4 py-2 hover:border-primary transition-all group"
+            className="flex items-center gap-2 page-content-bg border border-gray-300! dark:border-border/30 rounded-full px-4 py-2 hover:border-primary transition-all group"
           >
             <span className="font-medium text-foreground group-hover:text-primary transition-colors">
               #{label.name}

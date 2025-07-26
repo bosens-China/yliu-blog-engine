@@ -7,6 +7,7 @@ import { useTheme } from 'next-themes';
 import { Menu, X, Sun, Moon, Search, Monitor } from 'lucide-react';
 import SearchModal from './SearchModal';
 import MobileMenu from './MobileMenu';
+import GitHubIcon from './icons/GitHubIcon';
 import { usePathname } from 'next/navigation';
 import { getBlogData, getHeaderConfig } from '@/lib/data';
 import type { MenuItem } from '@/types';
@@ -39,6 +40,10 @@ export default function Header() {
   const blogData = getBlogData();
   const blogTitle = blogData.metadata.title;
   const headerConfig = getHeaderConfig();
+
+  // 获取 GitHub 仓库信息
+  const repository = blogData.metadata.repository;
+  const githubUrl = repository ? `https://github.com/${repository}` : null;
 
   // 生成菜单项的URL和显示状态
   const getMenuItemProps = (item: MenuItem) => {
@@ -195,10 +200,24 @@ export default function Header() {
                 <Search size={20} />
               </button>
 
-              {/* 主题切换按钮 */}
+              {/* GitHub 链接按钮 - 只在桌面端显示 */}
+              {githubUrl && (
+                <Link
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden md:flex p-2 text-foreground/70 dark:text-foreground/80 hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
+                  aria-label="查看 GitHub 仓库"
+                  title="查看 GitHub 仓库"
+                >
+                  <GitHubIcon size={20} />
+                </Link>
+              )}
+
+              {/* 主题切换按钮 - 只在桌面端显示 */}
               <button
                 onClick={toggleTheme}
-                className="p-2 text-foreground/70 dark:text-foreground/80 hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
+                className="hidden md:flex p-2 text-foreground/70 dark:text-foreground/80 hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
                 aria-label={mounted ? getThemeLabel() : '切换主题'}
                 title={mounted ? getThemeLabel() : '切换主题'}
               >
@@ -223,6 +242,7 @@ export default function Header() {
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         navLinks={navLinks}
+        githubUrl={githubUrl}
       />
 
       <SearchModal

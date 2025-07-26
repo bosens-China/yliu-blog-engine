@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { useClickAway } from 'ahooks';
+import GitHubIcon from './icons/GitHubIcon';
 
 interface NavLink {
   href: string;
@@ -18,12 +19,14 @@ interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
   navLinks: NavLink[];
+  githubUrl?: string | null;
 }
 
 export default function MobileMenu({
   isOpen,
   onClose,
   navLinks,
+  githubUrl,
 }: MobileMenuProps) {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
@@ -63,17 +66,20 @@ export default function MobileMenu({
   }, [isOpen]);
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {isOpen && (
-        <div
-          className={clsx(
-            'fixed inset-0 z-50 md:hidden bg-black/20 dark:bg-black/50 backdrop-blur-sm',
-            {
-              'opacity-100 pointer-events-auto': isOpen,
-              'opacity-0 pointer-events-none': !isOpen,
-            },
-          )}
-        >
+        <div className="fixed inset-0 z-[70] md:hidden">
+          {/* 背景遮罩 */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            className="absolute inset-0 bg-black/20 dark:bg-black/50"
+            onClick={onClose}
+          />
+
+          {/* 菜单内容 */}
           <motion.div
             ref={menuRef}
             initial={{ x: '100%' }}
@@ -81,10 +87,10 @@ export default function MobileMenu({
             exit={{ x: '100%' }}
             transition={{
               type: 'tween',
-              duration: 0.15,
+              duration: 0.1,
               ease: 'easeOut',
             }}
-            className="absolute right-0 top-0 h-full w-4/5 max-w-xs bg-white dark:bg-gray-900/95 border-l border-border shadow-xl flex flex-col backdrop-blur-sm"
+            className="absolute right-0 top-0 h-full w-4/5 max-w-xs mobile-menu-bg border-l border-border shadow-xl flex flex-col"
           >
             <div className="flex justify-between items-center p-4 border-b border-border">
               <h2 className="font-semibold">菜单</h2>
@@ -118,6 +124,27 @@ export default function MobileMenu({
                   {link.text}
                 </Link>
               ))}
+
+              {/* GitHub 链接 */}
+              {githubUrl && (
+                <div className="pt-4 mt-4 border-t border-border">
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    源码仓库
+                  </div>
+                  <Link
+                    href={githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={onClose}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-md text-base text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                  >
+                    <span className="text-primary">
+                      <GitHubIcon size={18} />
+                    </span>
+                    查看 GitHub 仓库
+                  </Link>
+                </div>
+              )}
 
               <div className="pt-4 mt-4 border-t border-border">
                 <div className="px-3 py-2 text-xs text-muted-foreground">

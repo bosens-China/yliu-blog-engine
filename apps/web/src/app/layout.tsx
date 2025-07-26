@@ -1,39 +1,39 @@
-import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import { getBlogData } from "@/lib/data";
-import fs from "node:fs";
-import path from "node:path";
-import clsx from "clsx";
+import type { Metadata, Viewport } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from 'next-themes';
+import { getBlogData } from '@/lib/data';
+import fs from 'node:fs';
+import path from 'node:path';
+import clsx from 'clsx';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+  display: 'swap',
 });
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  viewportFit: "cover",
+  viewportFit: 'cover',
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
 };
 
 export async function generateMetadata(): Promise<Metadata> {
   const { metadata: siteMetadata } = getBlogData();
-  const repoOwner = siteMetadata.repository.split("/")[0];
+  const repoOwner = siteMetadata.repository.split('/')[0];
 
   const defaultTitle = `${siteMetadata.title} - ${siteMetadata.description}`;
 
@@ -58,11 +58,11 @@ export async function generateMetadata(): Promise<Metadata> {
       description: description,
       url: siteMetadata.url,
       siteName: siteMetadata.title,
-      locale: "zh_CN",
-      type: "website",
+      locale: 'zh_CN',
+      type: 'website',
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title: defaultTitle,
       description: description,
       creator: `@${repoOwner}`,
@@ -71,18 +71,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 function getFaviconLinks(): { rel: string; url: string; type?: string }[] {
-  const publicPath = path.join(process.cwd(), "public");
+  const publicPath = path.join(process.cwd(), 'public');
   const defaultIcon = {
-    rel: "icon",
-    url: "/favicon.ico",
-    type: "image/x-icon",
+    rel: 'icon',
+    url: '/favicon.ico',
+    type: 'image/x-icon',
   };
 
-  if (fs.existsSync(path.join(publicPath, "favicon.svg"))) {
-    return [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }];
+  if (fs.existsSync(path.join(publicPath, 'favicon.svg'))) {
+    return [{ rel: 'icon', url: '/favicon.svg', type: 'image/svg+xml' }];
   }
-  if (fs.existsSync(path.join(publicPath, "favicon.png"))) {
-    return [{ rel: "icon", url: "/favicon.png", type: "image/png" }];
+  if (fs.existsSync(path.join(publicPath, 'favicon.png'))) {
+    return [{ rel: 'icon', url: '/favicon.png', type: 'image/png' }];
   }
 
   return [defaultIcon];

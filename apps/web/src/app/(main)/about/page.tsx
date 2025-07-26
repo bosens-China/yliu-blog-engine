@@ -1,12 +1,12 @@
-import { getBlogData } from "@/lib/data";
-import MarkdownContent from "@/components/MarkdownContent";
+import { getBlogData } from '@/lib/data';
+import MarkdownContent from '@/components/MarkdownContent';
 
 export default function AboutPage() {
   const { about } = getBlogData();
 
   return (
     <div className="max-w-5xl mx-auto page-content-bg rounded-lg shadow-sm p-6 md:p-8 border border-border/20">
-      <article className="prose dark:prose-invert max-w-none">
+      <article className="prose max-w-none">
         {about ? (
           <MarkdownContent content={about} />
         ) : (
