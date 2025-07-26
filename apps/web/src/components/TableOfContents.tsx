@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { List, ChevronDown, ChevronUp } from 'lucide-react';
 import { remark } from 'remark';
 import { visit } from 'unist-util-visit';
 import type { Heading } from 'mdast';
 import clsx from 'clsx';
-import { useBoolean, useScroll } from 'ahooks';
+import { useBoolean, useScroll, useClickAway } from 'ahooks';
+import { useTheme } from 'next-themes';
 
 interface HeadingItem {
   id: string;
@@ -19,6 +20,44 @@ interface TableOfContentsProps {
   variant?: 'sidebar' | 'floating';
 }
 
+// 提取出的共享组件
+const TableOfContentsList = ({
+  headings,
+  activeId,
+  handleHeadingClick,
+}: {
+  headings: HeadingItem[];
+  activeId: string;
+  handleHeadingClick: (id: string) => void;
+}) => (
+  <nav className="px-2 py-3 max-h-80">
+    <ul className="space-y-1">
+      {headings.map(({ id, text, level }) => (
+        <li key={id}>
+          <button
+            onClick={() => handleHeadingClick(id)}
+            className={clsx(
+              'block w-full text-left px-3 py-2 text-sm rounded-md transition-all duration-200',
+              'hover:bg-accent/70 hover:text-foreground group',
+              activeId === id
+                ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                : 'text-muted-foreground border-l-2 border-transparent hover:border-accent',
+              level === 1 && 'font-semibold',
+              level === 2 && 'ml-4 font-medium',
+              level === 3 && 'ml-8 text-xs',
+            )}
+            title={text}
+          >
+            <span className="block leading-relaxed break-words line-clamp-2">
+              {text}
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  </nav>
+);
+
 export default function TableOfContents({
   content,
   variant = 'sidebar',
@@ -26,6 +65,14 @@ export default function TableOfContents({
   const [activeId, setActiveId] = useState<string>('');
   const [isCollapsed, { toggle: toggleCollapse, set: setIsCollapsed }] =
     useBoolean(false);
+  const { theme } = useTheme();
+  const floatingMenuRef = useRef<HTMLDivElement>(null);
+
+  useClickAway(() => {
+    if (variant === 'floating' && !isCollapsed) {
+      setIsCollapsed(true);
+    }
+  }, floatingMenuRef);
 
   useEffect(() => {
     const updateCollapseState = () => {
@@ -123,9 +170,13 @@ export default function TableOfContents({
     return null;
   }
 
+  const floatingTocStyle = theme === 'dark' 
+    ? { backgroundColor: 'rgba(23, 25, 29, 1)' } 
+    : {};
+
   if (variant === 'floating') {
     return (
-      <div className="fixed bottom-24 right-6 z-50">
+      <div className="fixed bottom-24 right-6 z-50" ref={floatingMenuRef}>
         <div className="page-content-bg rounded-lg border border-border/30 shadow-lg backdrop-blur-sm">
           <button
             onClick={toggleCollapse}
@@ -144,40 +195,20 @@ export default function TableOfContents({
                 : 'opacity-100 translate-y-0',
             )}
           >
-            <div className="w-72 max-w-[calc(100vw-3rem)] page-content-bg rounded-lg border border-border/30 shadow-lg backdrop-blur-sm overflow-hidden">
+            <div
+              className="w-72 max-w-[calc(100vw-3rem)] page-content-bg rounded-lg border border-border/30 shadow-lg backdrop-blur-sm overflow-hidden"
+              style={floatingTocStyle}
+            >
               <div className="px-4 py-3 border-b border-border/20">
                 <span className="text-sm font-medium text-foreground">
                   文章目录
                 </span>
               </div>
-              <nav className="px-2 py-3 max-h-80">
-                <ul className="space-y-1">
-                  {headings.map(({ id, text, level }) => (
-                    <li key={id}>
-                      <button
-                        onClick={() => {
-                          handleHeadingClick(id);
-                        }}
-                        className={clsx(
-                          'block w-full text-left px-3 py-2 text-sm rounded-md transition-all duration-200',
-                          'hover:bg-accent/70 hover:text-foreground group',
-                          activeId === id
-                            ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                            : 'text-muted-foreground border-l-2 border-transparent hover:border-accent',
-                          level === 1 && 'font-semibold',
-                          level === 2 && 'ml-4 font-medium',
-                          level === 3 && 'ml-8 text-xs',
-                        )}
-                        title={text}
-                      >
-                        <span className="block leading-relaxed break-words line-clamp-2">
-                          {text}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
+              <TableOfContentsList
+                headings={headings}
+                activeId={activeId}
+                handleHeadingClick={handleHeadingClick}
+              />
             </div>
           </div>
         </div>
@@ -210,34 +241,14 @@ export default function TableOfContents({
             isCollapsed ? 'max-h-0' : 'max-h-96'
           }`}
         >
-          <nav className="px-2 py-3 max-h-80">
-            <ul className="space-y-1">
-              {headings.map(({ id, text, level }) => (
-                <li key={id}>
-                  <button
-                    onClick={() => handleHeadingClick(id)}
-                    className={clsx(
-                      'block w-full text-left px-3 py-2 text-sm rounded-md transition-all duration-200',
-                      'hover:bg-accent/70 hover:text-foreground group',
-                      activeId === id
-                        ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                        : 'text-muted-foreground border-l-2 border-transparent hover:border-accent',
-                      level === 1 && 'font-semibold',
-                      level === 2 && 'ml-4 font-medium',
-                      level === 3 && 'ml-8 text-xs',
-                    )}
-                    title={text}
-                  >
-                    <span className="block leading-relaxed break-words line-clamp-2">
-                      {text}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <TableOfContentsList
+            headings={headings}
+            activeId={activeId}
+            handleHeadingClick={handleHeadingClick}
+          />
         </div>
       </div>
     </aside>
   );
 }
+
