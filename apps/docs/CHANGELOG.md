@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/bosens-China/yliu-blog-engine/compare/docs-v1.0.1...docs-v1.1.0) (2025-07-26)
+
+
+### Features
+
+* 更新依赖，添加新的代码块组件和目录功能，优化文档样式 ([93f91ee](https://github.com/bosens-China/yliu-blog-engine/commit/93f91eeac84a6a10cae678ff1b0143838d470581))
+
 ## [1.0.1](https://github.com/bosens-China/yliu-blog-engine/compare/docs-v1.0.0...docs-v1.0.1) (2025-07-18)
 
 

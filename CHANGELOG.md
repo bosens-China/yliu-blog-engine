@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.6.5...root-v1.7.0) (2025-07-26)
+
+
+### Features
+
+* 更新依赖，添加新的代码块组件和目录功能，优化文档样式 ([93f91ee](https://github.com/bosens-China/yliu-blog-engine/commit/93f91eeac84a6a10cae678ff1b0143838d470581))
+* 重构目录组件，提取共享子组件并添加浮动菜单支持，优化深色模式样式 ([ff3cb59](https://github.com/bosens-China/yliu-blog-engine/commit/ff3cb598cf815589f2f13cb1c8a18d98c3fb0800))
+
 ## [1.6.5](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.6.4...root-v1.6.5) (2025-07-18)
 
 
