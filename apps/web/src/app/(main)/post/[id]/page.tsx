@@ -82,7 +82,7 @@ export default async function PostPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8">
       <div className="flex gap-8 lg:gap-12">
         {/* 主要内容区域 */}
         <article className="flex-1 min-w-0 page-content-bg rounded-lg shadow-sm p-6 md:p-8 border border-border/20">

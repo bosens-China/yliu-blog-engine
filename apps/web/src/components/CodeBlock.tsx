@@ -113,7 +113,7 @@ export default function CodeBlock({
       >
         <pre
           className={clsx(
-            'my-0! rounded-t-none pt-4 pb-4 px-4 md:px-5 overflow-auto max-h-[500px] text-sm md:text-base leading-relaxed',
+            'my-0! rounded-t-none pt-4 pb-4 px-4 md:px-5 overflow-auto max-h-[500px] text-sm leading-relaxed',
             'bg-card text-card-foreground', // 使用主题变量
           )}
         >
