@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.2.0...web-v1.2.1) (2025-07-29)
+
+
+### Bug Fixes
+
+* 调整文章页面和代码块组件的样式，修复内容区域的内边距问题 ([65c15f6](https://github.com/bosens-China/yliu-blog-engine/commit/65c15f617a5e2c783d460ac2b87e501e5c041b7d))
+
 ## [1.2.0](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.1.1...web-v1.2.0) (2025-07-26)
 
 
