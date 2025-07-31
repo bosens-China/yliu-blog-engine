@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.9.0](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.8.1...root-v1.9.0) (2025-07-31)
+
+
+### Features
+
+* 在 release-please 配置中新增 agent_blog 项目，设置为 Python 版本 ([5a15c25](https://github.com/bosens-China/yliu-blog-engine/commit/5a15c25cab006a798facbc7917aa6c42e47e9ed7))
+* 新增 agent_blog 项目基础文件，包括 Python 版本、项目描述、依赖项和 README 文档 ([bf3c6f9](https://github.com/bosens-China/yliu-blog-engine/commit/bf3c6f96a25f48345f3a25ec3819e7ffab1a21cc))
+
+
+### Bug Fixes
+
+* 修正分类页面的分页链接，确保使用正确的 ID 生成链接 ([cb12c3a](https://github.com/bosens-China/yliu-blog-engine/commit/cb12c3aa0ee8c5bafaa43090b27ad03b63bc9477))
+
 ## [1.8.1](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.8.0...root-v1.8.1) (2025-07-29)
 
 
