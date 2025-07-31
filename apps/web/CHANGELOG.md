@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.2.1...web-v1.2.2) (2025-07-31)
+
+
+### Bug Fixes
+
+* 修正分类页面的分页链接，确保使用正确的 ID 生成链接 ([cb12c3a](https://github.com/bosens-China/yliu-blog-engine/commit/cb12c3aa0ee8c5bafaa43090b27ad03b63bc9477))
+
 ## [1.2.1](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.2.0...web-v1.2.1) (2025-07-29)
 
 
