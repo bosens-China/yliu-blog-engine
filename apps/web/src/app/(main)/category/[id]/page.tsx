@@ -73,7 +73,7 @@ export default async function CategoryPage({
         <Pagination
           currentPage={1}
           totalPages={totalPages}
-          createHref={(page) => `/category/${name}?page=${page}`}
+          createHref={(page) => `/category/${id}?page=${page}`}
         />
       )}
     </div>
