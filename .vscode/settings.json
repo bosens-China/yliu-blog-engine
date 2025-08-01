@@ -1,0 +1,18 @@
+{
+  // ======================================================================
+  // 1. Python Specific Settings (Python开发者最关心的部分)
+  // ======================================================================
+  "[python]": {
+    // --- 核心格式化与代码检查 ---
+    "editor.formatOnSave": true, // 保存时自动格式化
+    "editor.defaultFormatter": "charliermarsh.ruff", // 推荐使用 Ruff Formatter
+    "editor.tabSize": 4, // 缩进大小为4个空格
+    "editor.insertSpaces": true, // 按Tab键时插入空格而非制表符
+
+    // --- Linter 设置 (使用 Ruff，现代且极速) ---
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit" // 保存时自动修复Ruff能修复的问题
+    }
+  },
+  "cursorpyright.analysis.typeCheckingMode": "recommended"
+}
