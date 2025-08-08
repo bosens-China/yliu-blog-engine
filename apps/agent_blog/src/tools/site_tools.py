@@ -1,26 +1,20 @@
-# 根据文章的seo和摘要生成网站的seo和摘要
-
+"""
+用于生成站点级别SEO信息的工具。
+"""
 from typing import cast
-from pydantic import BaseModel, Field
-from apps.agent_blog.src.core.constants import MAX_TOKEN
-from apps.agent_blog.src.server import llm, mcp
-from apps.agent_blog.src.tools.analysis_tools import ArticleSeoInfo
+from langchain.tools import tool
+from ..core.config import llm
+from ..core.models import SiteSeoInfo, ProcessedArticleList
 import json
 
 
-# 站点seo信息
-class SiteSeoInfo(BaseModel):
-    title: str = Field(description="网站标题")
-    description: str = Field(description="网站描述")
-    keywords: list[str] = Field(description="网站关键词")
+@tool
+def generate_site_seo(processed_articles: ProcessedArticleList) -> SiteSeoInfo:
+    """根据所有已处理文章的SEO信息和摘要，生成整个站点的全局SEO信息。"""
+    articles_summary = processed_articles.model_dump()["articles"]
 
-
-@mcp.tool()
-def generate_site_seo_info(
-    articles: dict[int, ArticleSeoInfo],
-) -> SiteSeoInfo:
-    """根据传递进来的文章数组串行生成网站的seo和摘要"""
     structured_llm = llm.with_structured_output(SiteSeoInfo)
+
     prompt = f"""
 # 角色
 你是一位顶级的品牌SEO策略师和首席内容官。你的专长是从大量内容中洞察核心主题，并为整个网站或知识库定义一个统一、有吸引力的品牌身份。
@@ -38,18 +32,10 @@ def generate_site_seo_info(
 
 # 限制与要求
 - 你的输出必须是**宏观**和**综合性**的，反映所有文章的共性，而不是某一篇的特性。
-- 最终输出必须严格遵守下方示例的单一JSON对象格式。
-## 示例输出格式
-```json
-{{
-  "title": "生成的网站标题",
-  "description": "生成的网站描述",
-  "keywords": ["关键词1", "关键词2", "关键词3"]
-}}
-```
+- 最终输出必须严格遵守JSON对象格式。
 
-# 待处理的文章片段
-{json.dumps(articles)[: MAX_TOKEN - 4000 - 500]}
-        """
+# 待处理的文章SEO及摘要信息:
+{json.dumps(articles_summary, ensure_ascii=False)}
+    """
     result = cast(SiteSeoInfo, structured_llm.invoke(prompt))
     return result
