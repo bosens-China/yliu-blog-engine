@@ -1,8 +1,8 @@
 {
-  ".": "1.13.0",
+  ".": "1.14.0",
   "apps/web": "1.2.2",
   "apps/docs": "1.3.0",
-  "packages/scripts": "1.4.0",
-  "packages/types": "1.1.0",
-  "apps/agent_blog": "0.3.0"
+  "packages/scripts": "1.5.0",
+  "packages/types": "1.2.0",
+  "apps/agent_blog": "0.4.0"
 }
