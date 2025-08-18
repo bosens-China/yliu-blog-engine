@@ -260,6 +260,15 @@ runs:
       working-directory: ./blog_engine
       run: pnpm --filter @yliu/scripts build:data
 
+    - name: 显示 AI 服务日志 (用于调试)
+      if: always() && inputs.OPENAI_API_KEY != ''
+      shell: bash
+      working-directory: ./blog_engine/apps/agent_blog
+      run: |
+        echo "--- agent_blog.log ---"
+        cat agent_blog.log
+        echo "----------------------"
+
     - name: 清理 agent_blog 服务 (数据处理完成后)
       if: ${{ inputs.OPENAI_API_KEY != '' }}
       shell: bash
