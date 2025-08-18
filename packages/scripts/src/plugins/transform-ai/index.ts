@@ -17,14 +17,13 @@ export interface AITransformPluginConfig {
 }
 
 export function createAITransformPlugin(): Plugin {
-// _config: AITransformPluginConfig = {},
+  // _config: AITransformPluginConfig = {},
   return {
     name: 'plugin-transform-ai',
-
     async transform(context: BuildContext) {
-      // 检查是否有 OPENAI_API_KEY
-      if (!env.OPENAI_API_KEY) {
-        log('🤖 未提供 OPENAI_API_KEY，跳过 AI 增强处理');
+      // 检查 AI 是否启用
+      if (!env.AI_ENABLED) {
+        log('🤖 AI 功能未启用，跳过 AI 增强处理');
         return;
       }
 

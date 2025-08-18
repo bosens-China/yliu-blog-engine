@@ -14,9 +14,9 @@ const apiClient = axios.create({});
 export async function processWithAgentBlog(
   posts: Post[],
 ): Promise<AgentBlogOutput | null> {
-  // 检查是否有 OPENAI_API_KEY
-  if (!env.OPENAI_API_KEY) {
-    warn('🤖 未提供 OPENAI_API_KEY，跳过 AI 增强处理');
+    // 检查 AI 是否启用
+  if (!env.AI_ENABLED) {
+    warn('🤖 AI 功能未启用，跳过 AI 增强处理');
     return null;
   }
 
