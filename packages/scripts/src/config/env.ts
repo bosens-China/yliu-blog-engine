@@ -64,7 +64,7 @@ const envSchema = z.object({
     .describe('用于 SEO 的站点关键词，用逗号分隔 (无 AI 时使用)'),
 
   // --- AI 服务配置 ---
-  AI_ENABLED: z.boolean().default(false),
+  AI_ENABLED: z.coerce.boolean().default(false),
 });
 
 // 创建一个 process.env 的可写副本
