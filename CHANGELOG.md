@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.11.2...root-v1.12.0) (2025-08-18)
+
+
+### Features
+
+* 添加 AI 服务日志显示步骤以便调试 ([67ffffd](https://github.com/bosens-China/yliu-blog-engine/commit/67ffffd99c4267c4db3bf5462b29eacb3bc70ba8))
+
 ## [1.11.2](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.11.1...root-v1.11.2) (2025-08-18)
 
 
