@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.3](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.12.2...root-v1.12.3) (2025-08-18)
+
+
+### Bug Fixes
+
+* 添加 AI 服务初始化等待和启用检测逻辑，优化环境变量配置 ([a41d2f2](https://github.com/bosens-China/yliu-blog-engine/commit/a41d2f2994b3d2a2370aa79112133aaeb279e62c))
+
 ## [1.12.2](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.12.1...root-v1.12.2) (2025-08-18)
 
 
