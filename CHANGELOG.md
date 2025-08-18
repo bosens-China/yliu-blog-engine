@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.12.0...root-v1.12.1) (2025-08-18)
+
+
+### Bug Fixes
+
+* 精简输入参数描述，优化 AI 服务启动和清理逻辑 ([6cfc768](https://github.com/bosens-China/yliu-blog-engine/commit/6cfc7681b97b44e8a5afd86da7e1b232e44a1e4f))
+
 ## [1.12.0](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.11.2...root-v1.12.0) (2025-08-18)
 
 
