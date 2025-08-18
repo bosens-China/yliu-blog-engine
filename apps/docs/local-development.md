@@ -8,6 +8,7 @@
 
 - **Node.js**: 版本 `22.x` 或更高。
 - **pnpm**: 版本 `10.x` 或更高。
+- **Python**: 版本 `3.10` 或更高，并安装了 `uv` (`pip install uv`)。
 
 ## 本地启动流程
 
@@ -22,39 +23,64 @@ git clone https://github.com/bosens-China/yliu-blog-engine.git
 # 进入项目目录
 cd yliu-blog-engine
 
-# 安装所有依赖
+# 安装所有 Node.js 依赖
 pnpm install
 ```
 
-### 第二步：配置环境变量
+### 第二步：配置并启动 AI 服务 (`agent-blog`)
 
-1.  在项目的根目录下，创建一个名为 `.env` 的文件。
-2.  打开 `.env` 文件，并至少添加以下两个变量：
+AI 服务是数据处理流程的核心。您需要先将其启动。
+
+```bash
+# 进入 agent_blog 应用目录
+cd apps/agent_blog
+
+# 复制环境变量模板
+# Windows
+copy .env.example .env
+# macOS / Linux
+cp .env.example .env
+
+# 编辑 .env 文件，填入您的 API Key
+# OPENAI_API_KEY="sk-xxxxxxxxxxxxxx"
+#
+# 注意：此 Key 来自阿里云百炼服务。
+# 更多详情请参考 [AI 增强指南](../ai-enhancement.md)。
+
+# 使用 uv 创建并激活虚拟环境，同时安装 Python 依赖
+uv sync
+
+# 启动 FastAPI 服务
+uvicorn src.main:app --reload
+```
+
+服务启动后，它将在 `http://127.0.0.1:8000` 上监听请求。您可以保持这个终端窗口运行。
+
+### 第三步：配置并生成博客数据
+
+现在，回到项目根目录，为 `scripts` 包配置环境变量。
+
+1.  在项目根目录 (`yliu-blog-engine/`) 下，创建一个名为 `.env` 的文件。
+2.  打开 `.env` 文件，并至少添加以下变量：
 
     ```bash
     # [必需] 您希望作为内容来源的 GitHub 仓库
-    NEXT_PUBLIC_GITHUB_REPOSITORY=your-github-username/your-repo-name
+    NEXT_PUBLIC_GITHUB_REPOSITORY="your-github-username/your-repo-name"
 
     # [推荐] 您的 GitHub 个人访问令牌，以避免 API 速率限制
-    GITHUB_TOKEN=your_personal_access_token
+    GITHUB_TOKEN="your_personal_access_token"
     ```
 
-在本地开发时，您只需要关心这两个核心变量即可。
+3.  运行数据生成脚本。此步骤会拉取 Issues，调用正在运行的 `agent-blog` 服务进行处理，并生成最终的 `blog-data.json`。
 
-### 第三步：生成博客数据
+    ```bash
+    # 运行数据生成脚本
+    pnpm --filter @yliu/scripts build:data
+    ```
 
-此步骤会模拟 GitHub Action 的核心行为，即拉取您仓库中的 Issues，并将其处理成 Next.js 应用所需的 `blog-data.json` 文件。
+### 第四步：启动博客网站开发服务器
 
-```bash
-# 运行数据生成脚本
-pnpm --filter @yliu/scripts build:data
-```
-
-执行成功后，您会在 `apps/web/src/data/` 目录下看到生成的 `blog-data.json` 文件。
-
-### 第四步：启动开发服务器
-
-现在，您可以启动 Next.js 应用的开发服务器了。
+最后，启动 Next.js 应用的开发服务器。
 
 ```bash
 # 启动 web 应用
@@ -68,15 +94,7 @@ pnpm --filter @yliu/web dev
 如果您希望修改博客的视觉外观，例如颜色、字体或页面布局，可以从以下几个关键文件入手。
 
 - **技术栈**: 前端应用基于 **Next.js App Router** 和 **Tailwind CSS v4** 构建。
-
-- **Tailwind 配置 (`apps/web/tailwind.config.ts`)**
-  这是定义设计系统的核心文件。您可以在这里修改颜色、字体、间距等基础设计变量。
-
-- **全局样式 (`apps/web/src/app/globals.css`)**
-  您可以在此文件中添加或修改全局的 CSS 样式。
-
-- **根布局 (`apps/web/src/app/layout.tsx`)**
-  这个文件定义了所有页面共享的根布局，例如页面的 HTML 结构、全局字体加载等。如果您想修改所有页面的通用布局（例如添加一个全局的 Banner），可以从这里开始。
-
-- **组件 (`apps/web/src/components/`)**
-  大部分 UI 元素，如文章卡片、按钮、标签等，都被封装成了独立的 React 组件。您可以直接修改这些组件来实现更细粒度的样式调整。
+- **Tailwind 配置**: `apps/web/tailwind.config.ts`
+- **全局样式**: `apps/web/src/app/globals.css`
+- **根布局**: `apps/web/src/app/layout.tsx`
+- **组件**: `apps/web/src/components/`

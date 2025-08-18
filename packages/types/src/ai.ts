@@ -99,3 +99,30 @@ export interface SiteMetaOutput {
 export interface DifySiteSeoOutput {
   site_meta: SiteMetaOutput;
 }
+
+// --- 新增：agent-blog 服务的返回类型定义 ---
+
+export interface AgentBlogArticle {
+  id: number;
+  title: string;
+  excerpt: string;
+  keywords: string[];
+}
+
+export interface AgentBlogColumn {
+  name: string;
+  description: string;
+  posts: number[];
+}
+
+export interface AgentBlogSiteSeo {
+  title: string;
+  description: string;
+  keywords: string[];
+}
+
+export interface AgentBlogOutput {
+  articles: AgentBlogArticle[];
+  columns: AgentBlogColumn[];
+  site_seo: AgentBlogSiteSeo;
+}

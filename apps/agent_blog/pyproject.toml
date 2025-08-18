@@ -1,21 +1,16 @@
 [project]
 name = "agent-blog"
 version = "0.1.0"
-description = "Add your description here"
+description = "使用AI来对博客文章进行智能化处理"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.116.1",
-    "google-genai>=1.27.0",
-    "langchain>=0.3.27",
-    "langchain-openai>=0.3.28",
-    "langsmith>=0.4.8",
-    "mcp[cli]>=1.12.2",
-    "openai>=1.99.3",
-    "pydantic>=2.11.7",
-    "python-dotenv>=1.1.1",
-    "tiktoken>=0.9.0",
-    "tinydb>=4.8.2",
-    "union>=0.1.189",
-    "uvicorn>=0.35.0",
+    "fastapi",
+    "uvicorn[standard]",
+    "langgraph",
+    "langchain",
+    "python-dotenv",
+    "langchain_openai",
+    "langsmith>=0.4.14",
+    "aiofiles",
 ]

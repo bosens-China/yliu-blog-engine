@@ -43,7 +43,6 @@ async function main() {
     // --- 3. Output Phase (使用开发专用插件) ---
     createDevOutputPlugin({
       columnsTestFile: 'dev-for-columns-ai.json',
-      batchTestFile: 'dev-for-seo-ai.json',
     }),
   ];
 

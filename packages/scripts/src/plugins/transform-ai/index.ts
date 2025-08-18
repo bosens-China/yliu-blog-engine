@@ -1,126 +1,83 @@
-import crypto from 'node:crypto';
 import type { Plugin } from '@/core/plugin';
-import type { Post } from '@yliu/types/blog';
 import { log, warn } from '@/utils/logger';
-import * as aiApi from '@/apis/ai';
-import type { PostSeoOutput } from '@yliu/types/ai';
+import { processWithAgentBlog } from '@/apis/ai';
 import { env } from '@/config/env';
-import { BatchManager } from '@/utils/batch-manager';
 import type { BuildContext } from '@/core/types';
+import type {
+  PostSeoOutput,
+  ColumnOutput,
+  SiteMetaOutput,
+} from '@yliu/types/ai';
 
 export interface AITransformPluginConfig {
+  // 配置项可以保留，以便未来可以禁用特定部分的AI处理
   enablePostsSeo?: boolean;
   enableColumns?: boolean;
   enableSiteSeo?: boolean;
 }
 
-export function createAITransformPlugin(
-  config: AITransformPluginConfig,
-): Plugin {
-  const {
-    enablePostsSeo = true,
-    enableColumns = true,
-    enableSiteSeo = true,
-  } = config;
-
+export function createAITransformPlugin(): Plugin {
+// _config: AITransformPluginConfig = {},
   return {
     name: 'plugin-transform-ai',
 
     async transform(context: BuildContext) {
-      context.data.aiEnhancements = {
-        postsSeo: [],
-        columns: [],
-        siteMeta: null,
-      };
+      // 检查是否有 OPENAI_API_KEY
+      if (!env.OPENAI_API_KEY) {
+        log('🤖 未提供 OPENAI_API_KEY，跳过 AI 增强处理');
+        return;
+      }
 
       if (!context.data.posts || context.data.posts.length === 0) {
         log('没有文章数据，跳过 AI 增强。');
         return;
       }
-      log('🤖 开始 AI 增强处理...');
 
-      if (enablePostsSeo && env.AI_POSTS_SEO_URL && env.AI_POSTS_SEO_API_KEY) {
-        const aiPostsSeoCache = context.cache.get('aiPostsSeoCache') || {};
-        const postsToProcess: Post[] = [];
-        const cachedPostsSeo: PostSeoOutput[] = [];
+      log('🤖 开始 AI 增强处理 (通过 agent-blog 服务)...');
 
-        for (const post of context.data.posts) {
-          const contentHash = crypto
-            .createHash('sha256')
-            .update(post.content)
-            .digest('hex');
-          const cacheKey = `${post.id}-${contentHash}`;
-          const cachedResult = aiPostsSeoCache[cacheKey];
-          if (cachedResult) {
-            cachedPostsSeo.push(cachedResult);
-          } else {
-            postsToProcess.push(post);
-          }
-        }
-        log(
-          `AI 文章SEO: ${cachedPostsSeo.length} 篇命中缓存, ${postsToProcess.length} 篇需 AI 处理。`,
-        );
+      // 调用新的 agent-blog 服务，它会一次性处理所有任务
+      const agentResult = await processWithAgentBlog(context.data.posts);
 
-        if (postsToProcess.length > 0) {
-          const batchManager = new BatchManager();
-          const batches = batchManager.createBatches(postsToProcess);
-          const newPostsSeo: PostSeoOutput[] = [];
-          for (let i = 0; i < batches.length; i++) {
-            const batch = batches[i];
-            log(`  处理SEO批次 ${i + 1}/${batches.length}...`);
-            const batchResults = await aiApi.enhancePostsSEO(batch.articles);
-            if (batchResults) newPostsSeo.push(...batchResults);
-          }
-          log(`AI 服务成功处理了 ${newPostsSeo.length} 篇文章的 SEO。`);
-
-          newPostsSeo.forEach((seoResult) => {
-            const post = postsToProcess.find((p) => p.id === seoResult.id);
-            if (post) {
-              const contentHash = crypto
-                .createHash('sha256')
-                .update(post.content)
-                .digest('hex');
-              const cacheKey = `${post.id}-${contentHash}`;
-              aiPostsSeoCache[cacheKey] = seoResult;
-            }
-          });
-          context.cache.set('aiPostsSeoCache', aiPostsSeoCache);
-          context.data.aiEnhancements.postsSeo = [
-            ...cachedPostsSeo,
-            ...newPostsSeo,
-          ];
-        } else {
-          context.data.aiEnhancements.postsSeo = cachedPostsSeo;
-        }
-      } else {
-        log('文章SEO AI功能已禁用或未配置，跳过。');
+      if (!agentResult) {
+        warn('agent-blog 服务调用失败或返回空结果，AI 增强未应用。');
+        return;
       }
 
-      if (enableColumns && env.AI_COLUMNS_URL && env.AI_COLUMNS_API_KEY) {
-        const columnsResult = await aiApi.analyzeColumns(context.data.posts);
-        if (columnsResult) {
-          log(`AI 服务成功分析出 ${columnsResult.length} 个专栏。`);
-          context.data.aiEnhancements.columns = columnsResult;
-        }
-      } else {
-        log('专栏分析 AI功能已禁用或未配置，跳过。');
-      }
+      // --- 数据格式映射 ---
+      // 将 agent-blog 的返回结果映射到项目现有的 AIEnhancements 结构中
 
-      if (enableSiteSeo && env.AI_SITE_SEO_URL && env.AI_SITE_SEO_API_KEY) {
-        if (context.data.aiEnhancements.postsSeo.length > 0) {
-          const siteMetaResult = await aiApi.enhanceSiteSEO(
-            context.data.aiEnhancements.postsSeo,
-          );
-          if (siteMetaResult) {
-            log('AI 服务成功生成了站点 SEO 元数据。');
-            context.data.aiEnhancements.siteMeta = siteMetaResult;
+      // 1. 映射文章SEO信息
+      const postsSeo: PostSeoOutput[] = agentResult.articles.map((item) => ({
+        id: item.id,
+        optimized_title: item.title, // 新服务不优化标题，直接使用原标题
+        description: item.excerpt, // excerpt -> description
+        keywords: item.keywords,
+        tags: [], // 新服务不返回 tags，提供空数组
+      }));
+
+      // 2. 映射专栏信息
+      const columns: ColumnOutput[] = agentResult.columns.map((item) => ({
+        name: item.name,
+        description: item.description,
+        article_ids: item.posts, // posts -> article_ids
+      }));
+
+      // 3. 映射站点SEO信息
+      const siteMeta: SiteMetaOutput | null = agentResult.site_seo
+        ? {
+            title: agentResult.site_seo.title,
+            description: agentResult.site_seo.description,
+            keywords: agentResult.site_seo.keywords,
+            tagline: '', // 新服务不返回 tagline，提供空字符串
           }
-        } else {
-          warn('站点SEO AI功能已启用，但没有文章SEO数据作为输入，跳过。');
-        }
-      } else {
-        log('站点SEO AI功能已禁用或未配置，跳过。');
-      }
+        : null;
+
+      // 将映射后的数据存入上下文
+      context.data.aiEnhancements = {
+        postsSeo,
+        columns,
+        siteMeta,
+      };
 
       log('🤖 AI 增强处理完成。');
     },

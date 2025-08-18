@@ -48,23 +48,8 @@ inputs:
     required: false
 
   # --- AI 和专栏处理 ---
-  AI_POSTS_SEO_URL:
-    description: '文章 SEO 优化的 AI 服务 URL'
-    required: false
-  AI_POSTS_SEO_API_KEY:
-    description: '文章 SEO 优化的 AI 服务 API Key'
-    required: false
-  AI_COLUMNS_URL:
-    description: '专栏分析的 AI 服务 URL'
-    required: false
-  AI_COLUMNS_API_KEY:
-    description: '专栏分析的 AI 服务 API Key'
-    required: false
-  AI_SITE_SEO_URL:
-    description: '站点 SEO 汇总的 AI 服务 URL'
-    required: false
-  AI_SITE_SEO_API_KEY:
-    description: '站点 SEO 汇总的 AI 服务 API Key'
+  OPENAI_API_KEY:
+    description: 'OpenAI API Key，用于 AI 增强功能。如果提供，将自动启动本地 AI 服务。请传入 secrets.OPENAI_API_KEY。'
     required: false
   COLUMN_DELIMITERS:
     description: '专栏识别分隔符 (逗号分隔)'
@@ -75,27 +60,6 @@ inputs:
   COLUMN_MIN_PREFIX_LENGTH:
     description: '专栏识别最短公共前缀'
     required: false
-  AI_MAX_CHARS_PER_BATCH:
-    description: 'AI批处理最大字符数'
-    required: false
-  AI_SINGLE_ARTICLE_THRESHOLD:
-    description: '独立处理的文章字符阈值'
-    required: false
-  AI_MAX_ARTICLES_PER_BATCH:
-    description: 'AI批处理最大文章数'
-    required: false
-  AI_ARTICLE_TRUNCATE_LENGTH:
-    description: 'AI输入文章截断长度'
-    required: false
-  AI_TRUNCATE_SUFFIX:
-    description: '文章截断后缀'
-    required: false
-
-  # --- 缓存与调试 ---
-  ENABLE_CACHE:
-    description: '是否启用构建缓存。'
-    required: false
-    default: 'true'
 
 #================================================================================#
 # 输出参数 - Action执行完毕后输出的值
@@ -140,12 +104,79 @@ runs:
       working-directory: ./blog_engine
       run: pnpm install --frozen-lockfile
 
-    - name: 恢复 AI 缓存
-      if: ${{ inputs.ENABLE_CACHE == 'true' }}
+    - name: 恢复 Scripts 包缓存
       uses: actions/cache@v4
       with:
         path: ./blog_engine/packages/scripts/src/data/local-cache.json
-        key: ${{ runner.os }}-yliu-blog-engine-cache-${{ github.repository }}
+        key: scripts-cache-${{ github.repository }}-${{ hashFiles('**/package-lock.json', '**/pnpm-lock.yaml') }}
+        restore-keys: |
+          scripts-cache-${{ github.repository }}-
+          scripts-cache-
+
+    - name: 设置 Python 环境 (仅在启用 AI 时)
+      if: ${{ inputs.OPENAI_API_KEY != '' }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: 恢复 AI 缓存
+      if: ${{ inputs.OPENAI_API_KEY != '' }}
+      uses: actions/cache@v4
+      with:
+        path: ./blog_engine/apps/agent_blog/agent_blog_cache.json
+        key: agent-blog-cache-${{ github.repository }}-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          agent-blog-cache-${{ github.repository }}-
+          agent-blog-cache-
+
+    - name: 安装 uv 并启动 AI 服务
+      if: ${{ inputs.OPENAI_API_KEY != '' }}
+      shell: bash
+      working-directory: ./blog_engine/apps/agent_blog
+      env:
+        OPENAI_API_KEY: ${{ inputs.OPENAI_API_KEY }}
+      run: |
+        echo "🔧 安装 uv 包管理器..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.cargo/bin:$PATH"
+
+        echo "📦 安装 agent_blog 依赖..."
+        uv sync
+
+        # 检查缓存状态
+        if [ -f "agent_blog_cache.json" ]; then
+          echo "💾 发现已有 AI 缓存文件"
+        else
+          echo "📝 首次运行，将创建新的缓存文件"
+        fi
+
+        echo "🚀 启动 agent_blog 服务..."
+        # 创建 .env 文件
+        cat << EOF > .env
+        OPENAI_API_KEY=${{ inputs.OPENAI_API_KEY }}
+        EOF
+
+        # 在后台启动服务
+        nohup uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 > agent_blog.log 2>&1 &
+        echo $! > agent_blog.pid
+
+        # 等待服务启动
+        echo "⏳ 等待 agent_blog 服务启动..."
+        for i in {1..30}; do
+          if curl -s http://localhost:8000/ > /dev/null; then
+            echo "✅ agent_blog 服务已启动"
+            break
+          fi
+          echo "等待中... ($i/30)"
+          sleep 2
+        done
+
+        # 检查服务状态
+        if ! curl -s http://localhost:8000/ > /dev/null; then
+          echo "❌ agent_blog 服务启动失败，查看日志："
+          cat agent_blog.log
+          exit 1
+        fi
 
     - name: 准备用户资源（如 about.md）
       shell: bash
@@ -176,15 +207,12 @@ runs:
 
         DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr '[:upper:]' '[:lower:]').github.io$DERIVED_BASE_PATH"
 
-        # 1. 将 GitHub Actions 的输入存入一个临时的 Shell 变量
         INPUT_BASE_PATH='${{ inputs.NEXT_PUBLIC_BASE_PATH }}'
         INPUT_SITE_URL='${{ inputs.NEXT_PUBLIC_SITE_URL }}'
 
-        # 2. 使用纯粹的 Shell 语法来处理默认值
         FINAL_BASE_PATH="${INPUT_BASE_PATH:-$DERIVED_BASE_PATH}"
         FINAL_SITE_URL="${INPUT_SITE_URL:-$DERIVED_SITE_URL}"
 
-        # 3. 将 web 包需要的变量导出到 GitHub Actions 环境
         echo "为 web build 步骤导出环境变量..."
         echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> $GITHUB_ENV
         echo "NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}" >> $GITHUB_ENV
@@ -200,7 +228,8 @@ runs:
         echo "${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
-        # 4. 为 scripts 包创建 .env 文件
+
+
         ENV_FILE="./blog_engine/packages/scripts/.env"
         echo "正在创建 .env 文件于 $ENV_FILE"
 
@@ -214,20 +243,10 @@ runs:
         NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'
         NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
         NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
-        AI_POSTS_SEO_URL=${{ inputs.AI_POSTS_SEO_URL }}
-        AI_POSTS_SEO_API_KEY=${{ inputs.AI_POSTS_SEO_API_KEY }}
-        AI_COLUMNS_URL=${{ inputs.AI_COLUMNS_URL }}
-        AI_COLUMNS_API_KEY=${{ inputs.AI_COLUMNS_API_KEY }}
-        AI_SITE_SEO_URL=${{ inputs.AI_SITE_SEO_URL }}
-        AI_SITE_SEO_API_KEY=${{ inputs.AI_SITE_SEO_API_KEY }}
+        OPENAI_API_KEY=${{ inputs.OPENAI_API_KEY }}
         COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}
         COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}
         COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}
-        AI_MAX_CHARS_PER_BATCH=${{ inputs.AI_MAX_CHARS_PER_BATCH }}
-        AI_SINGLE_ARTICLE_THRESHOLD=${{ inputs.AI_SINGLE_ARTICLE_THRESHOLD }}
-        AI_MAX_ARTICLES_PER_BATCH=${{ inputs.AI_MAX_ARTICLES_PER_BATCH }}
-        AI_ARTICLE_TRUNCATE_LENGTH=${{ inputs.AI_ARTICLE_TRUNCATE_LENGTH }}
-        AI_TRUNCATE_SUFFIX=${{ inputs.AI_TRUNCATE_SUFFIX }}
         NEXT_PUBLIC_BASE_PATH=$FINAL_BASE_PATH
         NEXT_PUBLIC_SITE_URL=$FINAL_SITE_URL
         EOF
@@ -240,6 +259,44 @@ runs:
       shell: bash
       working-directory: ./blog_engine
       run: pnpm --filter @yliu/scripts build:data
+
+    - name: 清理 agent_blog 服务 (数据处理完成后)
+      if: ${{ inputs.OPENAI_API_KEY != '' }}
+      shell: bash
+      working-directory: ./blog_engine/apps/agent_blog
+      run: |
+        # AI 数据处理完成，停止服务以释放资源
+        if [ -f agent_blog.pid ]; then
+          PID=$(cat agent_blog.pid)
+          if kill -0 $PID 2>/dev/null; then
+            echo "🛑 AI 处理完成，停止 agent_blog 服务 (PID: $PID)"
+            kill $PID
+            # 等待进程结束
+            for i in {1..10}; do
+              if ! kill -0 $PID 2>/dev/null; then
+                echo "✅ agent_blog 服务已停止"
+                break
+              fi
+              sleep 1
+            done
+            # 强制终止如果还在运行
+            if kill -0 $PID 2>/dev/null; then
+              echo "🔥 强制终止 agent_blog 服务"
+              kill -9 $PID
+            fi
+          fi
+          rm -f agent_blog.pid
+        fi
+
+        # 显示缓存状态
+        if [ -f "agent_blog_cache.json" ]; then
+          echo "💾 AI 缓存文件已更新，将在下次构建时复用"
+          wc -l agent_blog_cache.json | awk '{print "缓存文件包含", $1, "行数据"}'
+        fi
+
+        # 清理临时文件，但保留缓存文件
+        rm -f .env agent_blog.log
+        echo "🧹 AI 服务清理完成"
 
     - name: 构建前端应用
       shell: bash
