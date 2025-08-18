@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.2.2...web-v1.2.3) (2025-08-18)
+
+
+### Bug Fixes
+
+* 修复 AI 服务日志追踪注释中的拼写错误，更新 agent-blog 版本至 0.3.0，优化前端元数据生成，添加图像下载请求中的 Referer 头 ([16a0c97](https://github.com/bosens-China/yliu-blog-engine/commit/16a0c9708281b3968a798d1166d5900aa75d79a0))
+
 ## [1.2.2](https://github.com/bosens-China/yliu-blog-engine/compare/web-v1.2.1...web-v1.2.2) (2025-07-31)
 
 
