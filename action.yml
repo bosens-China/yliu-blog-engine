@@ -7,17 +7,22 @@ branding:
   color: 'blue'
 
 #================================================================================#
-# 输入参数 - 与 Zod schema 完全对应，用户可以覆盖任何默认值
+# 输入参数
 #================================================================================#
 inputs:
   # --- 基础与必需 ---
   GITHUB_TOKEN:
-    description: 'GitHub Token，用于读取 Issues。在公开仓库中也强烈推荐配置，以避免触发 GitHub API 的速率限制。请传入 `secrets.GITHUB_TOKEN`。'
+    description: 'GitHub Token，用于读取 Issues。请传入 `secrets.GITHUB_TOKEN`。'
     required: false
   NEXT_PUBLIC_GITHUB_REPOSITORY:
     description: '内容仓库地址，格式：owner/repo。默认为当前触发工作流的仓库。'
     required: false
     default: ${{ github.repository }}
+
+  # --- AI 和专栏处理 ---
+  OPENAI_API_KEY:
+    description: '用于 AI 增强功能的 API Key (兼容 OpenAI 规范)。提供此密钥将自动启用 AI 功能。请传入 secrets.OPENAI_API_KEY。'
+    required: false
 
   # --- 站点信息 ---
   NEXT_PUBLIC_BLOG_TITLE:
@@ -47,10 +52,7 @@ inputs:
     description: '用于 SEO 的站点关键词，用逗号分隔。'
     required: false
 
-  # --- AI 和专栏处理 ---
-  OPENAI_API_KEY:
-    description: 'OpenAI API Key，用于 AI 增强功能。如果提供，将自动启动本地 AI 服务。请传入 secrets.OPENAI_API_KEY。'
-    required: false
+  # --- 内容处理 ---
   COLUMN_DELIMITERS:
     description: '专栏识别分隔符 (逗号分隔)'
     required: false
@@ -62,7 +64,7 @@ inputs:
     required: false
 
 #================================================================================#
-# 输出参数 - Action执行完毕后输出的值
+# 输出参数
 #================================================================================#
 outputs:
   page_url:
@@ -70,7 +72,7 @@ outputs:
     value: ${{ steps.deployment.outputs.page_url }}
 
 #================================================================================#
-# 执行步骤 - Action 的核心执行步骤
+# 执行步骤
 #================================================================================#
 runs:
   using: 'composite'
@@ -143,7 +145,6 @@ runs:
         echo "📦 安装 agent_blog 依赖..."
         uv sync
 
-        # 检查缓存状态
         if [ -f "agent_blog_cache.json" ]; then
           echo "💾 发现已有 AI 缓存文件"
         else
@@ -151,19 +152,16 @@ runs:
         fi
 
         echo "🚀 启动 agent_blog 服务..."
-        # 创建 .env 文件
         cat << EOF > .env
         OPENAI_API_KEY=${{ inputs.OPENAI_API_KEY }}
         EOF
 
-        # 在后台启动服务
         nohup uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 > agent_blog.log 2>&1 &
         echo $! > agent_blog.pid
 
-        # 等待服务启动
         echo "⏳ 等待 agent_blog 服务启动..."
         for i in {1..30}; do
-          if curl -s http://localhost:8000/ > /dev/null; then
+          if curl -s -f http://localhost:8000/ > /dev/null; then
             echo "✅ agent_blog 服务已启动"
             break
           fi
@@ -171,8 +169,7 @@ runs:
           sleep 2
         done
 
-        # 检查服务状态
-        if ! curl -s http://localhost:8000/ > /dev/null; then
+        if ! curl -s -f http://localhost:8000/ > /dev/null; then
           echo "❌ agent_blog 服务启动失败，查看日志："
           cat agent_blog.log
           exit 1
@@ -207,11 +204,8 @@ runs:
 
         DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr '[:upper:]' '[:lower:]').github.io$DERIVED_BASE_PATH"
 
-        INPUT_BASE_PATH='${{ inputs.NEXT_PUBLIC_BASE_PATH }}'
-        INPUT_SITE_URL='${{ inputs.NEXT_PUBLIC_SITE_URL }}'
-
-        FINAL_BASE_PATH="${INPUT_BASE_PATH:-$DERIVED_BASE_PATH}"
-        FINAL_SITE_URL="${INPUT_SITE_URL:-$DERIVED_SITE_URL}"
+        FINAL_BASE_PATH="${{ inputs.NEXT_PUBLIC_BASE_PATH:-$DERIVED_BASE_PATH }}"
+        FINAL_SITE_URL="${{ inputs.NEXT_PUBLIC_SITE_URL:-$DERIVED_SITE_URL }}"
 
         echo "为 web build 步骤导出环境变量..."
         echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> $GITHUB_ENV
@@ -227,8 +221,6 @@ runs:
         echo "NEXT_PUBLIC_HEADER_CONFIG<<EOF" >> $GITHUB_ENV
         echo "${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
-
-
 
         ENV_FILE="./blog_engine/packages/scripts/.env"
         echo "正在创建 .env 文件于 $ENV_FILE"
@@ -270,17 +262,15 @@ runs:
         echo "----------------------"
 
     - name: 清理 agent_blog 服务 (数据处理完成后)
-      if: ${{ inputs.OPENAI_API_KEY != '' }}
+      if: always() && inputs.OPENAI_API_KEY != ''
       shell: bash
       working-directory: ./blog_engine/apps/agent_blog
       run: |
-        # AI 数据处理完成，停止服务以释放资源
         if [ -f agent_blog.pid ]; then
           PID=$(cat agent_blog.pid)
           if kill -0 $PID 2>/dev/null; then
             echo "🛑 AI 处理完成，停止 agent_blog 服务 (PID: $PID)"
             kill $PID
-            # 等待进程结束
             for i in {1..10}; do
               if ! kill -0 $PID 2>/dev/null; then
                 echo "✅ agent_blog 服务已停止"
@@ -288,7 +278,6 @@ runs:
               fi
               sleep 1
             done
-            # 强制终止如果还在运行
             if kill -0 $PID 2>/dev/null; then
               echo "🔥 强制终止 agent_blog 服务"
               kill -9 $PID
@@ -297,13 +286,11 @@ runs:
           rm -f agent_blog.pid
         fi
 
-        # 显示缓存状态
         if [ -f "agent_blog_cache.json" ]; then
           echo "💾 AI 缓存文件已更新，将在下次构建时复用"
           wc -l agent_blog_cache.json | awk '{print "缓存文件包含", $1, "行数据"}'
         fi
 
-        # 清理临时文件，但保留缓存文件
         rm -f .env agent_blog.log
         echo "🧹 AI 服务清理完成"
 
