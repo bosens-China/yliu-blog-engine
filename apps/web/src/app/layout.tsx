@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { metadata: siteMetadata } = getBlogData();
   const repoOwner = siteMetadata.repository.split('/')[0];
 
-  const defaultTitle = `${siteMetadata.title} - ${siteMetadata.description}`;
+  const defaultTitle = siteMetadata.title;
 
   // 直接使用blog-data中的metadata，无论是AI生成的还是默认的
   const description = siteMetadata.description;

@@ -210,8 +210,12 @@ export class ImageProcessor {
   }
 
   private async downloadImage(url: string, localPath: string): Promise<void> {
+    const origin = new URL(url).origin;
     const response = await fetch(url, {
-      headers: { 'User-Agent': BROWSER_USER_AGENT },
+      headers: { 
+        'User-Agent': BROWSER_USER_AGENT,
+        'Referer': origin
+      },
     });
     if (!response.ok || !response.body) {
       throw new Error(`下载失败 (${response.status} ${response.statusText})`);

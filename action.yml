@@ -288,7 +288,7 @@ runs:
       shell: bash
       working-directory: ./blog_engine
       run: |
-        # 在后台实时追蹤 AI 服务日志，以便在 CI 中查看
+        # 在后台实时追踪 AI 服务日志，以便在 CI 中查看
         if [[ -n "${{ inputs.OPENAI_API_KEY }}" ]]; then
           echo "--- 实时 AI 服务日志 (agent_blog.log) ---"
           tail -f -n +1 ./apps/agent_blog/agent_blog.log &
@@ -299,10 +299,10 @@ runs:
         pnpm --filter @yliu/scripts build:data
         BUILD_EXIT_CODE=$?
 
-        # 脚本结束后，停止追蹤日志
+        # 脚本结束后，停止追踪日志
         if [[ -n "${{ inputs.OPENAI_API_KEY }}" ]]; then
           kill $TAIL_PID
-          echo "--- AI 日志追蹤结束 ---"
+          echo "--- AI 日志追踪结束 ---"
         fi
 
         # 如果构建失败，则退出
@@ -352,6 +352,14 @@ runs:
 
         rm -f .env agent_blog.log
         echo "🧹 AI 服务清理完成"
+
+    - name: 缓存 Next.js 构建结果
+      uses: actions/cache@v4
+      with:
+        path: ./blog_engine/apps/web/.next/cache
+        key: nextjs-cache-${{ github.repository }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          nextjs-cache-${{ github.repository }}-
 
     - name: 构建前端应用
       shell: bash
