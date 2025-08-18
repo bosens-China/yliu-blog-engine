@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.10.0...root-v1.11.0) (2025-08-18)
+
+
+### Features
+
+* 更新 AI 功能配置，使用 AI_ENABLED 替代 OPENAI_API_KEY，优化处理逻辑 ([433e41e](https://github.com/bosens-China/yliu-blog-engine/commit/433e41e7f31e19050e165da752527bf3a7b68527))
+
 ## [1.10.0](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.9.0...root-v1.10.0) (2025-08-18)
 
 

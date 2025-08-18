@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.2.0...scripts-v1.3.0) (2025-08-18)
+
+
+### Features
+
+* 更新 AI 功能配置，使用 AI_ENABLED 替代 OPENAI_API_KEY，优化处理逻辑 ([433e41e](https://github.com/bosens-China/yliu-blog-engine/commit/433e41e7f31e19050e165da752527bf3a7b68527))
+
 ## [1.2.0](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.1.0...scripts-v1.2.0) (2025-08-18)
 
 
