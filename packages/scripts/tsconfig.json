@@ -13,10 +13,5 @@
       "path": "../../packages/types/tsconfig.json"
     }
   ],
-  "include": ["src"],
-  "files": [
-    "src/config/ai/posts-seo/posts-seo-schema.json",
-    "src/config/ai/columns/columns-schema.json",
-    "src/config/ai/site-seo/site-seo-schema.json"
-  ]
+  "include": ["src"]
 }

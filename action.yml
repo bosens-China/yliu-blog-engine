@@ -284,10 +284,32 @@ runs:
         cat $ENV_FILE
         echo "--------------------------"
 
-    - name: 拉取数据与资源
+    - name: 拉取数据与资源并实时显示AI日志
       shell: bash
       working-directory: ./blog_engine
-      run: pnpm --filter @yliu/scripts build:data
+      run: |
+        # 在后台实时追蹤 AI 服务日志，以便在 CI 中查看
+        if [[ -n "${{ inputs.OPENAI_API_KEY }}" ]]; then
+          echo "--- 实时 AI 服务日志 (agent_blog.log) ---"
+          tail -f -n +1 ./apps/agent_blog/agent_blog.log &
+          TAIL_PID=$!
+        fi
+
+        # 运行核心的数据拉取和处理脚本
+        pnpm --filter @yliu/scripts build:data
+        BUILD_EXIT_CODE=$?
+
+        # 脚本结束后，停止追蹤日志
+        if [[ -n "${{ inputs.OPENAI_API_KEY }}" ]]; then
+          kill $TAIL_PID
+          echo "--- AI 日志追蹤结束 ---"
+        fi
+
+        # 如果构建失败，则退出
+        if [ $BUILD_EXIT_CODE -ne 0 ]; then
+          echo "❌ 数据拉取或处理脚本失败，退出码: $BUILD_EXIT_CODE"
+          exit $BUILD_EXIT_CODE
+        fi
 
     - name: 显示 AI 服务日志 (用于调试)
       if: always() && inputs.OPENAI_API_KEY != ''
