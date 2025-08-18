@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/bosens-China/yliu-blog-engine/compare/agent_blog-v0.4.0...agent_blog-v0.5.0) (2025-08-18)
+
+
+### Features
+
+* 更新 LLM 模型名称为 qwen-turbo-2025-07-15，优化专栏描述生成中的缓存处理 ([dfe7d75](https://github.com/bosens-China/yliu-blog-engine/commit/dfe7d7544cf6379345d11850c0b7e9f158dc264c))
+
+
+### Bug Fixes
+
+* 修复 AI 服务日志追踪注释中的拼写错误，更新 agent-blog 版本至 0.3.0，优化前端元数据生成，添加图像下载请求中的 Referer 头 ([16a0c97](https://github.com/bosens-China/yliu-blog-engine/commit/16a0c9708281b3968a798d1166d5900aa75d79a0))
+
 ## [0.4.0](https://github.com/bosens-China/yliu-blog-engine/compare/agent_blog-v0.3.0...agent_blog-v0.4.0) (2025-08-18)
 
 

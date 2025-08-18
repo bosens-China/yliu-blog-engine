@@ -1,6 +1,6 @@
 [project]
 name = "agent-blog"
-version = "0.4.0"
+version = "0.5.0"
 description = "使用AI来对博客文章进行智能化处理"
 readme = "README.md"
 requires-python = ">=3.12"
