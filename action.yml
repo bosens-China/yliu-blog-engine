@@ -204,8 +204,17 @@ runs:
 
         DERIVED_SITE_URL="https://$(echo $REPO_OWNER | tr '[:upper:]' '[:lower:]').github.io$DERIVED_BASE_PATH"
 
-        FINAL_BASE_PATH="${{ inputs.NEXT_PUBLIC_BASE_PATH:-$DERIVED_BASE_PATH }}"
-        FINAL_SITE_URL="${{ inputs.NEXT_PUBLIC_SITE_URL:-$DERIVED_SITE_URL }}"
+        if [[ -z "${{ inputs.NEXT_PUBLIC_BASE_PATH }}" ]]; then
+          FINAL_BASE_PATH="$DERIVED_BASE_PATH"
+        else
+          FINAL_BASE_PATH="${{ inputs.NEXT_PUBLIC_BASE_PATH }}"
+        fi
+
+        if [[ -z "${{ inputs.NEXT_PUBLIC_SITE_URL }}" ]]; then
+          FINAL_SITE_URL="$DERIVED_SITE_URL"
+        else
+          FINAL_SITE_URL="${{ inputs.NEXT_PUBLIC_SITE_URL }}"
+        fi
 
         echo "为 web build 步骤导出环境变量..."
         echo "NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}" >> $GITHUB_ENV
