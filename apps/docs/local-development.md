@@ -44,6 +44,12 @@ cp .env.example .env
 # 编辑 .env 文件，填入您的 API Key
 # OPENAI_API_KEY="sk-xxxxxxxxxxxxxx"
 #
+# [可选] 您还可以配置以下变量来调整 AI 服务的行为
+# OPENAI_MODEL_NAME="qwen-plus-2025-07-28"
+# OPENAI_BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
+# LLM_RPM_LIMIT=50 # 设置一个合适的速率限制，例如 50 RPM
+# LLM_BURST_LIMIT=5 # 设置并发突发数，例如 5
+#
 # 注意：此 Key 来自阿里云百炼服务。
 # 更多详情请参考 [AI 增强指南](../ai-enhancement.md)。
 

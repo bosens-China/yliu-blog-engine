@@ -38,7 +38,6 @@
     "typescript-eslint": "^8.36.0"
   },
   "scripts": {
-    "build:data": "tsx src/bin/build.ts",
-    "dev:data": "tsx src/bin/dev.ts"
+    "build:data": "tsx src/bin/build.ts"
   }
 }

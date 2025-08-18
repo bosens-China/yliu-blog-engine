@@ -23,6 +23,15 @@ inputs:
   OPENAI_API_KEY:
     description: '用于 AI 增强功能的 API Key (兼容 OpenAI 规范)。提供此密钥将自动启用 AI 功能。请传入 secrets.OPENAI_API_KEY。'
     required: false
+  OPENAI_MODEL_NAME:
+    description: '指定 AI 服务使用的 LLM 模型名称。'
+    required: false
+  OPENAI_BASE_URL:
+    description: '指定 LLM API 的基地址。'
+    required: false
+  LLM_RPM_LIMIT:
+    description: '设置对 LLM API 的每分钟请求数（RPM）限制。设置为 0 表示不限制。'
+    required: false
 
   # --- 站点信息 ---
   NEXT_PUBLIC_BLOG_TITLE:
@@ -137,6 +146,9 @@ runs:
       working-directory: ./blog_engine/apps/agent_blog
       env:
         OPENAI_API_KEY: ${{ inputs.OPENAI_API_KEY }}
+        OPENAI_MODEL_NAME: ${{ inputs.OPENAI_MODEL_NAME }}
+        OPENAI_BASE_URL: ${{ inputs.OPENAI_BASE_URL }}
+        LLM_RPM_LIMIT: ${{ inputs.LLM_RPM_LIMIT }}
       run: |
         echo "🔧 安装 uv 包管理器..."
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -153,7 +165,11 @@ runs:
 
         echo "🚀 启动 agent_blog 服务..."
         cat << EOF > .env
-        OPENAI_API_KEY=${{ inputs.OPENAI_API_KEY }}
+        OPENAI_API_KEY=${{ env.OPENAI_API_KEY }}
+        OPENAI_MODEL_NAME=${{ env.OPENAI_MODEL_NAME }}
+        OPENAI_BASE_URL=${{ env.OPENAI_BASE_URL }}
+        LLM_RPM_LIMIT=${{ env.LLM_RPM_LIMIT }}
+        LLM_BURST_LIMIT=${{ env.LLM_BURST_LIMIT }}
         EOF
 
         nohup uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 > agent_blog.log 2>&1 &
@@ -248,20 +264,20 @@ runs:
 
         cat << EOF > $ENV_FILE
         # 由 yliu-blog-engine action 自动生成
-        GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}
-        NEXT_PUBLIC_GITHUB_REPOSITORY=${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}
-        NEXT_PUBLIC_BLOG_TITLE=${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}
-        NEXT_PUBLIC_BLOG_AUTHOR=${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}
-        NEXT_PUBLIC_FOOTER_TEXT=${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}
+        GITHUB_TOKEN="${{ inputs.GITHUB_TOKEN }}"
+        NEXT_PUBLIC_GITHUB_REPOSITORY="${{ inputs.NEXT_PUBLIC_GITHUB_REPOSITORY }}"
+        NEXT_PUBLIC_BLOG_TITLE="${{ inputs.NEXT_PUBLIC_BLOG_TITLE }}"
+        NEXT_PUBLIC_BLOG_AUTHOR="${{ inputs.NEXT_PUBLIC_BLOG_AUTHOR }}"
+        NEXT_PUBLIC_FOOTER_TEXT="${{ inputs.NEXT_PUBLIC_FOOTER_TEXT }}"
         NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'
-        NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
-        NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
+        NEXT_PUBLIC_SEO_DESCRIPTION="${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}"
+        NEXT_PUBLIC_SEO_KEYWORDS="${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}"
         AI_ENABLED=$AI_ENABLED_VALUE
-        COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}
+        COLUMN_DELIMITERS="${{ inputs.COLUMN_DELIMITERS }}"
         COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}
         COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}
-        NEXT_PUBLIC_BASE_PATH=$FINAL_BASE_PATH
-        NEXT_PUBLIC_SITE_URL=$FINAL_SITE_URL
+        NEXT_PUBLIC_BASE_PATH="$FINAL_BASE_PATH"
+        NEXT_PUBLIC_SITE_URL="$FINAL_SITE_URL"
         EOF
 
         echo "--- 最终 .env 内容 ---"

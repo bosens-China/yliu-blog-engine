@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { warn, log } from '@/utils/logger';
-import { env } from '@/config/env';
 import type { Post } from '@yliu/types/blog';
 import type { AgentBlogOutput } from '@yliu/types/ai';
 
-const apiClient = axios.create({});
+const apiClient = axios.create({
+  timeout: 0, // 禁用超时，因为AI处理可能需要很长时间
+});
 
 /**
  * 调用本地的 agent-blog FastAPI 服务来处理所有 AI 任务。
@@ -14,12 +15,6 @@ const apiClient = axios.create({});
 export async function processWithAgentBlog(
   posts: Post[],
 ): Promise<AgentBlogOutput | null> {
-    // 检查 AI 是否启用
-  if (!env.AI_ENABLED) {
-    warn('🤖 AI 功能未启用，跳过 AI 增强处理');
-    return null;
-  }
-
   // CI 环境中固定使用本地服务地址
   const url = 'http://localhost:8000/process';
   log('🚀 调用 agent-blog 服务...');
