@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.3.0...scripts-v1.3.1) (2025-08-18)
+
+
+### Bug Fixes
+
+* 修复 AI_ENABLED 配置，使用 z.coerce.boolean() 以确保类型转换 ([b63a84c](https://github.com/bosens-China/yliu-blog-engine/commit/b63a84cc3664a5ccf3d0c2c570ff582e29894382))
+
 ## [1.3.0](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.2.0...scripts-v1.3.0) (2025-08-18)
 
 
