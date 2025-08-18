@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/bosens-China/yliu-blog-engine/compare/agent_blog-v0.2.0...agent_blog-v0.3.0) (2025-08-18)
+
+
+### Features
+
+* 添加 AI 服务相关配置选项，优化速率限制和并发请求处理 ([dd63d84](https://github.com/bosens-China/yliu-blog-engine/commit/dd63d843be2488b3dab1c0d54780090c638400cc))
+
 ## [0.2.0](https://github.com/bosens-China/yliu-blog-engine/compare/agent_blog-v0.1.0...agent_blog-v0.2.0) (2025-08-18)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.3.1...scripts-v1.4.0) (2025-08-18)
+
+
+### Features
+
+* 添加 AI 服务相关配置选项，优化速率限制和并发请求处理 ([dd63d84](https://github.com/bosens-China/yliu-blog-engine/commit/dd63d843be2488b3dab1c0d54780090c638400cc))
+
 ## [1.3.1](https://github.com/bosens-China/yliu-blog-engine/compare/scripts-v1.3.0...scripts-v1.3.1) (2025-08-18)
 
 
