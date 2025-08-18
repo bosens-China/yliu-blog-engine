@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/bosens-China/yliu-blog-engine/compare/types-v1.0.0...types-v1.1.0) (2025-08-18)
+
+
+### Features
+
+* 完成agent_blog 模块，对相关ci和文档的更新 ([cae5398](https://github.com/bosens-China/yliu-blog-engine/commit/cae53988f5c2f5937e86ca3b306ba1e3dc84e277))
+
 ## 1.0.0 (2025-07-26)
 
 
