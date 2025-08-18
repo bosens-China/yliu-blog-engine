@@ -13,7 +13,7 @@ from ..utils.logger import log, warn
 
 # 从环境变量读取配置，提供默认值
 api_key = os.getenv("OPENAI_API_KEY")
-model_name = os.getenv("OPENAI_MODEL_NAME") or "qwen-plus-2025-07-28"
+model_name = os.getenv("OPENAI_MODEL_NAME") or "qwen-turbo-2025-07-15"
 base_url = (
     os.getenv("OPENAI_BASE_URL") or "https://dashscope.aliyuncs.com/compatible-mode/v1"
 )

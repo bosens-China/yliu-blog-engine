@@ -4,12 +4,15 @@
 """
 
 import asyncio
+import hashlib
 from typing import List, Dict, Tuple, cast
 from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableConfig
 
 # 导入通用LLM客户端和所需模型
 from ...services.llm import llm_client
 from ...models import GraphState, ColumnAnalysisResult, ColumnDescription
+from ...services.cache import CacheManager
 
 # --- 此节点的专属Prompt和Chain定义 ---
 
@@ -144,13 +147,38 @@ async def group_articles_node(state: GraphState) -> dict:
 
 
 async def describe_single_column_task(
-    args: Tuple[str, List[int], Dict[int, dict]],
+    args: Tuple[str, List[int], Dict[int, dict], CacheManager],
 ) -> dict:
     """
     为单个专栏生成描述的异步任务函数。
     """
-    column_name, article_ids, post_map = args
+    column_name, article_ids, post_map, cache = args
+    namespace = "column_descriptions"
 
+    # 1. 对ID进行排序，确保缓存键的稳定性
+    sorted_ids = sorted(article_ids)
+
+    # 2. 基于专栏名称和所有文章的标题、摘要生成一个稳定的内容字符串
+    content_parts = [column_name]
+    for article_id in sorted_ids:
+        post = post_map.get(article_id)
+        if post:
+            content_parts.append(post.get('title', ''))
+            content_parts.append(post.get('excerpt', ''))
+    
+    stable_content_string = "|||".join(content_parts)
+    cache_key = hashlib.sha256(stable_content_string.encode("utf-8")).hexdigest()
+
+    # 3. 检查缓存
+    cached_description = cache.get(namespace, cache_key)
+    if cached_description:
+        return {
+            "name": column_name,
+            "description": cached_description,
+            "posts": article_ids,
+        }
+
+    # 4. 缓存未命中，调用LLM
     articles_info_str = "\n".join(
         [
             f"- 标题: {post_map[id]['title']}\n  摘要: {post_map[id]['excerpt']}"
@@ -164,6 +192,10 @@ async def describe_single_column_task(
             {"column_name": column_name, "articles_info": articles_info_str}
         )
         result = cast(ColumnDescription, raw_result)
+        
+        # 5. 存入缓存
+        cache.set(namespace, cache_key, result.description)
+        
         return {
             "name": column_name,
             "description": result.description,
@@ -173,18 +205,22 @@ async def describe_single_column_task(
         print(f"为专栏‘{column_name}’生成描述时出错: {e}")
         return {
             "name": column_name,
-            "description": "",
+            "description": f"关于“{column_name}”的系列文章。", # Fallback description
             "posts": article_ids,
         }
 
 
-async def describe_columns_node(state: GraphState) -> dict:
+async def describe_columns_node(state: GraphState, config: RunnableConfig) -> dict:
     """
     使用 asyncio.gather 并发地为每个已分组的专栏生成详细描述。
     """
     print("--- 开始为每个专栏生成描述 ---")
     columns = state.get("columns", {})
     processed_posts = state.get("processed_posts", [])
+    
+    cache = config.get("configurable", {}).get("cache")
+    if cache is None:
+        raise ValueError("未能从运行配置中获取缓存实例。")
 
     if not columns or not processed_posts:
         print("缺少专栏或文章信息，跳过描述生成。")
@@ -193,7 +229,7 @@ async def describe_columns_node(state: GraphState) -> dict:
     post_map = {post["id"]: post for post in processed_posts}
 
     tasks = [
-        describe_single_column_task((name, ids, post_map))
+        describe_single_column_task((name, ids, post_map, cache))
         for name, ids in columns.items()
     ]
 
