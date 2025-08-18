@@ -175,6 +175,9 @@ runs:
           exit 1
         fi
 
+        echo "⏳ 等待 AI 服务完全初始化..."
+        sleep 5
+
     - name: 准备用户资源（如 about.md）
       shell: bash
       working-directory: ./blog_engine
@@ -234,6 +237,15 @@ runs:
         ENV_FILE="./blog_engine/packages/scripts/.env"
         echo "正在创建 .env 文件于 $ENV_FILE"
 
+        # 检测 AI 是否启用
+        if [[ -n "${{ inputs.OPENAI_API_KEY }}" ]]; then
+          AI_ENABLED_VALUE="true"
+          echo "检测到 OPENAI_API_KEY，启用 AI 功能"
+        else
+          AI_ENABLED_VALUE="false"
+          echo "未检测到 OPENAI_API_KEY，禁用 AI 功能"
+        fi
+
         cat << EOF > $ENV_FILE
         # 由 yliu-blog-engine action 自动生成
         GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}
@@ -244,7 +256,7 @@ runs:
         NEXT_PUBLIC_HEADER_CONFIG='${{ inputs.NEXT_PUBLIC_HEADER_CONFIG }}'
         NEXT_PUBLIC_SEO_DESCRIPTION=${{ inputs.NEXT_PUBLIC_SEO_DESCRIPTION }}
         NEXT_PUBLIC_SEO_KEYWORDS=${{ inputs.NEXT_PUBLIC_SEO_KEYWORDS }}
-        AI_ENABLED=${{ inputs.OPENAI_API_KEY != '' }}
+        AI_ENABLED=$AI_ENABLED_VALUE
         COLUMN_DELIMITERS=${{ inputs.COLUMN_DELIMITERS }}
         COLUMN_MIN_ARTICLES=${{ inputs.COLUMN_MIN_ARTICLES }}
         COLUMN_MIN_PREFIX_LENGTH=${{ inputs.COLUMN_MIN_PREFIX_LENGTH }}
