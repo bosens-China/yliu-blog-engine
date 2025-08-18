@@ -37,17 +37,25 @@ jobs:
 
       - name: Update major version tag (e.g., v1, v2)
         run: |
-          # The release-please output is like "v1.2.3", we want to get the "v1"
-          MAJOR_VERSION_TAG=$(echo ${{ needs.release-please.outputs.tag_name }} | cut -d'.' -f1)
+          # release-please 的输出可能是 "root-v1.2.3"，我们的目标是提取 "v1"
+          # 1. 从 "root-v1.2.3" 中提取版本部分 "v1.2.3"
+          VERSION_PART=$(echo "${{ needs.release-please.outputs.tag_name }}" | sed -n 's/.*-\(v[0-9].*\)/\1/p')
+          # 如果没有找到前缀，则直接使用原始标签名
+          if [ -z "$VERSION_PART" ]; then
+            VERSION_PART="${{ needs.release-please.outputs.tag_name }}"
+          fi
+          # 2. 从 "v1.2.3" 中提取主版本 "v1"
+          MAJOR_VERSION_TAG=$(echo "$VERSION_PART" | cut -d'.' -f1)
 
           echo "The full tag is ${{ needs.release-please.outputs.tag_name }}"
+          echo "The derived version part is $VERSION_PART"
           echo "The major version tag is $MAJOR_VERSION_TAG"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Create or move the major version tag (e.g., v1, v2)
-          git tag -f $MAJOR_VERSION_TAG ${{ needs.release-please.outputs.tag_name }}
+          # 创建或移动主版本标签 (例如 v1, v2)
+          git tag -f "$MAJOR_VERSION_TAG" "${{ needs.release-please.outputs.tag_name }}"
 
-          # Push the tag to the remote
-          git push -f origin $MAJOR_VERSION_TAG
+          # 将标签强制推送到远程
+          git push -f origin "$MAJOR_VERSION_TAG"
