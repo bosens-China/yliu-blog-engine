@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.2](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.11.1...root-v1.11.2) (2025-08-18)
+
+
+### Bug Fixes
+
+* 优化主版本标签提取逻辑，支持处理带前缀的版本标签 ([894634e](https://github.com/bosens-China/yliu-blog-engine/commit/894634eb9af2a8d3928712c341e04d57ecf8a7a0))
+
 ## [1.11.1](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.11.0...root-v1.11.1) (2025-08-18)
 
 
