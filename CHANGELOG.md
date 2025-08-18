@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.2](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.12.1...root-v1.12.2) (2025-08-18)
+
+
+### Bug Fixes
+
+* 优化基础路径和站点 URL 的处理逻辑，确保输入参数为空时使用默认值 ([28f9a67](https://github.com/bosens-China/yliu-blog-engine/commit/28f9a670f3a99de4ff12178d09d59a754ed5dfe2))
+
 ## [1.12.1](https://github.com/bosens-China/yliu-blog-engine/compare/root-v1.12.0...root-v1.12.1) (2025-08-18)
 
 
