@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/bosens-China/yliu-blog-engine/compare/agent_blog-v0.3.0...agent_blog-v0.4.0) (2025-08-18)
+
+
+### Features
+
+* 增强 AI 服务日志显示与处理，优化文章 SEO 数据应用逻辑 ([288b578](https://github.com/bosens-China/yliu-blog-engine/commit/288b57889f4a2d91ece5b786c5294d9adf3dad6e))
+
 ## [0.3.0](https://github.com/bosens-China/yliu-blog-engine/compare/agent_blog-v0.2.0...agent_blog-v0.3.0) (2025-08-18)
 
 
